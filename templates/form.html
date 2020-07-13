@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Submission Form</title>
+</head>
+<body>
+    <!--Simple form to test the submission process-->
+    <h1>Submission Form</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <p>(Memory limit is currently 128 MB [144 for Java]. Time limit is 3 seconds for C++, 4 for Java, and 5 for Python.)</p>
+        <p>
+            <strong>Sample Problem Statement</strong><br>
+            You like to sum numbers. Please write a program that sums numbers.<br>
+            Note that the sum might not fit into an 32-bit integer!<br>
+            <br>
+            Input:<br>
+            First line - A single integer N, the # of numbers to sum. N will be reasonably small.<br>
+            Second line - N space separated integers. Find the sum of these integers.<br>
+            <br>
+            Output:<br>
+            A single line containing a single integer: The sum of the N numbers.
+        </p>
+        <label for="problem-id">Problem ID (unused as of now):</label>
+        <input id="problem-id" name="problem-id" type="text">
+        <br> <br>
+        <label for="type">Language:</label>
+        <select id="type" name="type">
+            <option value="java">Java</option>
+            <option value="cpp">C++</option>
+            <option value="python">Python 3.8</option>
+        </select>
+        <br> <br>
+        <label for="code">Code to submit:</label>
+        <input id="code" name="code" type="file">
+        <br> <br>
+        <label for="input">Input file:</label>
+        <input id="input" name="input" type="file">
+        <br> <br>
+        <label for="input">Output file:</label>
+        <input id="output" name="output" type="file">
+        <br> <br>
+        <button type="submit">Submit!</button>
+    </form>
+</body>
+</html>
