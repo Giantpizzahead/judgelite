@@ -29,9 +29,10 @@ function displayResults(resp) {
 
     flavorText = document.getElementById("flavor-text");
     statusText = document.getElementById("status-text");
+
     if (resp["error"]) {
-        flavorText.innerHTML = "Uh-oh! An internal error occurred.";
-        statusText.innerHTML = "[ERROR] " + resp["error"];
+        flavorText.innerHTML = "Uh-oh! An internal error occurred. Please notify an officer.";
+        statusText.innerHTML = "Error code: " + resp["error"] + "<br>";
     }
 
     if (resp["verdict"]) {
@@ -43,11 +44,11 @@ function displayResults(resp) {
         } else if (resp["verdict"] == "TLE") {
             flavorText.innerHTML = "Aww what? I thought for sure that time complexity would work! :(";
         } else if (resp["verdict"] == "MLE") {
-            flavorText.innerHTML = "Yikes. I hope you know how to do sliding window!"
+            flavorText.innerHTML = "Yikes. I hope you know how to do sliding window!";
         } else if (resp["verdict"] == "RE") {
-            flavorText.innerHTML = "Oh no... Not a runtime error! Good luck debugging THAT one."
+            flavorText.innerHTML = "Oh no... Not a runtime error! Good luck debugging THAT one.";
         } else if (resp["verdict"] == "CE") {
-            flavorText.innerHTML = "Were you tooooooo fast?"
+            flavorText.innerHTML = "Were you tooooooo fast?";
         }
 
         // Set verdict color based on score
@@ -70,10 +71,16 @@ function displayResults(resp) {
             statusText.innerHTML += `
             <br>---DEBUG---<br>
             stdout: ${resp["stdout"]}<br>
-            stderr: ${resp["stderr"]}
-            `
+            stderr: ${resp["stderr"]}<br>
+            `;
         }
     }
+
+    let backButton = document.createElement("input");
+    backButton.setAttribute("type", "button");
+    backButton.setAttribute("onclick", "location.href='/';");
+    backButton.setAttribute("value", "Resubmit!");
+    document.body.appendChild(backButton);
 }
 
 function displayStatus(resp) {
