@@ -5,4 +5,4 @@ README.md
 *.pyd
 __pycache__
 .idea
-send-to-gcloud.sh
+.git
