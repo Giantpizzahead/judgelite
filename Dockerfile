@@ -8,16 +8,22 @@ RUN apt-get update && apt-get install -y \
     g++ \
     openjdk-14-jdk-headless
 
-# Install time
-RUN apt-get install time
+# Install dependencies
+RUN apt-get install -y \
+    time \
+    redis
 
 # Install production dependencies for Python 3
-RUN pip3 install Flask gunicorn psutil requests
+RUN pip3 install \
+    Flask \
+    gunicorn \
+    psutil \
+    rq
 
 # Copy local code to the container image
 ENV APP_HOME /app
 WORKDIR $APP_HOME
 COPY . ./
 
-# Run the web service on container startup
-ENTRYPOINT ["gunicorn", "-c", "gunicorn.conf.py", "app:app"]
+# Run the startup script
+ENTRYPOINT ["/app/start.sh"]

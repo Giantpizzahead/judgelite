@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&family=Roboto&display=swap');
+
+body {
+    background-color: #d6ffd4;
+    font-family: 'Open Sans', sans-serif;
+}
+
+h1, h2, h3 {
+    font-family: 'Roboto', sans-serif;
+}
+
+h2 {
+    margin: 10px 0;
+}
+
+.color-green {
+    color: #51db27;
+}
+
+.color-yellow {
+    color: #c7c120;
+}
+
+.color-red {
+    color: #c72020;
+}

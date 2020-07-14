@@ -6,15 +6,17 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Submission Form</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <!--Simple form to test the submission process-->
-    <h1>Submission Form</h1>
+    <h1>Test Interface</h1>
     <form method="POST" enctype="multipart/form-data">
-        <p>Memory limit is 256 MB. Time limit is 3 seconds (x1 for C++, x1.5 for Java, x2 for Python).</p>
+        <p>Memory limit is {{ mem_limit }} MB. Time limit is {{ time_limit }} seconds (x1 for C++, x1.5 for Java, x2 for Python).</p>
         <p>Stack size SHOULD only be limited by memory limit.</p>
+        <p>Max total file size is {{ filesize_limit }} MB.</p>
+        <h3>Sample Problem Statement</h3>
         <p>
-            <strong>Sample Problem Statement</strong><br>
             You like to sum numbers. Please write a program that sums numbers.<br>
             Note that the sum might not fit into an 32-bit integer!<br>
             <br>
@@ -25,9 +27,12 @@
             Output:<br>
             A single line containing a single integer: The sum of the N numbers.
         </p>
+        <!--
         <label for="problem-id">Problem ID (unused as of now):</label>
         <input id="problem-id" name="problem-id" type="text">
         <br> <br>
+        -->
+        <h3>Submission Form</h3>
         <label for="type">Language:</label>
         <select id="type" name="type">
             <option value="java">Java</option>
