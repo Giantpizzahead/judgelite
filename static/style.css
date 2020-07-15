@@ -13,12 +13,16 @@ h2 {
     margin: 10px 0;
 }
 
+.color-blue {
+    color: #2e77d1;
+}
+
 .color-green {
     color: #51db27;
 }
 
 .color-yellow {
-    color: #c7c120;
+    color: #c7b120;
 }
 
 .color-red {

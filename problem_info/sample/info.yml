@@ -1,0 +1,42 @@
+---
+# This is a sample YAML file for a problem
+
+# The problem id must match the problem's directory name.
+problem_id: sample
+
+# Scoring method can be one of the following options:
+# minimum = The minimum score out of all test cases in a subtask is used.
+# average = The score for each test case is averaged out to determine the points for each subtask.
+scoring_method: minimum
+
+# Grader can be one of the following options:
+# diff = Compares the program output with the answer using diff. Produces a 0 or 1 score.
+# custom = Not yet implemented.
+grader: diff
+
+# The maximum number of points that can be received by solving this question, NOT INCLUDING BONUS POINTS.
+max_points: 100
+
+# A list of subtasks.
+subtasks:
+  # The name specified for a subtask must match the directory name.
+  - name: 00_sample
+    # The number of points assigned to a subtask.
+    points: 0
+  - name: 01_small
+    points: 30
+    # Which subtasks need to be 'solved' (non-zero score) in order to run this one.
+    # This allows the submission system to skip unneeded subtasks, saving valuable time.
+    depends_on:
+      - 00_sample
+  - name: 02_large
+    points: 70
+    depends_on:
+      - 01_small
+  - name: 03_bonus
+    # Use this flag to mark a subtask as a bonus subtask.
+    is_bonus: true
+    points: 10
+    depends_on:
+      - 02_large
+...

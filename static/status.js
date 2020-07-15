@@ -1,5 +1,6 @@
 window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
+    const QUERY_DELAY = 750
 
     // Repeatedly query for status
     if (urlParams.has("job_id")) {
@@ -12,7 +13,7 @@ window.onload = function() {
                     } else if (this.status == 202) {
                         displayStatus(JSON.parse(xhttp.responseText));
                         // Random timeout to make it exciting! (and to spread out server request load)
-                        setTimeout(runInterval, 1000 + (Math.random() * 500));
+                        setTimeout(runInterval, QUERY_DELAY + (Math.random() * QUERY_DELAY));
                     }
                 }
             }
@@ -31,13 +32,15 @@ function displayResults(resp) {
     statusText = document.getElementById("status-text");
 
     if ("error" in resp) {
-        flavorText.innerHTML = "Uh-oh! An internal error occurred. Please notify an officer.";
-        statusText.innerHTML = "Error code: " + resp["error"] + "<br>";
+        flavorText.innerHTML = "Uh-oh! An internal error occurred. If the issue persists, please notify an officer.";
+        statusText.innerHTML = "=====DEBUG INFO=====<br>Error code: " + resp["error"] + "<br>Job ID: " + resp["job_id"];
     }
 
     if ("verdict" in resp) {
         // Show flavor text
-        if (resp["verdict"] == "AC") {
+        if (resp["verdict"] == "AC*") {
+            flavorText.innerHTML = "Whoa! What an overachiever :P [Really though, nice job. That was impressive.]"
+        } else if (resp["verdict"] == "AC") {
             flavorText.innerHTML = "Congrats! I knew you could do it :D";
         } else if (resp["verdict"] == "WA") {
             flavorText.innerHTML = "Proof by AC? More like proof by WA :P";
@@ -53,14 +56,15 @@ function displayResults(resp) {
 
         // Set verdict color based on score
         let verdictStyle;
-        if (resp["score"] == 0) verdictStyle = "color-red";
-        else if (resp["score"] == 1) verdictStyle = "color-green";
-        else verdictStyle = "color-yellow";
+        if (resp["score"] > resp["max_score"]) verdictStyle = "color-blue";
+        else if (resp["score"] == resp["max_score"]) verdictStyle = "color-green";
+        else if (resp["score"] > 0) verdictStyle = "color-yellow";
+        else verdictStyle = "color-red"
 
         // Show results
         statusText.innerHTML = `
         <h2 class="${verdictStyle}">Verdict: ${resp["verdict"]}</h2>
-        Score: ${resp["score"]}<br>
+        Score: ${resp["score"]}/${resp["max_score"]}<br>
         Time: ${resp["time"]}s<br>
         Memory: ${resp["memory"]} MB<br>
         Testcase: ${resp["testcase"]}<br>

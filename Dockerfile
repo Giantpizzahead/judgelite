@@ -18,7 +18,8 @@ RUN pip3 install \
     Flask \
     gunicorn \
     psutil \
-    rq
+    rq \
+    pyyaml
 
 # Copy local code to the container image
 ENV APP_HOME /app

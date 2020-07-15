@@ -10,3 +10,7 @@ def log(msg):
     now = datetime.now()
     dt_string = now.strftime('%m/%d %H:%M:%S')
     sys.stderr.write('[SJ ' + dt_string + '] ' + msg + '\n')
+
+
+def log_error(msg):
+    log('***ERROR*** ' + msg)

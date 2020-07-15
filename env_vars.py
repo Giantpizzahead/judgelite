@@ -15,9 +15,10 @@ CHECK_INTERVAL = round(float(os.environ.get('CHECK_INTERVAL', 0.2)), 2)
 DEBUG = os.environ.get('DEBUG', '0') == '1'
 # Enables / disables very verbose debug outputs.
 DEBUG_LOW = os.environ.get('DEBUG_LOW', '0') == '1'
-# Enables / disables adding the first X bytes of stdout and stderr to the response.
-# This value should either be 0 or 512 (to prevent huge amounts of output).
-# (WARNING: Can be used to hack the VM! Only use this option to debug.)
+# Enables / disables the most verbose of verbose debug outputs. Warning: Lots of text
+DEBUG_LOWEST = os.environ.get('DEBUG_LOWEST', '0') == '1'
+# Enables / disables adding the first X bytes of stdout and stderr to the response. Only shows in the debug log.
+# This value should be in the range 0-512 (to prevent huge amounts of output).
 PROGRAM_OUTPUT = int(os.environ.get('PROGRAM_OUTPUT', 0))
 
 # If enabled, shows program time / memory usage that's a tiny bit over the limits.
@@ -35,3 +36,6 @@ THREAD_COUNT = os.environ.get('THREAD_COUNT', 2)
 MAX_CONTENT_LENGTH = int(os.environ.get('MAX_CONTENT_LENGTH', 32))
 # Max output size to read in MB (anything past this size will automatically return WA).
 MAX_OUTPUT_SIZE = int(os.environ.get('MAX_OUTPUT_SIZE', 16))
+
+# Path to the root problem_info folder.
+PROBLEM_INFO_PATH = os.environ.get('PROBLEM_INFO_PATH', './problem_info')

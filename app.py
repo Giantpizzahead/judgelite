@@ -2,15 +2,22 @@
 This python script contains the main Flask app.
 
 TODO:
- Increase security by running the program as a non-privileged user
- Add support for multiple test cases (use local filesystem for now)
-  - Restructure the program a little
-  - Evaluate test cases in alphabetical order
-  - Maybe make a simple .json or .yml file to list subtask scores?
+ Increase security
+  - Running the program as a non-privileged user
+  - Control groups?
+  - Sandbox?
+  - Make sure the process and all children are killed before finishing job
  Look into async / threaded workers for gunicorn
+ Add USACO-like realtime test results
+  - Maybe use the USACO design style to make it interesting?
+ Let info.yaml set time and memory limits
+ Make convenience function to generate correct outputs using a program
+  - Have it check the program's output if the .out file already exists (to manually check for correctness)
+ Add option to skip remaining tests in subtasks only if the verdict is TLE (to save time)
 """
 
 import tempfile
+import yaml
 
 from werkzeug.utils import secure_filename
 from flask import *
@@ -43,16 +50,17 @@ def handle_submission():
                                filesize_limit=round(app.config['MAX_CONTENT_LENGTH'] / 1024 / 1024))
     else:
         # Validate request
+        problems_file = open(PROBLEM_INFO_PATH + '/problems.yml', 'r')
+        problems = yaml.safe_load(problems_file)
+        problems_file.close()
+        if 'problem-id' not in request.form or request.form['problem-id'] not in problems:
+            return error('Invalid problem ID!')
         if 'type' not in request.form:
             return error('No submission language!')
         if request.form['type'] not in ['java', 'cpp', 'python']:
             return error('Invalid submission language!')
         if 'code' not in request.files or not request.files['code']:
             return error('No code file submitted!')
-        if 'input' not in request.files or not request.files['input']:
-            return error('No input file submitted!')
-        if 'output' not in request.files or not request.files['output']:
-            return error('No output file submitted!')
         sec_filename = secure_filename(request.files['code'].filename)
         if sec_filename in ['', 'input.in.txt', 'output.out.txt', 'answer.ans.txt', 'code.new.py']:
             return error('Invalid code filename!')
@@ -63,13 +71,11 @@ def handle_submission():
         # Make a temporary directory / save files there
         tempdir = tempfile.mkdtemp(prefix='judge-')
         request.files['code'].save(tempdir + '/' + code_filename + code_extension)
-        request.files['input'].save(tempdir + '/input.in.txt')
-        request.files['output'].save(tempdir + '/answer.ans.txt')
 
         # Enqueue the job
         # return judge_submission(tempdir, sec_filename, request.form['type'])
         job = q.enqueue_call(func=judge_submission, timeout=60, ttl=300, result_ttl=180, failure_ttl=180,
-                             args=(tempdir, sec_filename, request.form['type']))
+                             args=(tempdir, request.form['problem-id'], sec_filename, request.form['type']))
         job.meta['status'] = 'Initializing...'
         job.save_meta()
         if DEBUG_LOW:
@@ -95,13 +101,13 @@ def get_results(job_key):
     try:
         job = Job.fetch(job_key, connection=conn)
     except NoSuchJobError:
-        return error('Job not found!'), 404
+        return error('Job not found!')
     if job.is_queued:
         return {'status': 'In queue (position {} of {})'.format(job.get_position() + 1, q.count)}, 202
     elif job.is_finished:
         return job.result, 200
     elif job.is_failed:
-        return {'error': 'JOB_FAILED'}, 200
+        return {'error': 'JOB_FAILED', 'job_id': job_key}, 200
     else:
         return job.meta, 202
 
