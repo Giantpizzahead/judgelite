@@ -29,13 +29,19 @@ def do_cleanup(tempdir):
 
 def verdict(tempdir, verdict_code, score, time=0.0, memory=0.0, testcase=0):
     to_return = {'verdict': verdict_code, 'score': score, 'time': time, 'memory': memory, 'testcase': testcase}
-    if PROGRAM_OUTPUT and verdict_code != 'CE':
+    if PROGRAM_OUTPUT > 0 and verdict_code != 'CE':
         # Add program stdout / stderr
         foutput = open(tempdir + '/output.out.txt', 'r')
-        to_return['stdout'] = foutput.readlines()
+        to_return['stdout'] = foutput.read(PROGRAM_OUTPUT)
+        stdout_size = os.path.getsize(foutput.name)
+        if stdout_size > PROGRAM_OUTPUT:
+            to_return['stdout'] += '\n...[{:.2f} MB truncated]'.format((stdout_size - PROGRAM_OUTPUT) / 1024 / 1024)
         foutput.close()
         ferror = open(tempdir + '/error.err.txt', 'r')
-        to_return['stderr'] = ferror.readlines()
+        to_return['stderr'] = ferror.read(PROGRAM_OUTPUT)
+        stderr_size = os.path.getsize(ferror.name)
+        if stderr_size > PROGRAM_OUTPUT:
+            to_return['stderr'] += '\n...[{:.2f} MB truncated]'.format((stderr_size - PROGRAM_OUTPUT) / 1024 / 1024)
         ferror.close()
     log('Result: ' + str(to_return))
     do_cleanup(tempdir)
@@ -171,6 +177,18 @@ def judge_submission(tempdir, code_filename, code_type):
     memory = min(memory, (mem_limit + MEM_BORDER if SHOW_BORDER else mem_limit))
     max_memory_used = max(memory, max_memory_used)
 
+    if DEBUG_LOW:
+        # Diff the results early to check if they are correct
+        diff_result = None
+        if os.path.getsize(tempdir + '/output.out.txt') <= MAX_OUTPUT_SIZE * 1024 * 1024:
+            diff_result = subprocess.run(['diff', '--ignore-trailing-space', '--ignore-space-change',
+                                          '--strip-trailing-cr', tempdir + '/output.out.txt',
+                                          tempdir + '/answer.ans.txt'], stdout=subprocess.DEVNULL)
+        if diff_result is None or diff_result.returncode != 0:
+            log('Answer is wrong')
+        else:
+            log('Answer is correct')
+
     # Did the program TLE?
     if time >= time_limit:
         return verdict(tempdir, 'TLE', 0, time, max_memory_used, 1)
@@ -184,7 +202,7 @@ def judge_submission(tempdir, code_filename, code_type):
     elif process.returncode != 0:
         ferror = open(tempdir + '/error.err.txt', 'r')
         # Detect Java memory errors
-        if code_type == 'java' and 'java.lang.OutOfMemoryError' in ferror.read():
+        if code_type == 'java' and 'java.lang.OutOfMemoryError' in ferror.read(MAX_OUTPUT_SIZE * 1024 * 1024):
             if DEBUG_LOW:
                 log('Java memory error detected: Treating as MLE')
             ferror.close()
@@ -192,11 +210,14 @@ def judge_submission(tempdir, code_filename, code_type):
         else:
             ferror.close()
             return verdict(tempdir, 'RE', 0, time, max_memory_used, 1)
-
-    # Diff the results, ignoring whitespace issues and carriage returns
-    result = subprocess.run(['diff', '--ignore-trailing-space', '--ignore-space-change', '--strip-trailing-cr',
-                             tempdir + '/output.out.txt', tempdir + '/answer.ans.txt'], stdout=subprocess.DEVNULL)
-    if result.returncode != 0:
+    # Make sure the output file isn't too big
+    diff_result = None
+    if os.path.getsize(tempdir + '/output.out.txt') <= MAX_OUTPUT_SIZE * 1024 * 1024:
+        # Diff the results, ignoring whitespace issues and carriage returns
+        diff_result = subprocess.run(['diff', '--ignore-trailing-space', '--ignore-space-change', '--strip-trailing-cr',
+                                     tempdir + '/output.out.txt', tempdir + '/answer.ans.txt'],
+                                     stdout=subprocess.DEVNULL)
+    if diff_result is None or diff_result.returncode != 0:
         return verdict(tempdir, 'WA', 0, time, max_memory_used, 1)
 
     # Correct answer! :D
