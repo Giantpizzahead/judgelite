@@ -8,10 +8,13 @@
     <title>Submission Form</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
+<body onunload="document.getElementById('submit-button').disabled = false;
+                document.getElementById('submit-button').innerText = 'Submit!';">
     <!--Simple form to test the submission process-->
     <h1>Test Interface</h1>
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" autocomplete="on"
+          onsubmit="document.getElementById('submit-button').disabled = true;
+                    document.getElementById('submit-button').innerText = 'Submitting...'; return true;">
         <p>Memory limit is {{ mem_limit }} MB. Time limit is {{ time_limit }} seconds (x1 for C++, x1.5 for Java, x2 for Python).</p>
         <p>Stack size SHOULD only be limited by memory limit.</p>
         <p>Max total file size is {{ filesize_limit }} MB.</p>
@@ -49,7 +52,7 @@
         <label for="input">Output file:</label>
         <input id="output" name="output" type="file">
         <br> <br>
-        <button type="submit">Submit!</button>
+        <button type="submit" id="submit-button" autocomplete="off">Submit!</button>
     </form>
 </body>
 </html>

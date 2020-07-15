@@ -4,8 +4,9 @@ This python script contains the main Flask app.
 TODO:
  Increase security by running the program as a non-privileged user
  Add support for multiple test cases (use local filesystem for now)
-  - Use a dictionary with the 'select multiple files' option, map .in files to .out files
+  - Restructure the program a little
   - Evaluate test cases in alphabetical order
+  - Maybe make a simple .json or .yml file to list subtask scores?
  Look into async / threaded workers for gunicorn
 """
 
@@ -25,13 +26,13 @@ from judge_submission import judge_submission
 
 app = Flask(__name__)
 # Set max uploaded file size
-app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH * 1024 * 1024
 
 q = Queue(connection=Redis())
 
 
 def error(msg):
-    return {'error': msg}
+    return render_template('error.html', error_msg=msg), 400
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -95,11 +96,12 @@ def get_results(job_key):
         job = Job.fetch(job_key, connection=conn)
     except NoSuchJobError:
         return error('Job not found!'), 404
-
     if job.is_queued:
         return {'status': 'In queue (position {} of {})'.format(job.get_position() + 1, q.count)}, 202
-    if job.is_finished:
+    elif job.is_finished:
         return job.result, 200
+    elif job.is_failed:
+        return {'error': 'JOB_FAILED'}, 200
     else:
         return job.meta, 202
 

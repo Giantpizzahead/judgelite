@@ -12,7 +12,7 @@ window.onload = function() {
                     } else if (this.status == 202) {
                         displayStatus(JSON.parse(xhttp.responseText));
                         // Random timeout to make it exciting! (and to spread out server request load)
-                        setTimeout(runInterval, 750 + (Math.random() * 750));
+                        setTimeout(runInterval, 1000 + (Math.random() * 500));
                     }
                 }
             }
@@ -30,12 +30,12 @@ function displayResults(resp) {
     flavorText = document.getElementById("flavor-text");
     statusText = document.getElementById("status-text");
 
-    if (resp["error"]) {
+    if ("error" in resp) {
         flavorText.innerHTML = "Uh-oh! An internal error occurred. Please notify an officer.";
         statusText.innerHTML = "Error code: " + resp["error"] + "<br>";
     }
 
-    if (resp["verdict"]) {
+    if ("verdict" in resp) {
         // Show flavor text
         if (resp["verdict"] == "AC") {
             flavorText.innerHTML = "Congrats! I knew you could do it :D";
@@ -67,19 +67,20 @@ function displayResults(resp) {
         `;
 
         // Show debug info (if given)
-        if (resp["stdout"]) {
-            statusText.innerHTML += `
-            <br>---DEBUG---<br>
-            stdout: ${resp["stdout"]}<br>
-            stderr: ${resp["stderr"]}<br>
+        if ("stdout" in resp) {
+            debugText = statusText.appendChild(document.createElement("p"));
+            debugText.innerText = `=====DEBUG=====
+            -----stdout-----
+            ${resp["stdout"]}
+            -----stderr-----
+            ${resp["stderr"]}
             `;
         }
     }
 
-    let backButton = document.createElement("input");
-    backButton.setAttribute("type", "button");
-    backButton.setAttribute("onclick", "location.href='/';");
-    backButton.setAttribute("value", "Resubmit!");
+    let backButton = document.createElement("button");
+    backButton.setAttribute("onclick", "window.history.back();");
+    backButton.innerText = "Go Back";
     document.body.appendChild(backButton);
 }
 
@@ -88,7 +89,7 @@ function displayStatus(resp) {
     // console.log(resp);
 
     statusText = document.getElementById("status-text");
-    if (resp["status"]) {
+    if ("status" in resp) {
         statusText.innerHTML = "Status: " + resp["status"];
     }
 }
