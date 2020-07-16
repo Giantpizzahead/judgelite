@@ -31,7 +31,7 @@ WORKDIR $APP_HOME
 COPY . ./
 
 # Move isolate config file to correct location
-RUN mv ./isolate.cf /usr/local/etc/isolate
+RUN mv isolate/isolate.cf /usr/local/etc/isolate
 
 # Run the startup script
 ENTRYPOINT ["./start.sh"]

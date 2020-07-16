@@ -14,8 +14,14 @@ Also look at the sample problems in the **problem_info** folder (check the READM
 
 ## Usage
 The built docker image can be found **<a href="https://hub.docker.com/repository/docker/giantpizzahead/submission-judge">here</a>** (Docker Hub). To play around with the submission judge, first <a href="https://docs.docker.com/get-docker/">install docker</a>, then run:
-```shell script
-$ docker run -p 8080:8080 --privileged giantpizzahead/submission-judge
+```commandline
+swapoff -a
+```
+The above command disables memory swapping on the machine, which is required for the submission judge to enforce memory limits.
+
+Finally, run the below command to start the Docker container (Warning: The container may change some kernel settings to make sure judging is consistent!):
+```commandline
+docker run -p 8080:8080 --privileged giantpizzahead/submission-judge
 ```
 (Yes, it requires privileged mode. rip <a href="https://github.com/ioi/isolate">isolate</a>)
 

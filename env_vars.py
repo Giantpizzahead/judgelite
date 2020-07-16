@@ -22,7 +22,7 @@ DEBUG_LOW = os.environ.get('DEBUG_LOW', '0') == '1'
 # Enables / disables the most verbose of verbose debug outputs. Warning: Lots of text
 DEBUG_LOWEST = os.environ.get('DEBUG_LOWEST', '0') == '1'
 # Enables / disables adding the first X bytes of stdout and stderr to the response. Only shows in the debug log.
-# This value should be an integer in the range 0-512 (to prevent huge amounts of output).
+# This value should be an integer in the range 0-256 (to prevent huge amounts of output).
 PROGRAM_OUTPUT = int(os.environ.get('PROGRAM_OUTPUT', 0))
 
 # Number of workers for gunicorn to use.

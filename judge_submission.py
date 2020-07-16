@@ -190,7 +190,7 @@ def run_program(isolate_dir, input_path, answer_path, subtask_name, problem_info
     elif code_type == 'python':
         time_limit *= 2
         code_args = ['/bin/python3', compiled_filename]
-    isolate_args = ['isolate/isolate', '--run', '--cg', '--processes', '--silent', '--time=' + str(time_limit),
+    isolate_args = ['isolate/isolate', '--run', '--cg', '--processes=50', '--silent', '--time=' + str(time_limit),
                     '--wall-time=' + str(time_limit + WALL_TIME_EXTENSION), '--cg-mem=' + str(mem_limit * 1024),
                     '--chdir=/box', '--stdin=' + input_path, '--stdout=output.out.txt', '--stderr=error.err.txt',
                     '--meta=' + isolate_dir + '/../meta.info.txt', '--fsize=' + str(MAX_OUTPUT_SIZE * 1024), '--']
