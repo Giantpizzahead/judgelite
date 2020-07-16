@@ -1,5 +1,5 @@
 """
-Simple python script that launches a worker.
+Simple python script that launches a worker (for rq).
 """
 
 from redis import Redis

@@ -9,7 +9,7 @@ public class sol {
         int[] arr = new int[SIZE];
         for (int i = 0; i < SIZE; i++) {
             arr[i] = i + 3;
-            for (int j = 1; j < 70; j++) {
+            for (int j = 1; j < 50; j++) {
                 arr[i/j] += arr[i];
             }
         }
@@ -40,10 +40,22 @@ public class sol {
         int[] arr = new int[8];
         arr[-2] = 9;
     }
-    
+
+    /*
+    This should AC.
+    */
     static int testStack(int i, int x) {
         if (i == 0) return 9;
         else return testStack(i-1, x * 2);
+    }
+
+    static void outputDump(int mb) {
+        String str = "A".repeat(1024);
+        String str2 = "B".repeat(1024);
+        for (int i = 0; i < mb * 1024; i++) {
+            System.out.print(str);
+            System.err.print(str2);
+        }
     }
     
     public static void main(String[] args) {
@@ -52,6 +64,7 @@ public class sol {
         // testTLE();
         // testRE();
         // testStack(50000, 13);
+        // outputDump(9999);
         
         Scanner sc = new Scanner(System.in);
         int N = sc.nextInt();

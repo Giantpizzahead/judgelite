@@ -1,5 +1,6 @@
 """
 Very simple logger: Literally just adds the current date and time to the start of each message.
+Can also log errors! AMAZING.
 """
 
 import sys

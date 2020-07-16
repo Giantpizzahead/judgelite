@@ -1,3 +1,7 @@
+"""
+Config file for gunicorn.
+"""
+
 import os
 from env_vars import WORKER_COUNT, THREAD_COUNT
 

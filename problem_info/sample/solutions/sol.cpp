@@ -62,12 +62,18 @@ int test_stack(int i, int x) {
     else return x * (test_stack(i-1, x * 2 + i) + test_stack((i-1) % 3, x * i));
 }
 
+void output_dump(int mb) {
+    for (int i = 0; i < mb * 1024 * 1024 / 16; i++) cout << "AAAAAAAAAAAAAAAA";
+    for (int i = 0; i < mb * 1024 * 1024 / 16; i++) cerr << "AAAAAAAAAAAAAAAA";
+}
+
 int main() {
     // test_border();
     // test_mle();
     // test_tle();
     // test_re();
     // cerr << test_stack(2500000, 13) << endl;
+    // output_dump(17);
     
     int N;
     cin >> N;

@@ -1,27 +1,48 @@
+const urlParams = new URLSearchParams(window.location.search);
+const QUERY_DELAY = 750;
 window.onload = function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const QUERY_DELAY = 750
-
     // Repeatedly query for status
     if (urlParams.has("job_id")) {
-        function runInterval() {
-            let xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function() {
-                if (this.readyState === XMLHttpRequest.DONE) {
-                    if (this.status == 200) {
-                        displayResults(JSON.parse(xhttp.responseText));
-                    } else if (this.status == 202) {
-                        displayStatus(JSON.parse(xhttp.responseText));
-                        // Random timeout to make it exciting! (and to spread out server request load)
-                        setTimeout(runInterval, QUERY_DELAY + (Math.random() * QUERY_DELAY));
-                    }
-                }
-            }
-            xhttp.open("GET", "/results/" + urlParams.get("job_id"), true);
-            xhttp.send();
-        }
         runInterval();
     }
+}
+
+var xhttp;
+var xmlHttpTimeout;
+var numFailed = 1;
+function runInterval() {
+    xmlHttpTimeout = setTimeout(handleRequestError, 5000);
+    xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState === XMLHttpRequest.DONE) {
+            clearTimeout(xmlHttpTimeout);
+            if (this.status == 200) {
+                displayResults(JSON.parse(xhttp.responseText));
+            } else if (this.status == 202) {
+                displayStatus(JSON.parse(xhttp.responseText));
+                // Random timeout to make it exciting! (and to spread out server request load)
+                setTimeout(runInterval, QUERY_DELAY + (Math.random() * QUERY_DELAY));
+            } else {
+                // Unexpected result; treat as an error
+                handleRequestError();
+            }
+        }
+    }
+    xhttp.open("GET", "/results/" + urlParams.get("job_id"), true);
+    xhttp.send();
+}
+
+function handleRequestError() {
+    xhttp.abort();
+    statusText = document.getElementById("status-text");
+    if (numFailed > 5) {
+        statusText.innerHTML = "Status: Error contacting server. Maybe try reloading the page?";
+        return;
+    } else {
+        statusText.innerHTML = "Status: Error contacting server. Retrying... [Try #" + numFailed + "]";
+    }
+    numFailed++;
+    setTimeout(runInterval, numFailed * QUERY_DELAY);
 }
 
 function displayResults(resp) {
@@ -65,7 +86,7 @@ function displayResults(resp) {
         statusText.innerHTML = `
         <h2 class="${verdictStyle}">Verdict: ${resp["verdict"]}</h2>
         Score: ${resp["score"]}/${resp["max_score"]}<br>
-        Time: ${resp["time"]}s<br>
+        Time: ${resp["time"]}ms<br>
         Memory: ${resp["memory"]} MB<br>
         Testcase: ${resp["testcase"]}<br>
         `;

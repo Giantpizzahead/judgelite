@@ -5,7 +5,7 @@ This should barely TLE and MLE.
 '''
 def test_border():
     a = []
-    for i in range(2400000):
+    for i in range(2300000):
         a.append(i)
         for j in range(1, 5):
             a[i//j] += a[i]
@@ -37,11 +37,18 @@ def test_stack(i, x):
     if i == 0: return 9
     else: return test_stack(i-1, x+8)
 
+def test_file_dump(mb):
+    with open('hello.txt', 'w') as fout:
+        str = 'A' * 1024
+        for i in range(mb * 1024):
+            fout.write(str)
+
 # test_border()
 # test_mle()
 # test_tle()
 # test_re()
-# test_stack(130000, 13)
+# test_stack(100000, 13)
+# test_file_dump(24)
 
 X = int(input())
 

@@ -1,21 +1,5 @@
 """
 This python script contains the main Flask app.
-
-TODO:
- Increase security
-  - isolate
- Look into async / threaded workers for gunicorn
- Add USACO-like realtime test results
-  - Maybe use the USACO design style to make it interesting?
- Make convenience function to generate correct outputs using a program
-  - Have it check the program's output if the .out file already exists (to manually check for correctness)
- Add option to skip remaining tests in subtasks only if the verdict is TLE (to save time)
- See if there's some way to increase the priority of gunicorn / Flask (to handle weird HTTP request issues)
- Consider moving off GCP Always Free, and switching to a year-long trial (maybe with Azure)
- Organize & document the code
- Fix weird bug with process killing (program seems to start new test case before the killing is completed?)
- Add a compile time limit to keep the job from hanging
- Limit the amount of disk space a program can use (disk quota)
 """
 
 import tempfile
@@ -34,8 +18,8 @@ from logger import *
 from judge_submission import judge_submission
 
 app = Flask(__name__)
-# Set max uploaded file size
-app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH * 1024 * 1024
+# Set max uploaded code file size
+app.config['MAX_CONTENT_LENGTH'] = (MAX_CODE_SIZE + 1) * 1024
 
 q = Queue(connection=Redis())
 
@@ -48,7 +32,7 @@ def error(msg):
 def handle_submission():
     if request.method == 'GET':
         # Return a simple testing form for the GET method
-        return render_template('form.html', filesize_limit=round(app.config['MAX_CONTENT_LENGTH'] / 1024 / 1024))
+        return render_template('form.html', filesize_limit=round(app.config['MAX_CONTENT_LENGTH'] / 1024 - 1))
     else:
         # Validate request
         problems_file = open(PROBLEM_INFO_PATH + '/problems.yml', 'r')
@@ -79,7 +63,7 @@ def handle_submission():
                              args=(tempdir, request.form['problem-id'], sec_filename, request.form['type']))
         job.meta['status'] = 'Initializing...'
         job.save_meta()
-        if DEBUG_LOW:
+        if DEBUG_LOWEST:
             log('New job id: {}'.format(job.get_id()))
 
         # Return submitted, along with the job id
