@@ -1,5 +1,18 @@
 import os
 
+# Enables / disables debug outputs.
+DEBUG = os.environ.get('DEBUG', '0') == '1'
+# Enables / disables very verbose debug outputs.
+DEBUG_LOW = os.environ.get('DEBUG_LOW', '0') == '1'
+# Enables / disables the most verbose of verbose debug outputs. Warning: Lots of text
+DEBUG_LOWEST = os.environ.get('DEBUG_LOWEST', '0') == '1'
+# Enables / disables adding the first X bytes of stdout and stderr to the response. Only shows in the debug log.
+# This value should be an integer in the range 0-256 (to prevent huge amounts of output).
+PROGRAM_OUTPUT = int(os.environ.get('PROGRAM_OUTPUT', 0))
+
+# Path to the root problem_info folder.
+PROBLEM_INFO_PATH = os.environ.get('PROBLEM_INFO_PATH', './problem_info')
+
 # Maximum possible time limit for programs (in seconds). Java gets x1.5, Python gets x2. Rounded to 1 decimal place.
 # Note that the actual time limit for a program is set by the info.yml file for each individual problem.
 MAX_TIME_LIMIT = round(float(os.environ.get('MAX_TIME_LIMIT', 5)), 1)
@@ -31,6 +44,3 @@ WORKER_COUNT = os.environ.get('WORKER_COUNT', 1)
 THREAD_COUNT = os.environ.get('THREAD_COUNT', 2)
 # Max code file size, in KILOBYTES (KB)!!!!! Must be an integer.
 MAX_CODE_SIZE = int(os.environ.get('MAX_CODE_SIZE', 256))
-
-# Path to the root problem_info folder.
-PROBLEM_INFO_PATH = os.environ.get('PROBLEM_INFO_PATH', './problem_info')

@@ -16,5 +16,7 @@
  - Use a config file instead of env vars
  - Investigate weird Java MLE errors (not consistent)
  - See if there's some way to automate the 'swapoff -a' command (maybe replace with swap accounting?)
+ - Look into unit tests (maybe even CI/CD integration), and make some of your own! :)
+ - Github badges are cool. I want some!
  - Look into async / threaded workers for gunicorn
  - Disk quota is not enabled, only fsize is. That means that you could bypass the max file size limit by creating tons of small files, overloading the system. No one would do this by accident though, so it's not something that is too important to fix (plus, who would even think to try this?).
