@@ -1,5 +1,7 @@
 ---
 problem_id: sample2
+time_limit: 2.5
+memory_limit: 96
 scoring_method: average
 grader: diff
 max_points: 1000

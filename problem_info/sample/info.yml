@@ -4,6 +4,12 @@
 # The problem id must match the problem's directory name.
 problem_id: sample
 
+# Time limit for this problem, in seconds.
+time_limit: 2
+
+# Memory limit for this problem, in MB.
+memory_limit: 96
+
 # Scoring method can be one of the following options:
 # minimum = The minimum score out of all test cases in a subtask is used.
 # average = The score for each test case is averaged out to determine the points for each subtask.

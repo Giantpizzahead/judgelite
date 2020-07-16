@@ -3,17 +3,19 @@ This python script contains the main Flask app.
 
 TODO:
  Increase security
-  - Running the program as a non-privileged user
-  - Control groups?
-  - Sandbox?
-  - Make sure the process and all children are killed before finishing job
+  - isolate
  Look into async / threaded workers for gunicorn
  Add USACO-like realtime test results
   - Maybe use the USACO design style to make it interesting?
- Let info.yaml set time and memory limits
  Make convenience function to generate correct outputs using a program
   - Have it check the program's output if the .out file already exists (to manually check for correctness)
  Add option to skip remaining tests in subtasks only if the verdict is TLE (to save time)
+ See if there's some way to increase the priority of gunicorn / Flask (to handle weird HTTP request issues)
+ Consider moving off GCP Always Free, and switching to a year-long trial (maybe with Azure)
+ Organize & document the code
+ Fix weird bug with process killing (program seems to start new test case before the killing is completed?)
+ Add a compile time limit to keep the job from hanging
+ Limit the amount of disk space a program can use (disk quota)
 """
 
 import tempfile
@@ -46,8 +48,7 @@ def error(msg):
 def handle_submission():
     if request.method == 'GET':
         # Return a simple testing form for the GET method
-        return render_template('form.html', mem_limit=BASE_MEMORY_LIMIT, time_limit=BASE_TIME_LIMIT,
-                               filesize_limit=round(app.config['MAX_CONTENT_LENGTH'] / 1024 / 1024))
+        return render_template('form.html', filesize_limit=round(app.config['MAX_CONTENT_LENGTH'] / 1024 / 1024))
     else:
         # Validate request
         problems_file = open(PROBLEM_INFO_PATH + '/problems.yml', 'r')

@@ -15,9 +15,9 @@
     <form method="POST" enctype="multipart/form-data" autocomplete="on"
           onsubmit="document.getElementById('submit-button').disabled = true;
                     document.getElementById('submit-button').innerText = 'Submitting...'; return true;">
-        <p>Memory limit is {{ mem_limit }} MB. Time limit is {{ time_limit }} seconds (x1 for C++, x1.5 for Java, x2 for Python).</p>
+        <p>Memory limit and time limit vary per problem (x1 for C++, x1.5 for Java, x2 for Python).</p>
         <p>Stack size SHOULD only be limited by memory limit.</p>
-        <p>Max total file size is {{ filesize_limit }} MB.</p>
+        <p>Max code file size is {{ filesize_limit }} MB.</p>
         <h3>Sample Problem Statement</h3>
         <p>
             You like to sum numbers. Please write a program that sums numbers.<br>

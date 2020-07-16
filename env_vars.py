@@ -1,9 +1,10 @@
 import os
 
-# Time limit for programs (in seconds). Java gets x1.5, Python gets x2. Rounded to 1 decimal place.
-BASE_TIME_LIMIT = round(float(os.environ.get('BASE_TIME_LIMIT', 2)), 1)
-# Memory limit for programs (in MB). Must be an integer.
-BASE_MEMORY_LIMIT = int(os.environ.get('BASE_MEMORY_LIMIT', 96))
+# Maximum possible time limit for programs (in seconds). Java gets x1.5, Python gets x2. Rounded to 1 decimal place.
+# Note that the actual time limit for a program is set by the info.yml file for each individual problem.
+MAX_TIME_LIMIT = round(float(os.environ.get('MAX_TIME_LIMIT', 5)), 1)
+# Maximum possible memory limit for programs (in MB). Must be an integer.
+MAX_MEMORY_LIMIT = int(os.environ.get('MAX_MEMORY_LIMIT', 96))
 # Number of seconds to add to the wall time threshold (used to kill a program that runs for too long).
 # Rounded to 1 decimal place.
 WALL_TIME_EXTENSION = round(float(os.environ.get('WALL_TIME_EXTENSION', 1.5)), 1)
@@ -33,7 +34,7 @@ WORKER_COUNT = os.environ.get('WORKER_COUNT', 1)
 # Number of threads for gunicorn to use.
 THREAD_COUNT = os.environ.get('THREAD_COUNT', 2)
 # Max uploaded file size (summed across all submitted files).
-MAX_CONTENT_LENGTH = int(os.environ.get('MAX_CONTENT_LENGTH', 32))
+MAX_CONTENT_LENGTH = int(os.environ.get('MAX_CONTENT_LENGTH', 2))
 # Max output size to read in MB (anything past this size will automatically return WA).
 MAX_OUTPUT_SIZE = int(os.environ.get('MAX_OUTPUT_SIZE', 16))
 

@@ -4,15 +4,14 @@ import java.math.BigInteger;
 
 public class sol {
     public static void main(String[] args) throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(in.readLine());
+        Scanner sc = new Scanner(System.in);
 
         boolean first = true;
-        while (st.hasMoreTokens()) {
+        while (sc.hasNext()) {
             if (!first) System.out.print(' ');
             first = false;
 
-            String str = st.nextToken();
+            String str = sc.next();
             try {
                 BigInteger x = new BigInteger(str);
                 System.out.print(x.add(x).toString());

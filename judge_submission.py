@@ -37,13 +37,13 @@ def verdict_test(tempdir, verdict_code, score, time=0.0, memory=0.0):
         to_return['stdout'] = foutput.read(PROGRAM_OUTPUT)
         stdout_size = os.path.getsize(foutput.name)
         if stdout_size > PROGRAM_OUTPUT:
-            to_return['stdout'] += '\n...[{:.2f} MB truncated]'.format((stdout_size - PROGRAM_OUTPUT) / 1024 / 1024)
+            to_return['stdout'] += '...[{:.2f} MB truncated]'.format((stdout_size - PROGRAM_OUTPUT) / 1024 / 1024)
         foutput.close()
         ferror = open(tempdir + '/error.err.txt', 'r')
         to_return['stderr'] = ferror.read(PROGRAM_OUTPUT)
         stderr_size = os.path.getsize(ferror.name)
         if stderr_size > PROGRAM_OUTPUT:
-            to_return['stderr'] += '\n...[{:.2f} MB truncated]'.format((stderr_size - PROGRAM_OUTPUT) / 1024 / 1024)
+            to_return['stderr'] += '...[{:.2f} MB truncated]'.format((stderr_size - PROGRAM_OUTPUT) / 1024 / 1024)
         ferror.close()
     return to_return
 
@@ -60,10 +60,10 @@ def verdict_problem(verdict_code, score, max_score, time=0.0, memory=0.0, testca
     return to_return
 
 
-def limit_memory():
+def limit_memory(mem_limit):
     # Make sure the stack size is as big as the memory limit
-    resource.setrlimit(resource.RLIMIT_STACK, (BASE_MEMORY_LIMIT * 1024 * 1024, resource.RLIM_INFINITY))
-    # resource.setrlimit(resource.RLIMIT_AS, ((BASE_MEMORY_LIMIT + 128) * 1024 * 1024, resource.RLIM_INFINITY))
+    resource.setrlimit(resource.RLIMIT_STACK, (mem_limit * 1024 * 1024, resource.RLIM_INFINITY))
+    # resource.setrlimit(resource.RLIMIT_AS, ((mem_limit + 32) * 1024 * 1024, resource.RLIM_INFINITY))
 
 
 def compile_submission(tempdir, code_filename, code_type):
@@ -124,9 +124,9 @@ def check_results(output_path, answer_path, subtask_name, grader):
         log_error(str(grader) + ' is not a valid grader!')
 
 
-def run_program(tempdir, input_path, answer_path, subtask_name, grader, compiled_filename, code_type):
-    time_limit = BASE_TIME_LIMIT
-    mem_limit = BASE_MEMORY_LIMIT
+def run_program(tempdir, input_path, answer_path, subtask_name, problem_info, compiled_filename, code_type):
+    time_limit = min(problem_info['time_limit'], MAX_TIME_LIMIT)
+    mem_limit = min(problem_info['memory_limit'], MAX_MEMORY_LIMIT)
     max_memory_used = 0
     process = None
     finput = open(input_path, 'r')
@@ -136,19 +136,19 @@ def run_program(tempdir, input_path, answer_path, subtask_name, grader, compiled
     if code_type == 'java':
         time_limit *= 1.5
         mem_limit += 0
-        process = psutil.Popen(time_args + ['java', '-Xmx' + str(BASE_MEMORY_LIMIT) + 'M',
-                                            '-Xss' + str(BASE_MEMORY_LIMIT // 2) + 'M', compiled_filename],
-                               preexec_fn=limit_memory, cwd=tempdir,
+        process = psutil.Popen(time_args + ['java', '-Xmx' + str(mem_limit) + 'M',
+                                            '-Xss' + str(mem_limit // 2) + 'M', compiled_filename],
+                               preexec_fn=lambda: limit_memory(mem_limit), cwd=tempdir,
                                stdin=finput, stdout=foutput, stderr=ferror, text=True)
     elif code_type == 'cpp':
         time_limit *= 1
         mem_limit += 0
-        process = psutil.Popen(time_args + ['./' + compiled_filename], preexec_fn=limit_memory,
+        process = psutil.Popen(time_args + ['./' + compiled_filename], preexec_fn=lambda: limit_memory(mem_limit),
                                cwd=tempdir, stdin=finput, stdout=foutput, stderr=ferror, text=True)
     elif code_type == 'python':
         time_limit *= 2
         mem_limit += 0
-        process = psutil.Popen(time_args + ['python3', compiled_filename], preexec_fn=limit_memory,
+        process = psutil.Popen(time_args + ['python3', compiled_filename], preexec_fn=lambda: limit_memory(mem_limit),
                                cwd=tempdir, stdin=finput, stdout=foutput, stderr=ferror, text=True)
     # Periodically check on the program, and terminate if program exceeds wall or memory limit
     wall_limit = time_limit + WALL_TIME_EXTENSION
@@ -201,7 +201,7 @@ def run_program(tempdir, input_path, answer_path, subtask_name, grader, compiled
 
     if DEBUG_LOWEST:
         # Check the results early to see if they are correct
-        result = check_results(tempdir + '/output.out.txt', answer_path, subtask_name, grader)
+        result = check_results(tempdir + '/output.out.txt', answer_path, subtask_name, problem_info['grader'])
         log('Answer would get ' + str(result) + ' score')
 
     # Did the program TLE?
@@ -227,7 +227,7 @@ def run_program(tempdir, input_path, answer_path, subtask_name, grader, compiled
             return verdict_test(tempdir, 'RE', 0, time, max_memory_used)
 
     # Check results, and return a verdict
-    final_score = check_results(tempdir + '/output.out.txt', answer_path, subtask_name, grader)
+    final_score = check_results(tempdir + '/output.out.txt', answer_path, subtask_name, problem_info['grader'])
     if final_score == 0:
         return verdict_test(tempdir, 'WA', final_score, time, max_memory_used)
     # Anything that is not 0 means a correct answer! :D
@@ -251,7 +251,7 @@ def run_subtask(tempdir, problem_info, problem_folder, subtask_name, compiled_fi
         test_name = test_input[:-3]
         test_output = test_name + '.out'
         run_verdict = run_program(tempdir, subtask_folder + '/' + test_input, subtask_folder + '/' + test_output,
-                                  subtask_name, problem_info['grader'], compiled_filename, code_type)
+                                  subtask_name, problem_info, compiled_filename, code_type)
         if DEBUG_LOW:
             log('Test ' + test_name + ': ' + str(run_verdict))
 
@@ -263,7 +263,7 @@ def run_subtask(tempdir, problem_info, problem_folder, subtask_name, compiled_fi
 
         # If first wrong answer, track results
         if run_verdict['verdict'] != 'AC' and first_wrong is None:
-            first_wrong = {**run_verdict, 'testcase': i+1}
+            first_wrong = {**run_verdict, 'testcase': i + 1}
 
         if min_score == 0 and problem_info['scoring_method'] == 'minimum':
             # Stop early to save processing time
@@ -271,8 +271,8 @@ def run_subtask(tempdir, problem_info, problem_folder, subtask_name, compiled_fi
                 return verdict_subtask(first_wrong['verdict'], first_wrong['score'], first_wrong['time'],
                                        first_wrong['memory'], first_wrong['testcase'])
             else:
-                return verdict_subtask('AC', 0, max_time, max_memory, i+1)
-    
+                return verdict_subtask('AC', 0, max_time, max_memory, i + 1)
+
     # Return verdict
     final_score = 0
     final_verdict = 'AC'
@@ -355,14 +355,14 @@ def judge_submission(tempdir, problem_id, code_filename, code_type):
         subtask = problem_info['subtasks'][i]
         subtask_result = subtask_results[subtask['name']]
         if (subtask_result['verdict'] != 'AC' and final_verdict == 'AC' and
-            ('is_bonus' not in subtask or not subtask['is_bonus'])):
+                (subtask_result['score'] > 0 or 'is_bonus' not in subtask or not subtask['is_bonus'])):
             # Report first wrong verdict as the final verdict, if it's not a bonus subtask
             final_verdict = subtask_result['verdict']
             testcase = curr_testcase + subtask_result['testcase']
 
         # Calculate metrics
         final_score += subtask_result['score'] * subtask['points']
-        if subtask_result['verdict'] == 'AC' or 'is_bonus' not in subtask or not subtask['is_bonus']:
+        if subtask_result['score'] > 0 or 'is_bonus' not in subtask or not subtask['is_bonus']:
             max_time = max(subtask_result['time'], max_time)
             max_memory = max(subtask_result['memory'], max_memory)
             # Add to overall testcase number
@@ -374,7 +374,7 @@ def judge_submission(tempdir, problem_id, code_filename, code_type):
     if testcase == -1:
         testcase = curr_testcase
     do_cleanup(tempdir)
-    if final_verdict == 'AC' and final_score > problem_info['max_points']:
+    if final_score > problem_info['max_points']:
         # AC* :O
         final_verdict = 'AC*'
 
