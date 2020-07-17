@@ -8,11 +8,16 @@ problem_id: sample
 time_limit: 2
 
 # Memory limit for this problem, in MB.
-memory_limit: 96
+memory_limit: 128
 
 # Scoring method can be one of the following options:
-# minimum = The minimum score out of all test cases in a subtask is used.
-# average = The score for each test case is averaged out to determine the points for each subtask.
+# minimum = The minimum score out of all test cases in a subtask is used. If one test case fails in a
+#   subtask, the rest are immediately skipped (there would be no reason to continue anyways).
+# average_stop = The score for each test case is averaged out to determine the points for each subtask. The
+#   judge will stop on the first failed test in a subtask (the rest are skipped / treated with a score of 0).
+# average = The score for each test case is averaged out to determine the points for each subtask. The
+#   judge will not stop early when evaluating a subtask, but it will only run a subtask if all the subtasks
+#   it depends on got a non-zero score (at least one test case passed in each depends-on subtask).
 scoring_method: minimum
 
 # Grader can be one of the following options:
@@ -26,17 +31,18 @@ max_points: 100
 # A list of subtasks.
 subtasks:
   # The name specified for a subtask must match the directory name.
-  - name: 00_sample
-    # The number of points assigned to a subtask.
-    points: 0
   - name: 01_small
+    # The number of points assigned to a subtask.
     points: 30
-    # Which subtasks need to be 'solved' (non-zero score) in order to run this one.
-    # This allows the submission system to skip unneeded subtasks, saving valuable time.
-    depends_on:
-      - 00_sample
+    # The number of sample cases in this subtask (only needed if the subtask has samples).
+    # If the program does not get AC on samples, the rest of the subtask will be skipped.
+    # Using this attribute saves valuable time when people accidentally submit completely wrong programs.
+    # This only has a noticeable effect on the 'average' scoring method (but it's best to include it anyway).
+    num_samples: 1
   - name: 02_large
     points: 70
+    # Which subtasks need to be 'solved' (non-zero score) in order to run this one.
+    # This allows the submission system to skip unneeded subtasks, saving valuable time.
     depends_on:
       - 01_small
   - name: 03_bonus

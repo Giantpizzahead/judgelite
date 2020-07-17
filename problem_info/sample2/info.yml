@@ -1,8 +1,8 @@
 ---
 problem_id: sample2
-time_limit: 2.5
-memory_limit: 96
-scoring_method: average
+time_limit: 3
+memory_limit: 256
+scoring_method: average_stop
 grader: diff
 max_points: 1000
 

@@ -51,13 +51,23 @@ function displayResults(resp) {
 
     flavorText = document.getElementById("flavor-text");
     statusText = document.getElementById("status-text");
+    rawText = document.getElementById("raw-text");
+    rawText.innerText = JSON.stringify(resp);
 
     if ("error" in resp) {
         flavorText.innerHTML = "Uh-oh! An internal error occurred. If the issue persists, please notify an officer.";
         statusText.innerHTML = "=====DEBUG INFO=====<br>Error code: " + resp["error"] + "<br>Job ID: " + resp["job_id"];
-    }
-
-    if ("verdict" in resp) {
+    } else if ("verdict" in resp && resp["verdict"] == "CE") {
+        flavorText.innerHTML = "Were you tooooooo fast?";
+        statusText.innerHTML = `
+        <h2 class="color-red">Verdict: ${resp["verdict"]}</h2>
+        Score: ${resp["score"]}/${resp["max_score"]}<br>
+        `;
+        debugText = statusText.appendChild(document.createElement("p"));
+        debugText.className = "color-red";
+        debugText.innerText = `=====ERROR LOG=====
+        ${resp["compile_error"]}`;
+    } else if ("verdict" in resp) {
         // Show flavor text
         if (resp["verdict"] == "AC*") {
             flavorText.innerHTML = "Whoa! What an overachiever :P [Really though, nice job. That was impressive.]"
@@ -71,8 +81,6 @@ function displayResults(resp) {
             flavorText.innerHTML = "Yikes. I hope you know how to do sliding window!";
         } else if (resp["verdict"] == "RE") {
             flavorText.innerHTML = "Oh no... Not a runtime error! Good luck debugging THAT one.";
-        } else if (resp["verdict"] == "CE") {
-            flavorText.innerHTML = "Were you tooooooo fast?";
         }
 
         // Set verdict color based on score
@@ -101,6 +109,9 @@ function displayResults(resp) {
             ${resp["stderr"]}
             `;
         }
+    } else {
+        flavorText.innerHTML = "Uh-oh! An internal error occurred. If the issue persists, please notify an officer.";
+        statusText.innerHTML = "=====DEBUG INFO=====<br>Error code: EMPTY_RESULT<br>Job ID: " + resp["job_id"];
     }
 
     let backButton = document.createElement("button");
@@ -117,4 +128,7 @@ function displayStatus(resp) {
     if ("status" in resp) {
         statusText.innerHTML = "Status: " + resp["status"];
     }
+
+    rawText = document.getElementById("raw-text");
+    rawText.innerText = JSON.stringify(resp);
 }

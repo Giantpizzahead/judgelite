@@ -54,6 +54,13 @@ def verdict_subtask(verdict_code, score, time=0.0, memory=0.0, testcase=1):
     return to_return
 
 
+def verdict_compile_error(verdict_code, score, max_score, error):
+    to_return = {'verdict': verdict_code, 'score': score, 'max_score': max_score,
+                 'compile_error': error}
+    log('Final verdict: ' + str(to_return))
+    return to_return
+
+
 def verdict_problem(verdict_code, score, max_score, time=0.0, memory=0.0, testcase=1):
     to_return = {'verdict': verdict_code, 'score': score, 'max_score': max_score,
                  'time': time, 'memory': memory, 'testcase': testcase}
@@ -108,47 +115,64 @@ def isolate_cleanup() -> None:
     subprocess.run(['isolate/isolate', '--cleanup', '--cg'])
 
 
-def compile_submission(codedir: str, code_filename: str, code_type: str) -> [str, None]:
-    """Compiles a submission.
+def compile_submission(isolate_dir: str, code_filename: str, code_type: str) -> (bool, str):
+    """Compiles a submission in the isolate directory.
 
-    :param codedir: The path to the directory where the code file is stored.
+    :param isolate_dir: The location of the isolate sandbox.
     :param code_filename: The name of the code file (with extension).
     :param code_type: The language that the code is written in.
-    :return: The filename of the compiled submission (or the main class for java). If the code fails to compile,
-        returns None instead.
+    :return: A tuple with 2 values. The 1st is a boolean representing whether or not the compilation was
+        successful. The 2nd is either the compiled filename (main class for Java) if the compilation was
+        successful, or an explanation as to why the compilation was not successful.
     """
-
+    compile_args = None
     # Remove extension from the filename to determine compiled filename
     compiled_filename, _ = os.path.splitext(code_filename)
     if code_type == 'java':
-        # Compile the code
-        result = subprocess.run(['javac', codedir + '/' + code_filename],
-                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        if result.returncode != 0:
-            return None
+        compile_args = ['/usr/lib/jvm/java-14-openjdk-amd64/bin/javac', code_filename]
     elif code_type == 'cpp':
         compiled_filename = 'code'
-        # Compile the code
-        result = subprocess.run(['g++', '-std=c++14', '-O2', '-o', codedir + '/code', codedir + '/' + code_filename],
-                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        if result.returncode != 0:
-            return None
+        compile_args = ['/usr/bin/g++', '-B', '/usr/bin', '-std=c++17', '-O2', '-o', 'code', code_filename]
     elif code_type == 'python':
         # Add two lines at the beginning to allow for deep recursion
         compiled_filename = 'code.new.py'
-        fcode_old = open(codedir + '/' + code_filename, 'r')
-        fcode_new = open(codedir + '/code.new.py', 'w')
+        fcode_old = open(isolate_dir + '/' + code_filename, 'r')
+        fcode_new = open(isolate_dir + '/' + 'code.new.py', 'w')
         fcode_new.write('import sys\n')
         fcode_new.write('sys.setrecursionlimit(99999999)\n')
         fcode_new.write(fcode_old.read())
         fcode_old.close()
         fcode_new.close()
-        # Compile the code
-        result = subprocess.run(['python3', '-m', 'py_compile', codedir + '/code.new.py'],
-                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        if result.returncode != 0:
-            return None
-    return compiled_filename
+        compile_args = ['/bin/python3', '-c', 'import py_compile\nif py_compile.compile("code.new.py") is None: exit(1)']
+
+    isolate_args = ['isolate/isolate', '--run', '--cg', '--processes=50', '--silent',
+                    '--time=' + str(COMPILE_TIME_LIMIT), '--wall-time=' + str(COMPILE_TIME_LIMIT),
+                    '--cg-mem=' + str(COMPILE_MEMORY_LIMIT * 1024), '--chdir=/box', '--stderr=error.err.txt',
+                    '--fsize=' + str(MAX_COMPILE_SIZE * 1024), '--']
+    if DEBUG_LOWEST:
+        log('$' + ' '.join(isolate_args + compile_args))
+
+    # Run isolate
+    process = subprocess.run(isolate_args + compile_args)
+
+    if process.returncode != 0:
+        # Compile error of some kind
+        ferror = open(isolate_dir + '/error.err.txt', 'r')
+        error = ferror.read(COMPILE_ERROR_OUTPUT + 20)
+        # Cleanup error log by replacing placeholder filenames
+        if code_type == 'python':
+            error = error.replace('code.new.py', code_filename)
+        error = error[:COMPILE_ERROR_OUTPUT]
+        # Notify user if output was truncated
+        stderr_size = os.path.getsize(ferror.name)
+        if stderr_size > COMPILE_ERROR_OUTPUT:
+            error += '\n...[output truncated]'
+        elif stderr_size == 0:
+            error = '[Empty error log... maybe the compiler ran for too long, or ran out of memory?]'
+        return False, error
+
+    # Compiled successfully
+    return True, compiled_filename
 
 
 def check_results(output_path: str, answer_path: str, subtask_name: str, grader: str) -> float:
@@ -175,7 +199,7 @@ def check_results(output_path: str, answer_path: str, subtask_name: str, grader:
         log_error(str(grader) + ' is not a valid grader!')
 
 
-def run_program(isolate_dir, input_path, answer_path, subtask_name, problem_info, compiled_filename, code_type):
+def run_testcase(isolate_dir, input_path, answer_path, subtask_name, problem_info, compiled_filename, code_type):
     time_limit = min(problem_info['time_limit'], MAX_TIME_LIMIT)
     mem_limit = min(problem_info['memory_limit'], MAX_MEMORY_LIMIT)
     # Setup arguments for isolate
@@ -248,10 +272,14 @@ def run_program(isolate_dir, input_path, answer_path, subtask_name, problem_info
     return verdict_test(isolate_dir, 'AC', final_score, time, memory)
 
 
-def run_subtask(isolate_dir, problem_info, problem_folder, subtask_name, compiled_filename, code_type, test_num):
+def run_subtask(isolate_dir, problem_info, problem_folder, subtask_info, compiled_filename, code_type, test_num):
+    subtask_name = subtask_info['name']
     if DEBUG_LOW:
         log('Running subtask ' + subtask_name)
     subtask_folder = problem_folder + '/subtasks/' + subtask_name
+    num_samples = 0
+    if 'num_samples' in subtask_info:
+        num_samples = subtask_info['num_samples']
     score_sum = 0
     min_score = 1
     max_time = 0
@@ -264,7 +292,7 @@ def run_subtask(isolate_dir, problem_info, problem_folder, subtask_name, compile
         test_input = test_inputs[i]
         test_name = test_input[:-3]
         test_output = test_name + '.out'
-        run_verdict = run_program(isolate_dir, 'subtasks/' + subtask_name + '/' + test_input,
+        run_verdict = run_testcase(isolate_dir, 'subtasks/' + subtask_name + '/' + test_input,
                                   subtask_folder + '/' + test_output,
                                   subtask_name, problem_info, compiled_filename, code_type)
         if DEBUG_LOW:
@@ -279,9 +307,18 @@ def run_subtask(isolate_dir, problem_info, problem_folder, subtask_name, compile
         # If first wrong answer, track results
         if run_verdict['verdict'] != 'AC' and first_wrong is None:
             first_wrong = {**run_verdict, 'testcase': i + 1}
+            if i < num_samples or problem_info['scoring_method'] == 'average_stop':
+                # Stop early (failed samples or average_stop method)
+                score_to_return = score_sum / len(test_inputs)
+                if DEBUG_LOWEST:
+                    log('Stopping early due to failed sample or average_stop scoring method')
+                return verdict_subtask(first_wrong['verdict'], score_to_return, first_wrong['time'],
+                                       first_wrong['memory'], first_wrong['testcase'])
 
+        # If score is already known to be 0, stop early to save processing time
         if min_score == 0 and problem_info['scoring_method'] == 'minimum':
-            # Stop early to save processing time
+            if DEBUG_LOWEST:
+                log('Stopping early due to minimum scoring method')
             if first_wrong is not None:
                 return verdict_subtask(first_wrong['verdict'], first_wrong['score'], first_wrong['time'],
                                        first_wrong['memory'], first_wrong['testcase'])
@@ -294,7 +331,7 @@ def run_subtask(isolate_dir, problem_info, problem_folder, subtask_name, compile
     testcase = len(test_inputs)
     if problem_info['scoring_method'] == 'minimum':
         final_score = min_score
-    elif problem_info['scoring_method'] == 'average':
+    elif problem_info['scoring_method'] in ['average', 'average_stop']:
         final_score = score_sum / len(test_inputs)
     if first_wrong is not None:
         final_verdict = first_wrong['verdict']
@@ -326,11 +363,11 @@ def judge_submission(tempdir, problem_id, code_filename, code_type):
     if DEBUG_LOW:
         log('Compiling ' + code_filename)
     compile_result = compile_submission(isolate_dir, code_filename, code_type)
-    if compile_result is None:
+    if not compile_result[0]:
         # Compile error
         isolate_cleanup()
-        return verdict_problem('CE', 0, problem_info['max_points'])
-    compiled_filename = compile_result
+        return verdict_compile_error('CE', 0, problem_info['max_points'], compile_result[1])
+    compiled_filename = compile_result[1]
 
     # Run problem subtasks
     test_num = 1
@@ -356,7 +393,7 @@ def judge_submission(tempdir, problem_id, code_filename, code_type):
                 test_num += len(glob.glob1(problem_folder + '/subtasks/' + subtask['name'], '*.in'))
                 continue
 
-        subtask_result = run_subtask(isolate_dir, problem_info, problem_folder, subtask['name'],
+        subtask_result = run_subtask(isolate_dir, problem_info, problem_folder, subtask,
                                      compiled_filename, code_type, test_num)
         subtask_results[subtask['name']] = subtask_result
         if DEBUG:
