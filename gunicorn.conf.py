@@ -16,9 +16,4 @@ threads = THREAD_COUNT
 timeout = 60
 graceful_timeout = 60
 
-# Request sizes should be pretty small
-limit_request_line = 1000
-limit_request_fields = 20
-limit_request_field_size = 2000
-
 # daemon = True
