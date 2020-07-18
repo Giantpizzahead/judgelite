@@ -1,3 +1,4 @@
 sut:
   build: .
-  command: tests/run_tests.sh
+  entrypoint: tests/run_tests.sh
+  privileged: true
