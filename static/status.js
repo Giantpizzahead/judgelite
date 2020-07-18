@@ -1,9 +1,9 @@
 const urlParams = new URLSearchParams(window.location.search);
-const QUERY_DELAY = 750;
+const QUERY_DELAY = 1000;
 window.onload = function() {
     // Repeatedly query for status
     if (urlParams.has("job_id")) {
-        runInterval();
+        setTimeout(runInterval, 750);
     }
 }
 
@@ -17,11 +17,17 @@ function runInterval() {
         if (this.readyState === XMLHttpRequest.DONE) {
             clearTimeout(xmlHttpTimeout);
             if (this.status == 200) {
-                displayResults(JSON.parse(xhttp.responseText));
+                updateResults(JSON.parse(xhttp.responseText));
+                finalizeResults(JSON.parse(xhttp.responseText));
             } else if (this.status == 202) {
-                displayStatus(JSON.parse(xhttp.responseText));
+                let shortWait = updateResults(JSON.parse(xhttp.responseText));
                 // Random timeout to make it exciting! (and to spread out server request load)
-                setTimeout(runInterval, QUERY_DELAY + (Math.random() * QUERY_DELAY));
+                if (shortWait) {
+                    setTimeout(runInterval, QUERY_DELAY + (Math.random() * QUERY_DELAY));
+                } else {
+                    // Wait longer (currently in queue)
+                    setTimeout(runInterval, QUERY_DELAY * 4 + (Math.random() * QUERY_DELAY));
+                }
             } else {
                 // Unexpected result; treat as an error
                 handleRequestError();
@@ -34,101 +40,120 @@ function runInterval() {
 
 function handleRequestError() {
     xhttp.abort();
-    statusText = document.getElementById("status-text");
+    let statusText = document.getElementById("status-text");
     if (numFailed > 5) {
-        statusText.innerHTML = "Status: Error contacting server. Maybe try reloading the page?";
+        statusText.innerHTML = "Error contacting server. Please try again in a bit.";
         return;
     } else {
-        statusText.innerHTML = "Status: Error contacting server. Retrying... [Try #" + numFailed + "]";
+        statusText.innerHTML = "Error contacting server. Retrying... [Try #" + numFailed + "]";
     }
     numFailed++;
     setTimeout(runInterval, numFailed * QUERY_DELAY);
 }
 
-function displayResults(resp) {
-    // console.log("finished")
-    // console.log(resp);
+function displayTestResult(verdict, subtask, test, time=0, memory=0) {
+    let testResultsBox = document.querySelector("#test-results-box");
+    let template = document.querySelector("#test-result");
 
-    flavorText = document.getElementById("flavor-text");
-    statusText = document.getElementById("status-text");
-    rawText = document.getElementById("raw-text");
-    rawText.innerText = JSON.stringify(resp);
+    // Clone & fill in the template
+    let clone = template.content.cloneNode(true);
+    let tooltip = clone.querySelector(".tooltip-no-underline");
+    let testResult = clone.querySelector(".test-result");
+    let testVerdict = clone.querySelector(".test-verdict");
+    let testNumber = clone.querySelector(".test-number");
+    let testMemory = clone.querySelector(".test-memory");
+    let testTime = clone.querySelector(".test-time");
 
-    if ("error" in resp) {
-        flavorText.innerHTML = "Uh-oh! An internal error occurred. If the issue persists, please notify an officer.";
-        statusText.innerHTML = "=====DEBUG INFO=====<br>Error code: " + resp["error"] + "<br>Job ID: " + resp["job_id"];
-    } else if ("verdict" in resp && resp["verdict"] == "CE") {
-        flavorText.innerHTML = "Were you tooooooo fast?";
-        statusText.innerHTML = `
-        <h2 class="color-red">Verdict: ${resp["verdict"]}</h2>
-        Score: ${resp["score"]}/${resp["max_score"]}<br>
-        `;
-        debugText = statusText.appendChild(document.createElement("p"));
-        debugText.className = "color-red";
-        debugText.innerText = `=====ERROR LOG=====
-        ${resp["compile_error"]}`;
-    } else if ("verdict" in resp) {
-        // Show flavor text
-        if (resp["verdict"] == "AC*") {
-            flavorText.innerHTML = "Whoa! What an overachiever :P [Really though, nice job. That was impressive.]"
-        } else if (resp["verdict"] == "AC") {
-            flavorText.innerHTML = "Congrats! I knew you could do it :D";
-        } else if (resp["verdict"] == "WA") {
-            flavorText.innerHTML = "Proof by AC? More like proof by WA :P";
-        } else if (resp["verdict"] == "TLE") {
-            flavorText.innerHTML = "Aww what? I thought for sure that time complexity would work! :(";
-        } else if (resp["verdict"] == "MLE") {
-            flavorText.innerHTML = "Yikes. I hope you know how to do sliding window!";
-        } else if (resp["verdict"] == "RE") {
-            flavorText.innerHTML = "Oh no... Not a runtime error! Good luck debugging THAT one.";
-        }
+    if (subtask != 0) testNumber.innerText = subtask + "-" + test;
+    else testNumber.innerText = test;
 
-        // Set verdict color based on score
-        let verdictStyle;
-        if (resp["score"] > resp["max_score"]) verdictStyle = "color-blue";
-        else if (resp["score"] == resp["max_score"]) verdictStyle = "color-green";
-        else if (resp["score"] > 0) verdictStyle = "color-yellow";
-        else verdictStyle = "color-red"
-
-        // Show results
-        statusText.innerHTML = `
-        <h2 class="${verdictStyle}">Verdict: ${resp["verdict"]}</h2>
-        Score: ${resp["score"]}/${resp["max_score"]}<br>
-        Time: ${resp["time"]}ms<br>
-        Memory: ${resp["memory"]} MB<br>
-        Testcase: ${resp["testcase"]}<br>
-        `;
-
-        // Show debug info (if given)
-        if ("stdout" in resp) {
-            debugText = statusText.appendChild(document.createElement("p"));
-            debugText.innerText = `=====DEBUG=====
-            -----stdout-----
-            ${resp["stdout"]}
-            -----stderr-----
-            ${resp["stderr"]}
-            `;
-        }
+    if (verdict == "AC" || verdict == "BO") {
+        tooltip.setAttribute("title", "Correct answer");
+        testResult.classList.add(verdict == "AC" ? "test-result-pass" : "test-result-bonus");
+        testVerdict.innerText = "*";
+        testMemory.innerText = memory + "mb";
+        testTime.innerText = time + "ms";
+    } else if (verdict == "SK") {
+        tooltip.setAttribute("title", "Test skipped");
+        testResult.classList.add("test-result-fail");
+        testVerdict.innerText = "-";
     } else {
-        flavorText.innerHTML = "Uh-oh! An internal error occurred. If the issue persists, please notify an officer.";
-        statusText.innerHTML = "=====DEBUG INFO=====<br>Error code: EMPTY_RESULT<br>Job ID: " + resp["job_id"];
+        testResult.classList.add("test-result-fail");
+        if (verdict == "WA") {
+            tooltip.setAttribute("title", "Wrong answer");
+            testVerdict.innerText = "x";
+        } else if (verdict == "TLE") {
+            tooltip.setAttribute("title", "Time limit exceeded");
+            testVerdict.innerText = "t";
+        } else {
+            tooltip.setAttribute("title", "Runtime error or memory limit exceeded");
+            testVerdict.innerText = "!";
+        }
     }
 
+    // Add the clone to the page
+    testResultsBox.appendChild(clone);
+}
+
+function updateResults(resp) {
+    // Debug info
+    // let rawText = document.getElementById("raw-text");
+    // rawText.innerText = JSON.stringify(resp);
+
+    // Clear test results
+    document.querySelector("#test-results-box").innerHTML = "";
+
+    // Update status text
+    let statusText = document.getElementById("status-text");
+    if (resp["status"] == "queued") {
+        statusText.innerHTML = "Waiting...";
+        return false;
+    } else if (resp["status"] == "judging") {
+        statusText.innerHTML = "Judging in progress...";
+    } else if (resp["status"] == "done") {
+        statusText.innerHTML = "Judging complete! Score: " + resp["final_score"] + " out of " + resp["max_score"];
+    } else if (resp["status"] == "compile_error") {
+        statusText.innerHTML = "Compilation error :(";
+        document.querySelector("#submission-result-box").classList.add("test-result-fail");
+        document.querySelector("#test-results-box").innerText = resp["compile_error"];
+        return true;
+    }
+
+    // Show test results
+    let testsTotal = 0;
+    let testsCompleted = 0;
+    let printSubtasks = true;
+    if (resp["subtasks"].length == 1 || (resp["subtasks"].length == 2 && resp["is_bonus"][0] == 0 && resp["is_bonus"][1] == 1)) {
+        // Special case: Make the test output prettier by removing subtask numbers
+        printSubtasks = false;
+    }
+    for (let i = 0; i < resp["subtasks"].length; i++) {
+        let subtask = resp["subtasks"][i];
+        let subtaskNum = i+1;
+        for (let j = 0; j < subtask.length; j++) {
+            let test = subtask[j];
+            if (test[0] != '--') {
+                testsCompleted++;
+                if (resp["is_bonus"][i] == 1 && test[0] == 'AC') {
+                    displayTestResult('BO', printSubtasks ? i+1 : 0, printSubtasks ? j+1 : testsTotal+j+1, test[1], test[2].toFixed(1));
+                } else if (resp["is_bonus"][i] == 0) {
+                    displayTestResult(test[0], printSubtasks ? i+1 : 0, printSubtasks ? j+1 : testsTotal+j+1, test[1], test[2].toFixed(1));
+                }
+            }
+        }
+        testsTotal += subtask.length;
+    }
+
+    let progressPercent = Math.round(testsCompleted / testsTotal * 100);
+    if (resp["status"] == "judging") {
+        statusText.innerHTML = `Judging in progress (${progressPercent}%)...`
+    }
+    return true;
+}
+
+function finalizeResults(resp) {
     let backButton = document.createElement("button");
     backButton.setAttribute("onclick", "window.history.back();");
     backButton.innerText = "Go Back";
     document.body.appendChild(backButton);
-}
-
-function displayStatus(resp) {
-    // console.log("processing")
-    // console.log(resp);
-
-    statusText = document.getElementById("status-text");
-    if ("status" in resp) {
-        statusText.innerHTML = "Status: " + resp["status"];
-    }
-
-    rawText = document.getElementById("raw-text");
-    rawText.innerText = JSON.stringify(resp);
 }

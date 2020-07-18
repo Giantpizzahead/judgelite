@@ -1,7 +1,17 @@
+/*
+Submission results format heavily inspired by USACO (USA Computing Olympiad)
+You should participate in USACO! It's really fun, and you might even make the IOI team ;)
+Check it out at http://usaco.org/
+*/
+
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans&family=Roboto&display=swap');
 
+* {
+    box-sizing: border-box;
+}
+
 body {
-    background-color: #d6ffd4;
+    /*background-color: #D6FFD4;*/
     font-family: 'Open Sans', sans-serif;
 }
 
@@ -14,17 +24,104 @@ h2 {
 }
 
 .color-blue {
-    color: #2e77d1;
+    color: #2E77D1;
 }
 
 .color-green {
-    color: #51db27;
+    color: #51DB27;
 }
 
 .color-yellow {
-    color: #c7b120;
+    color: #C7B120;
 }
 
 .color-red {
-    color: #c72020;
+    color: #C72020;
+}
+
+#submission-result-box {
+    border: 1px solid black;
+    padding: 10px;
+    margin: 20px;
+    font-weight: bold;
+}
+
+#submission-status {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#test-results-box {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: space-around;
+}
+
+#status-text {
+    margin: 5px;
+    text-align: center;
+}
+
+.tooltip-no-underline {
+    text-decoration: none;
+}
+
+.test-result {
+    height: 4.25em;
+    width: 5em;
+    margin: 3px;
+    position: relative;
+    display: inline-block;
+    border: 1px solid;
+    box-shadow: 0.2em 0.2em 0 0 rgba(15, 28, 63, 0.125);
+    font-family: Arial;
+    vertical-align: top;
+}
+
+.test-result-pass {
+    background: #EEFFEE;
+    border-color: #339933;
+    color: #339933;
+}
+
+.test-result-fail {
+    background: #FFE2E2;
+    border-color: #993333;
+    color: #993333;
+}
+
+.test-result-skipped {
+    background: #EEEEEE;
+    border-color: #333333;
+    color: #666666;
+}
+
+.test-result-bonus {
+    background: #E5E5FF;
+    border-color: #333399;
+    color: #333399;
+}
+
+.test-verdict {
+    font-size: 2.8em;
+    text-align: center;
+}
+
+.test-number {
+    bottom: 2px;
+    left: 3px;
+    position: absolute;
+    display: inline;
+    font-size: 0.85em;
+    text-align: left;
+}
+
+.test-info {
+    bottom: 2px;
+    right: 3px;
+    position: absolute;
+    font-size: 0.675em;
+    text-align: right;
 }

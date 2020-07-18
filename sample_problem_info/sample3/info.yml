@@ -1,0 +1,19 @@
+---
+# This problem showcaes a special case in which subtask numbers are not displayed (1 main subtask, 1 bonus).
+problem_id: sample3
+time_limit: 2
+memory_limit: 64
+scoring_method: average
+grader: diff
+max_score: 100
+
+subtasks:
+  - name: 01_main
+    score: 100
+    num_samples: 1
+  - name: 02_bonus
+    is_bonus: true
+    score: 1
+    depends_on:
+      - 01_main
+...

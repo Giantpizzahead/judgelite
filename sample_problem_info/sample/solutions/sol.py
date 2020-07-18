@@ -52,30 +52,28 @@ def test_file_dump(mb):
 
 X = int(input())
 
-'''
 arr = list(map(int, input().split()))
 
 s = 0
 for x in arr: s += x
 
 print(str(s) + '   ')
-'''
 
 # Python has no nextInt(), so to get the bonus points, you need to make your own read function... wow.
 # Ok this doesn't work either... so basically Python users aren't getting that extra credit. Oh well.
 # You might be able to read in blocks... but I'm lazy so I'm not gonna try doing that.
-sum = 0
-num = 0
-c = sys.stdin.read(1)
-while c:
-    if c == ' ':
-        # New number; sum it
-        sum += num
-        num = 0
-    else:
-        # Add a digit
-        num = num * 10 + ord(c) - 48
-    c = sys.stdin.read(1)
-# Off-by-one
-num = (num + 48 - ord('\n')) // 10
-print(sum + num)
+# sum = 0
+# num = 0
+# c = sys.stdin.read(1)
+# while c:
+#     if c == ' ':
+#         # New number; sum it
+#         sum += num
+#         num = 0
+#     else:
+#         # Add a digit
+#         num = num * 10 + ord(c) - 48
+#     c = sys.stdin.read(1)
+# # Off-by-one
+# num = (num + 48 - ord('\n')) // 10
+# print(sum + num)

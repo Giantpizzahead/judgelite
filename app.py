@@ -38,6 +38,8 @@ def handle_submission():
         problems_file = open(PROBLEM_INFO_PATH + '/problems.yml', 'r')
         problems = yaml.safe_load(problems_file)
         problems_file.close()
+        if not request.form:
+            return error('Empty request form (maybe invalid code file?)')
         if 'problem-id' not in request.form or request.form['problem-id'] not in problems:
             return error('Invalid problem ID!')
         if 'type' not in request.form:
@@ -59,9 +61,10 @@ def handle_submission():
 
         # Enqueue the job
         # return judge_submission(tempdir, sec_filename, request.form['type'])
-        job = q.enqueue_call(func=judge_submission, timeout=60, ttl=300, result_ttl=180, failure_ttl=180,
+        job = q.enqueue_call(func=judge_submission, timeout=60,
+                             ttl=RESULT_TTL, result_ttl=RESULT_TTL, failure_ttl=RESULT_TTL,
                              args=(tempdir, request.form['problem-id'], sec_filename, request.form['type']))
-        job.meta['status'] = 'Initializing...'
+        job.meta['status'] = 'queued'
         job.save_meta()
         if DEBUG_LOWEST:
             log('New job id: {}'.format(job.get_id()))
@@ -77,7 +80,7 @@ def get_status():
     try:
         Job.fetch(request.args['job_id'], connection=conn)
     except NoSuchJobError:
-        return redirect(url_for('.handle_submission'))
+        return error('Job not found!')
     return render_template('status.html', job_id=request.args['job_id'])
 
 
@@ -86,9 +89,9 @@ def get_results(job_key):
     try:
         job = Job.fetch(job_key, connection=conn)
     except NoSuchJobError:
-        return error('Job not found!')
+        return {'error': 'NO_SUCH_JOB', 'job_id': job_key}, 200
     if job.is_queued:
-        return {'status': 'In queue (position {} of {})'.format(job.get_position() + 1, q.count)}, 202
+        return job.meta, 202
     elif job.is_finished:
         return job.result, 200
     elif job.is_failed:

@@ -4,7 +4,6 @@ Note: This implementation can only handle one submission at a time. Currently, t
 is used to achieve a first come, first served structure.
 """
 
-import resource
 import subprocess
 import shutil
 import rq
@@ -17,17 +16,12 @@ from logger import *
 job: rq.job
 
 
-def update_job_status(status):
-    job.meta['status'] = status
-    job.save_meta()
-
-
-def remove_dir(dir: str) -> None:
+def remove_dir(target_dir: str) -> None:
     """Deletes a directory (and everything in it).
 
-    :param dir - The directory to delete.
+    :param target_dir - The directory to delete.
     """
-    shutil.rmtree(dir)
+    shutil.rmtree(target_dir)
 
 
 def verdict_test(tempdir, verdict_code, score, time=0.0, memory=0.0):
@@ -55,16 +49,19 @@ def verdict_subtask(verdict_code, score, time=0.0, memory=0.0, testcase=1):
 
 
 def verdict_compile_error(verdict_code, score, max_score, error):
-    to_return = {'verdict': verdict_code, 'score': score, 'max_score': max_score,
-                 'compile_error': error}
-    log('Final verdict: ' + str(to_return))
-    return to_return
+    final_verdict = {'verdict': verdict_code, 'score': score, 'max_score': max_score, 'compile_error': error}
+    log('Final verdict: ' + str(final_verdict))
+    return {'status': 'compile_error', 'final_score': score, 'max_score': max_score, 'compile_error': error}
 
 
 def verdict_problem(verdict_code, score, max_score, time=0.0, memory=0.0, testcase=1):
-    to_return = {'verdict': verdict_code, 'score': score, 'max_score': max_score,
-                 'time': time, 'memory': memory, 'testcase': testcase}
-    log('Final verdict: ' + str(to_return))
+    final_verdict = {'verdict': verdict_code, 'score': score, 'max_score': max_score,
+                     'time': time, 'memory': memory, 'testcase': testcase}
+    log('Final verdict: ' + str(final_verdict))
+
+    to_return = job.meta
+    to_return['status'] = 'done'
+    to_return['final_score'] = score
     return to_return
 
 
@@ -72,12 +69,6 @@ def verdict_error(msg):
     to_return = {'error': msg, 'job_id': job.get_id()}
     log('Returning error: ' + str(to_return))
     return to_return
-
-
-def limit_memory(mem_limit):
-    # Make sure the stack size is as big as the memory limit
-    resource.setrlimit(resource.RLIMIT_STACK, (mem_limit * 1024 * 1024, resource.RLIM_INFINITY))
-    # resource.setrlimit(resource.RLIMIT_AS, ((mem_limit + 32) * 1024 * 1024, resource.RLIM_INFINITY))
 
 
 def isolate_init(tempdir: str, problem_folder: str, code_filename: str) -> [str, None]:
@@ -143,7 +134,8 @@ def compile_submission(isolate_dir: str, code_filename: str, code_type: str) -> 
         fcode_new.write(fcode_old.read())
         fcode_old.close()
         fcode_new.close()
-        compile_args = ['/bin/python3', '-c', 'import py_compile\nif py_compile.compile("code.new.py") is None: exit(1)']
+        compile_args = ['/bin/python3', '-c',
+                        'import py_compile\nif py_compile.compile("code.new.py") is None: exit(1)']
 
     isolate_args = ['isolate/isolate', '--run', '--cg', '--processes=50', '--silent',
                     '--time=' + str(COMPILE_TIME_LIMIT), '--wall-time=' + str(COMPILE_TIME_LIMIT),
@@ -272,7 +264,7 @@ def run_testcase(isolate_dir, input_path, answer_path, subtask_name, problem_inf
     return verdict_test(isolate_dir, 'AC', final_score, time, memory)
 
 
-def run_subtask(isolate_dir, problem_info, problem_folder, subtask_info, compiled_filename, code_type, test_num):
+def run_subtask(isolate_dir, problem_info, problem_folder, subtask_info, compiled_filename, code_type, subtask_i):
     subtask_name = subtask_info['name']
     if DEBUG_LOW:
         log('Running subtask ' + subtask_name)
@@ -286,15 +278,13 @@ def run_subtask(isolate_dir, problem_info, problem_folder, subtask_info, compile
     max_memory = 0
     first_wrong = None
     test_inputs = sorted(glob.glob1(subtask_folder, '*.in'))
-    for i in range(len(test_inputs)):
-        update_job_status('Running test case ' + str(test_num))
-        test_num += 1
-        test_input = test_inputs[i]
+    for test_i in range(len(test_inputs)):
+        test_input = test_inputs[test_i]
         test_name = test_input[:-3]
         test_output = test_name + '.out'
         run_verdict = run_testcase(isolate_dir, 'subtasks/' + subtask_name + '/' + test_input,
-                                  subtask_folder + '/' + test_output,
-                                  subtask_name, problem_info, compiled_filename, code_type)
+                                   subtask_folder + '/' + test_output,
+                                   subtask_name, problem_info, compiled_filename, code_type)
         if DEBUG_LOW:
             log('Test ' + test_name + ': ' + str(run_verdict))
 
@@ -304,14 +294,29 @@ def run_subtask(isolate_dir, problem_info, problem_folder, subtask_info, compile
         max_time = max(run_verdict['time'], max_time)
         max_memory = max(run_verdict['memory'], max_memory)
 
+        # Update job meta, but don't reveal any bonus verdicts
+        if problem_info['scoring_method'] in ['average', 'average_stop']:
+            job.meta['score'][subtask_i] = score_sum / len(test_inputs) * subtask_info['score']
+        if run_verdict['verdict'] == 'AC' or 'is_bonus' not in subtask_info or not subtask_info['is_bonus']:
+            job.meta['subtasks'][subtask_i][test_i][0] = run_verdict['verdict']
+            job.meta['subtasks'][subtask_i][test_i][1] = run_verdict['time']
+            job.meta['subtasks'][subtask_i][test_i][2] = run_verdict['memory']
+        else:
+            job.meta['subtasks'][subtask_i][test_i][0] = 'SK'
+        job.save_meta()
+
         # If first wrong answer, track results
         if run_verdict['verdict'] != 'AC' and first_wrong is None:
-            first_wrong = {**run_verdict, 'testcase': i + 1}
-            if i < num_samples or problem_info['scoring_method'] == 'average_stop':
+            first_wrong = {**run_verdict, 'testcase': test_i + 1}
+            if test_i < num_samples or problem_info['scoring_method'] == 'average_stop':
                 # Stop early (failed samples or average_stop method)
                 score_to_return = score_sum / len(test_inputs)
                 if DEBUG_LOWEST:
                     log('Stopping early due to failed sample or average_stop scoring method')
+                # Update job meta
+                for j in range(test_i+1, len(test_inputs)):
+                    job.meta['subtasks'][subtask_i][j][0] = 'SK'
+                job.save_meta()
                 return verdict_subtask(first_wrong['verdict'], score_to_return, first_wrong['time'],
                                        first_wrong['memory'], first_wrong['testcase'])
 
@@ -319,11 +324,15 @@ def run_subtask(isolate_dir, problem_info, problem_folder, subtask_info, compile
         if min_score == 0 and problem_info['scoring_method'] == 'minimum':
             if DEBUG_LOWEST:
                 log('Stopping early due to minimum scoring method')
+            # Update job meta
+            for j in range(test_i + 1, len(test_inputs)):
+                job.meta['subtasks'][subtask_i][j][0] = 'SK'
+            job.save_meta()
             if first_wrong is not None:
                 return verdict_subtask(first_wrong['verdict'], first_wrong['score'], first_wrong['time'],
                                        first_wrong['memory'], first_wrong['testcase'])
             else:
-                return verdict_subtask('AC', 0, max_time, max_memory, i + 1)
+                return verdict_subtask('AC', 0, max_time, max_memory, test_i + 1)
 
     # Return verdict
     final_score = 0
@@ -333,6 +342,8 @@ def run_subtask(isolate_dir, problem_info, problem_folder, subtask_info, compile
         final_score = min_score
     elif problem_info['scoring_method'] in ['average', 'average_stop']:
         final_score = score_sum / len(test_inputs)
+    job.meta['score'][subtask_i] = final_score * subtask_info['score']
+    job.save_meta()
     if first_wrong is not None:
         final_verdict = first_wrong['verdict']
         testcase = first_wrong['testcase']
@@ -353,20 +364,35 @@ def judge_submission(tempdir, problem_id, code_filename, code_type):
     if DEBUG_LOWEST:
         log(str(problem_info))
 
+    # Put problem info into job meta
+    job.meta['status'] = 'judging'
+    job.meta['score'] = [0 for _ in range(len(problem_info['subtasks']))]
+    job.meta['is_bonus'] = [0 for _ in range(len(problem_info['subtasks']))]
+    job.meta['max_score'] = problem_info['max_score']
+    job.meta['subtasks'] = []
+    for i in range(len(problem_info['subtasks'])):
+        subtask = problem_info['subtasks'][i]
+        subtask_folder = problem_folder + '/subtasks/' + subtask['name']
+        test_inputs = glob.glob1(subtask_folder, '*.in')
+        subtask_arr = [['--', 0, 0] for _ in range(len(test_inputs))]
+        job.meta['subtasks'].append(subtask_arr)
+        if 'is_bonus' in subtask and subtask['is_bonus']:
+            job.meta['is_bonus'][i] = 1
+    job.save_meta()
+
     # Initialize the isolate sandbox / move code file there
     isolate_dir = isolate_init(tempdir, problem_folder, code_filename)
     if isolate_dir is None:
         return verdict_error('INIT_FAIL')
 
     # Compile the code file
-    update_job_status('Compiling...')
     if DEBUG_LOW:
         log('Compiling ' + code_filename)
     compile_result = compile_submission(isolate_dir, code_filename, code_type)
     if not compile_result[0]:
         # Compile error
         isolate_cleanup()
-        return verdict_compile_error('CE', 0, problem_info['max_points'], compile_result[1])
+        return verdict_compile_error('CE', 0, problem_info['max_score'], compile_result[1])
     compiled_filename = compile_result[1]
 
     # Run problem subtasks
@@ -390,11 +416,16 @@ def judge_submission(tempdir, problem_id, code_filename, code_type):
                     log('Skipping subtask ' + subtask['name'])
                 if DEBUG:
                     log('Subtask ' + subtask['name'] + ': ' + str(subtask_results[subtask['name']]))
-                test_num += len(glob.glob1(problem_folder + '/subtasks/' + subtask['name'], '*.in'))
+                num_tests = len(glob.glob1(problem_folder + '/subtasks/' + subtask['name'], '*.in'))
+                test_num += num_tests
+                # Update job meta
+                for j in range(num_tests):
+                    job.meta['subtasks'][i][j][0] = 'SK'
+                job.save_meta()
                 continue
 
         subtask_result = run_subtask(isolate_dir, problem_info, problem_folder, subtask,
-                                     compiled_filename, code_type, test_num)
+                                     compiled_filename, code_type, i)
         subtask_results[subtask['name']] = subtask_result
         if DEBUG:
             log('Subtask ' + subtask['name'] + ': ' + str(subtask_result))
@@ -418,7 +449,7 @@ def judge_submission(tempdir, problem_id, code_filename, code_type):
             testcase = curr_testcase + subtask_result['testcase']
 
         # Calculate metrics
-        final_score += subtask_result['score'] * subtask['points']
+        final_score += subtask_result['score'] * subtask['score']
         if subtask_result['score'] > 0 or 'is_bonus' not in subtask or not subtask['is_bonus']:
             max_time = max(subtask_result['time'], max_time)
             max_memory = max(subtask_result['memory'], max_memory)
@@ -431,9 +462,9 @@ def judge_submission(tempdir, problem_id, code_filename, code_type):
     if testcase == -1:
         testcase = curr_testcase
     isolate_cleanup()
-    if final_score > problem_info['max_points']:
+    if final_score > problem_info['max_score']:
         # AC* :O
         final_verdict = 'AC*'
 
     # Finally, return the result. :)
-    return verdict_problem(final_verdict, final_score, problem_info['max_points'], max_time, max_memory, testcase)
+    return verdict_problem(final_verdict, final_score, problem_info['max_score'], max_time, max_memory, testcase)

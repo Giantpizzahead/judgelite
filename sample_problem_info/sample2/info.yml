@@ -4,26 +4,26 @@ time_limit: 3
 memory_limit: 256
 scoring_method: average_stop
 grader: diff
-max_points: 1000
+max_score: 1000
 
 subtasks:
   - name: 01_strings
-    points: 250
+    score: 250
   - name: 02_numbers
-    points: 250
+    score: 250
   - name: 03_mix
-    points: 500
+    score: 500
     depends_on:
       - 01_strings
       - 02_numbers
   - name: 04_huge_numbers
     is_bonus: true
-    points: 50
+    score: 50
     depends_on:
       - 02_numbers
   - name: 05_huge_mix
     is_bonus: true
-    points: 100
+    score: 100
     depends_on:
       - 03_mix
       - 04_huge_numbers

@@ -8,7 +8,7 @@ problem_id: sample
 time_limit: 2
 
 # Memory limit for this problem, in MB.
-memory_limit: 128
+memory_limit: 192
 
 # Scoring method can be one of the following options:
 # minimum = The minimum score out of all test cases in a subtask is used. If one test case fails in a
@@ -25,22 +25,22 @@ scoring_method: minimum
 # custom = Not yet implemented.
 grader: diff
 
-# The maximum number of points that can be received by solving this question, NOT INCLUDING BONUS POINTS.
-max_points: 100
+# The maximum score that can be received by solving this question, NOT INCLUDING BONUS POINTS.
+max_score: 100
 
 # A list of subtasks.
 subtasks:
   # The name specified for a subtask must match the directory name.
   - name: 01_small
     # The number of points assigned to a subtask.
-    points: 30
+    score: 30
     # The number of sample cases in this subtask (only needed if the subtask has samples).
     # If the program does not get AC on samples, the rest of the subtask will be skipped.
     # Using this attribute saves valuable time when people accidentally submit completely wrong programs.
     # This only has a noticeable effect on the 'average' scoring method (but it's best to include it anyway).
     num_samples: 1
   - name: 02_large
-    points: 70
+    score: 70
     # Which subtasks need to be 'solved' (non-zero score) in order to run this one.
     # This allows the submission system to skip unneeded subtasks, saving valuable time.
     depends_on:
@@ -48,7 +48,7 @@ subtasks:
   - name: 03_bonus
     # Use this flag to mark a subtask as a bonus subtask.
     is_bonus: true
-    points: 10
+    score: 10
     depends_on:
       - 02_large
 ...

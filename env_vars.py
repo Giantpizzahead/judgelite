@@ -41,7 +41,7 @@ MAX_MEMORY_LIMIT = int(os.environ.get('MAX_MEMORY_LIMIT', 256))
 MAX_OUTPUT_SIZE = int(os.environ.get('MAX_OUTPUT_SIZE', 16))
 # Number of seconds to add to the wall time threshold (used to kill a program that runs for too long).
 # Rounded to 1 decimal place.
-WALL_TIME_EXTENSION = round(float(os.environ.get('WALL_TIME_EXTENSION', 2.5)), 1)
+WALL_TIME_EXTENSION = round(float(os.environ.get('WALL_TIME_EXTENSION', 1.5)), 1)
 # The amount of seconds to sleep in between each program status check. Too many checks may slow down the program.
 # Rounded to 2 decimal places.
 CHECK_INTERVAL = round(float(os.environ.get('CHECK_INTERVAL', 0.2)), 2)
@@ -59,5 +59,8 @@ MAX_CODE_SIZE = int(os.environ.get('MAX_CODE_SIZE', 256))
 """
 Miscellaneous settings
 """
-# Path to the root problem_info folder.
-PROBLEM_INFO_PATH = os.environ.get('PROBLEM_INFO_PATH', './problem_info')
+# Path to the root problem_info folder. Useful when mounting a problem info directory.
+PROBLEM_INFO_PATH = os.environ.get('PROBLEM_INFO_PATH', './sample_problem_info')
+# How long to keep the results of jobs (in seconds). Applies to both failed and successful jobs.
+# If debugging, set this to a short value (300 seconds). Else, set it to a high value (1 year = 31536000 seconds).
+RESULT_TTL = os.environ.get('RESULT_TTL', 300)
