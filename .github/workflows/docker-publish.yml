@@ -27,7 +27,7 @@ jobs:
 
       - name: Run tests
         run: |
-          swapoff -a
+          sudo swapoff -a
           if [ -f docker-compose.test.yml ]; then
             docker-compose --file docker-compose.test.yml build
             docker-compose --file docker-compose.test.yml run sut
