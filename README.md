@@ -12,16 +12,21 @@ Hard-coding things is bad, so most of the 'hard-coded' values are configurable v
 
 Also look at the sample problems in the **problem_info** folder (check the README.txt in problem #1 as well) to figure out how problems are structured. The problem creation process will probably be abstracted into a web form at some point though.
 
+## Demo
+A live version of this Docker image can be found <a href="http://submission-judge.westus2.cloudapp.azure.com:8080/">**here**</a>. Feel free to mess around with it. If you're feeling up for a challenge, see if you can solve the 2nd sample problem.
+
+The security of this system should be pretty good, so if you want to try and break the judge system, go ahead! (Of course, if you do manage to break it, please file an issue so I can fix it. Thanks!)
+
 ## Usage
-You'll need to manually build the docker image to use it at the moment (this will hopefully be changed later). To play around with the submission judge, first <a href="https://docs.docker.com/get-docker/">install docker</a>, then run:
+The built docker image can be found as a package on Github (located <a href="https://github.com/Giantpizzahead/submission-judge/packages/318563">**here**</a>). To play around with the submission judge, first <a href="https://docs.docker.com/get-docker/">install docker</a>, then <a href="https://docs.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-docker-for-use-with-github-packages#authenticating-to-github-packages">authenticate to GitHub Packages</a> with Docker. Next, run:
 ```commandline
-swapoff -a
+sudo swapoff -a
 ```
 The above command disables memory swapping on the machine, which is required for the submission judge to enforce memory limits. By default, this does not persist across reboots.
 
-Finally, run the below command to start the Docker container (Warning: The container may temporarily change some kernel settings to make sure judging is consistent; these changes also do not persist across reboots):
+Finally, run the below command to start the Docker container (Warning: The container may temporarily change some settings to make sure judging is consistent; these changes also do not persist across reboots):
 ```commandline
-docker run -p 8080:8080 --privileged DOCKER_IMAGE_NAME
+docker run -p 8080:8080 --privileged docker.pkg.github.com/giantpizzahead/submission-judge/submission-judge:latest
 ```
 (Yes, it requires privileged mode. rip <a href="https://github.com/ioi/isolate">isolate</a>)
 
