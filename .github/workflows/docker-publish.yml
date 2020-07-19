@@ -28,13 +28,8 @@ jobs:
       - name: Run tests
         run: |
           sudo swapoff -a
-          if [ -f docker-compose.test.yml ]; then
-            docker-compose --file docker-compose.test.yml build
-            docker-compose --file docker-compose.test.yml run sut
-            bash <(curl -s https://codecov.io/bash)
-          else
-            docker build . --file Dockerfile
-          fi
+          docker-compose --file docker-compose.test.yml build
+          docker-compose --file docker-compose.test.yml run sut
 
   # Push image to GitHub Packages.
   # See also https://docs.docker.com/docker-hub/builds/
