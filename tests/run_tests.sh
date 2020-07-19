@@ -1,8 +1,7 @@
 #!/bin/bash
 
-echo "Installing pytest and curl..."
+echo "Installing pytest"
 pip3 install pytest pytest-cov
-apt-get install -y curl
 
 echo "Setting up environment..."
 
@@ -19,5 +18,5 @@ sleep 3
 echo "Running pytest..."
 pytest -W ignore::DeprecationWarning --cov-report=xml --cov=./
 
-echo "Uploading coverage report..."
-bash <(curl -s https://codecov.io/bash) || echo "WARNING: Codecov did not collect coverage reports!"
+mv .coverage /shared
+mv coverage.xml /shared
