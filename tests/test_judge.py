@@ -177,6 +177,11 @@ def test_file_limiting(tempdir):
     assert True
 
 
+"""
+Miscellaneous tests
+"""
+
+
 def test_compiler_bomb(tempdir):
     """Make sure the judge is not vulnerable to a compiler bomb (size of error output)."""
     assert True
@@ -184,3 +189,4 @@ def test_compiler_bomb(tempdir):
 
 def test_runtime_bomb(tempdir):
     """Make sure the judge is not vulnerable to a runtime bomb (size of code output)."""
+    assert True

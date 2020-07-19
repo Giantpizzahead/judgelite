@@ -3,7 +3,7 @@ const QUERY_DELAY = 1000;
 window.onload = function() {
     // Repeatedly query for status
     if (urlParams.has("job_id")) {
-        setTimeout(runInterval, 750);
+        runInterval();
     }
 }
 

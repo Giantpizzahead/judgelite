@@ -1,11 +1,11 @@
 ## TODOs
- - See if there's some way to automate the 'swapoff -a' command (maybe replace with swap accounting?)
- - Add a longer delay between refreshes when waiting in queue
- - Make a front-end web interface to create and edit problems
+ - Setup Github commit signing
+ - Setup code coverage using Codecov
  - Make strong tests for the judging system
    - Adjust the AC tests to make them quicker (only make one long test case?)
    - Fill in the currently unimplemented tests
    - Use codecov to help make complete tests
+ - Make a front-end web interface to create and edit problems
 
 ### Less important TODOs
  - Make convenience function to generate correct outputs using a program
@@ -16,4 +16,7 @@
  - Combine debug env vars into a single DEBUG integer
  - Look into async / threaded workers for gunicorn
  - Organize & document the code (not important YET)
+
+#### Other stuff
+ - See if there's some way to automate the 'swapoff -a' command (maybe replace with swap accounting?)
  - Disk quota is not enabled, only fsize is. That means that you could bypass the max file size limit by creating tons of small files, overloading the system. No one would do this by accident though, so it's not something that is too important to fix (plus, who would even think to try this?).
