@@ -28,8 +28,9 @@ jobs:
       - name: Run tests
         run: |
           sudo swapoff -a
+          ci_env=`bash <(curl -s https://codecov.io/env)`
           docker-compose --file docker-compose.test.yml build
-          docker-compose --file docker-compose.test.yml run sut
+          docker-compose --file docker-compose.test.yml run $ci_env sut
 
   # Push image to GitHub Packages.
   # See also https://docs.docker.com/docker-hub/builds/
