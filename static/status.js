@@ -43,14 +43,14 @@ function runInterval() {
 function handleRequestError() {
     xhttp.abort();
     let statusText = document.getElementById("status-text");
-    if (numFailed > 5) {
+    if (numFailed > 3) {
         statusText.innerHTML = "Error contacting server. Please try again in a bit.";
         return;
     } else {
         statusText.innerHTML = "Error contacting server. Retrying... [Try #" + numFailed + "]";
     }
     numFailed++;
-    setTimeout(runInterval, numFailed * QUERY_DELAY);
+    setTimeout(runInterval, numFailed * 2 * QUERY_DELAY);
 }
 
 function displayTestResult(verdict, subtask, test, time=0, memory=0) {

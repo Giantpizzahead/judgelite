@@ -62,9 +62,7 @@ def test_stop_on_fail(tempdir):
 
 
 def test_depends_on(tempdir):
-    """
-    Test that the 'depends_on' setting works as expected.
-    """
+    """Test that the 'depends_on' setting works as expected."""
     copyfile('./sample_problem_info/test3/solutions/depends_on.py', tempdir + '/depends_on.py')
     job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test3', 'depends_on.py', 'python'))
 

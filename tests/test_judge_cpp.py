@@ -22,14 +22,14 @@ def tempdir():
 
 
 def test_ac_cpp(tempdir):
-    """Makes sure that the judge works correctly for a correct C++ program."""
+    """Make sure that the judge works correctly for a correct C++ program."""
     copyfile('./sample_problem_info/test/solutions/sol.cpp', tempdir + '/sol.cpp')
     job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'sol.cpp', 'cpp'))
     assert job.result['final_score'] == 101
 
 
 def test_wrong_cpp(tempdir):
-    """Makes sure that the judge gives accurate verdicts for a wrong C++ program."""
+    """Make sure that the judge gives accurate verdicts for a wrong C++ program."""
     copyfile('./sample_problem_info/test/solutions/wrong.cpp', tempdir + '/wrong.cpp')
     job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'wrong.cpp', 'cpp'))
 
@@ -43,12 +43,12 @@ def test_wrong_cpp(tempdir):
 
 
 def test_compile_error_cpp(tempdir):
-    """Makes sure that the judge returns a compile error for C++, along with a reason for the error."""
+    """Make sure that the judge returns a compile error for C++, along with a reason for the error."""
     copyfile('./sample_problem_info/test/solutions/compileerror.cpp', tempdir + '/compileerror.cpp')
     job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'compileerror.cpp', 'cpp'))
     assert job.result['status'] == 'compile_error' and 'error: \'N\' was not declared' in job.result['compile_error']
 
 
 def test_stack_cpp(tempdir):
-    """Makes sure that the judge accepts a C++ program that does stack-heavy things (test uses DFS)."""
+    """Make sure that the judge accepts a C++ program that does stack-heavy things (test uses DFS)."""
     assert True

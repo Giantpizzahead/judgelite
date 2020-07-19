@@ -25,11 +25,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Build image
+        run: docker-compose --file docker-compose.test.yml build
+
       - name: Run tests
         run: |
           sudo swapoff -a
           mkdir shared
-          docker-compose --file docker-compose.test.yml build
           docker-compose --file docker-compose.test.yml run -v "$PWD/shared:/shared" sut
 
       - name: Upload code coverage report

@@ -23,14 +23,14 @@ def tempdir():
 
 
 def test_ac_java(tempdir):
-    """Makes sure that the judge works correctly for a normal Java program."""
+    """Make sure that the judge works correctly for a normal Java program."""
     copyfile('./sample_problem_info/test/solutions/sol.java', tempdir + '/sol.java')
     job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'sol.java', 'java'))
     assert job.result['final_score'] == 101
 
 
 def test_wrong_java(tempdir):
-    """Makes sure that the judge gives accurate verdicts for a wrong Java program."""
+    """Make sure that the judge gives accurate verdicts for a wrong Java program."""
     copyfile('./sample_problem_info/test/solutions/wrong.java', tempdir + '/wrong.java')
     job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'wrong.java', 'java'))
 
@@ -44,7 +44,7 @@ def test_wrong_java(tempdir):
 
 
 def test_compile_error_java(tempdir):
-    """Makes sure that the judge returns a compile error for Java, along with a reason for the error."""
+    """Make sure that the judge returns a compile error for Java, along with a reason for the error."""
     copyfile('./sample_problem_info/test/solutions/compileerror.java', tempdir + '/compileerror.java')
     job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'compileerror.java', 'java'))
     assert job.result['status'] == 'compile_error' and 'error: cannot find symbol' in job.result['compile_error'] and \
@@ -52,5 +52,5 @@ def test_compile_error_java(tempdir):
 
 
 def test_stack_java(tempdir):
-    """Makes sure that the judge accepts a Java program that does stack-heavy things (test uses DFS)."""
+    """Make sure that the judge accepts a Java program that does stack-heavy things (test uses DFS)."""
     assert True

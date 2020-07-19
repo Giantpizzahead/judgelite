@@ -12,7 +12,7 @@
                 document.getElementById('submit-button').innerText = 'Submit!';">
     <!--Simple form to test the submission process-->
     <h1>Test Interface</h1>
-    <form method="POST" enctype="multipart/form-data" autocomplete="on"
+    <form action="/submit" method="POST" enctype="multipart/form-data" autocomplete="on"
           onsubmit="document.getElementById('submit-button').disabled = true;
                     document.getElementById('submit-button').innerText = 'Submitting...'; return true;">
         <p>Memory limit and time limit vary per problem (x1 for C++, x1.5 for Java, x2 for Python).</p>
@@ -81,8 +81,8 @@
             Problem ID: <b>test</b>
         </p>
         <h3>Submission Form</h3>
-        <label for="problem-id">Problem ID:</label>
-        <input id="problem-id" name="problem-id" type="text">
+        <label for="problem_id">Problem ID:</label>
+        <input id="problem_id" name="problem_id" type="text">
         <br> <br>
         <label for="type">Language:</label>
         <select id="type" name="type">
@@ -94,14 +94,6 @@
         <label for="code">Code to submit:</label>
         <input id="code" name="code" type="file">
         <br> <br>
-        <!--
-        <label for="input">Input file:</label>
-        <input id="input" name="input" type="file">
-        <br> <br>
-        <label for="input">Output file:</label>
-        <input id="output" name="output" type="file">
-        <br> <br>
-        -->
         <button type="submit" id="submit-button" autocomplete="off">Submit!</button>
     </form>
 </body>
