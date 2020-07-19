@@ -18,5 +18,5 @@ sleep 3
 echo "Running pytest..."
 pytest -W ignore::DeprecationWarning --cov-report=xml --cov=./
 
-mv .coverage /shared
-mv coverage.xml /shared
+mv .coverage ../shared/
+mv coverage.xml ../shared/

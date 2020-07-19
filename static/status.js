@@ -9,6 +9,7 @@ window.onload = function() {
 
 var xhttp;
 var xmlHttpTimeout;
+var numDelay = 0;
 var numFailed = 1;
 function runInterval() {
     xmlHttpTimeout = setTimeout(handleRequestError, 5000);
@@ -26,7 +27,8 @@ function runInterval() {
                     setTimeout(runInterval, QUERY_DELAY + (Math.random() * QUERY_DELAY));
                 } else {
                     // Wait longer (currently in queue)
-                    setTimeout(runInterval, QUERY_DELAY * 4 + (Math.random() * QUERY_DELAY));
+                    numDelay++;
+                    setTimeout(runInterval, QUERY_DELAY * numDelay + (Math.random() * QUERY_DELAY));
                 }
             } else {
                 // Unexpected result; treat as an error
@@ -97,8 +99,8 @@ function displayTestResult(verdict, subtask, test, time=0, memory=0) {
 
 function updateResults(resp) {
     // Debug info
-    // let rawText = document.getElementById("raw-text");
-    // rawText.innerText = JSON.stringify(resp);
+    let rawText = document.getElementById("raw-text");
+    rawText.innerText = JSON.stringify(resp);
 
     // Clear test results
     document.querySelector("#test-results-box").innerHTML = "";
@@ -116,6 +118,11 @@ function updateResults(resp) {
         statusText.innerHTML = "Compilation error :(";
         document.querySelector("#submission-result-box").classList.add("test-result-fail");
         document.querySelector("#test-results-box").innerText = resp["compile_error"];
+        return true;
+    } else if (resp["status"] == "internal_error") {
+        statusText.innerHTML = "Uh-oh! An internal error occured. :(";
+        document.querySelector("#submission-result-box").classList.add("test-result-fail");
+        document.querySelector("#test-results-box").innerText = "Error code: " + resp["error"] + "\nJob ID: " + resp["job_id"];
         return true;
     }
 

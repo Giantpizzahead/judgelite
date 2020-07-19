@@ -23,7 +23,8 @@ RUN pip3 install \
     gunicorn \
     psutil \
     rq \
-    pyyaml
+    pyyaml \
+    pylint
 
 # Copy local code to the container image
 ENV APP_HOME /app

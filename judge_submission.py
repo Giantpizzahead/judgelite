@@ -66,7 +66,7 @@ def verdict_problem(verdict_code, score, max_score, time=0.0, memory=0.0, testca
 
 
 def verdict_error(msg):
-    to_return = {'error': msg, 'job_id': job.get_id()}
+    to_return = {'status': 'internal_error', 'error': msg, 'job_id': job.get_id()}
     log('Returning error: ' + str(to_return))
     return to_return
 
@@ -134,13 +134,12 @@ def compile_submission(isolate_dir: str, code_filename: str, code_type: str) -> 
         fcode_new.write(fcode_old.read())
         fcode_old.close()
         fcode_new.close()
-        compile_args = ['/bin/python3', '-c',
-                        'import py_compile\nif py_compile.compile("code.new.py") is None: exit(1)']
+        compile_args = ['/bin/python3', '-m', 'pylint', '--errors-only', 'code.new.py']
 
     isolate_args = ['isolate/isolate', '--run', '--cg', '--processes=50', '--silent',
                     '--time=' + str(COMPILE_TIME_LIMIT), '--wall-time=' + str(COMPILE_TIME_LIMIT),
-                    '--cg-mem=' + str(COMPILE_MEMORY_LIMIT * 1024), '--chdir=/box', '--stderr=error.err.txt',
-                    '--fsize=' + str(MAX_COMPILE_SIZE * 1024), '--']
+                    '--cg-mem=' + str(COMPILE_MEMORY_LIMIT * 1024), '--chdir=/box', '--stdout=error.err.txt',
+                    '--stderr-to-stdout', '--fsize=' + str(MAX_COMPILE_SIZE * 1024), '--']
     if DEBUG_LOWEST:
         log('$' + ' '.join(isolate_args + compile_args))
 
@@ -151,8 +150,9 @@ def compile_submission(isolate_dir: str, code_filename: str, code_type: str) -> 
         # Compile error of some kind
         ferror = open(isolate_dir + '/error.err.txt', 'r')
         error = ferror.read(COMPILE_ERROR_OUTPUT + 20)
-        # Cleanup error log by replacing placeholder filenames
+        # Cleanup error log by replacing placeholder filenames / removing module
         if code_type == 'python':
+            error = error.replace('************* Module code.new\n', '')
             error = error.replace('code.new.py', code_filename)
         error = error[:COMPILE_ERROR_OUTPUT]
         # Notify user if output was truncated

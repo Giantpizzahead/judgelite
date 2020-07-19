@@ -1,5 +1,4 @@
 ## TODOs
- - Setup code coverage using Codecov
  - Make strong tests for the judging system
    - Adjust the AC tests to make them quicker (only make one long test case?)
    - Fill in the currently unimplemented tests
