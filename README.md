@@ -1,10 +1,12 @@
 # Submission Judge
 
-![Docker](https://github.com/Giantpizzahead/submission-judge/workflows/Docker/badge.svg)
+<a href="https://github.com/Giantpizzahead/submission-judge/actions?query=workflow%3Abuild"><img alt="build" src="https://github.com/Giantpizzahead/submission-judge/workflows/build/badge.svg" /></a>
+<a href="https://codecov.io/gh/Giantpizzahead/submission-judge"><img alt="codecov" src="https://codecov.io/gh/Giantpizzahead/submission-judge/branch/master/graph/badge.svg" /></a>
+<a href="https://github.com/Giantpizzahead/submission-judge/blob/master/LICENSE"><img alt="license" src="https://img.shields.io/github/license/giantpizzahead/submission-judge" /></a>
 
 A simple judge for checking the correctness of code. Designed to be used for simple competitive programming problems.
 
-This is a personal project, and it is **still in EARLY DEVELOPMENT**. Please do not use this in its current form.
+This is a personal project, and it is **still in EARLY DEVELOPMENT**.
 
 Documentation is currently lacking (will be added later... whenever i feel like it lol), but most of the function / variable names should be self-explanatory.
 
@@ -35,8 +37,8 @@ The web server listens on **port 8080**. You'll be greeted by a testing interfac
 Andddd that's it! Go get that AC! (Legends say there might even be an AC\* verdict...)
 
 ## Licensing
-uhhhh idk just use it i guess?
+nah who cares about licensing, just use it! :D
 
-Note: This is a personal project, so PLEASE do not use this in any official setting. There's a lot of stuff that is much better handled by other judges, like uh... basically everything. xD
+(This repo uses the MIT License)
 
 &copy;Corona 2020 Giantpizzahead

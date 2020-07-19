@@ -16,4 +16,4 @@ nice -n -10 gunicorn -c gunicorn.conf.py app:app &
 sleep 3
 
 echo "Starting pytest..."
-pytest -W ignore::DeprecationWarning --cov-report=xml --cov=app --cov=judge_submission
+pytest -W ignore::DeprecationWarning --cov-report=xml --cov=./
