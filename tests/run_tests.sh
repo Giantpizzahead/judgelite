@@ -9,7 +9,7 @@ echo "Setting up environment..."
 isolate/isolate-check-environment --execute
 redis-server --daemonize yes
 sleep 3
-python3 worker.py &
+DEBUG=1 DEBUG_LOW=1 DEBUG_LOWEST=1 PROGRAM_OUTPUT=64 python3 worker.py &
 nice -n -10 gunicorn -c gunicorn.conf.py app:app &
 
 # Make sure the web server finishes starting

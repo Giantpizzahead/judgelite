@@ -89,13 +89,13 @@ def get_results(job_key):
     try:
         job = Job.fetch(job_key, connection=conn)
     except NoSuchJobError:
-        return {'error': 'NO_SUCH_JOB', 'job_id': job_key}, 200
+        return {'status': 'internal_error', 'error': 'NO_SUCH_JOB', 'job_id': job_key}, 200
     if job.is_queued:
         return job.meta, 202
     elif job.is_finished:
         return job.result, 200
     elif job.is_failed:
-        return {'error': 'JOB_FAILED', 'job_id': job_key}, 200
+        return {'status': 'internal_error', 'error': 'JOB_FAILED', 'job_id': job_key}, 200
     else:
         return job.meta, 202
 

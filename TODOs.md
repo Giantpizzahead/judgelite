@@ -1,9 +1,7 @@
 ## TODOs
- - Make strong tests for the judging system
-   - Adjust the AC tests to make them quicker (only make one long test case?)
-   - Fill in the currently unimplemented tests
-   - Use codecov to help make complete tests
+ - Fill in the stack tests (use LCA array generation in a tree with DFS)
  - Make a front-end web interface to create and edit problems
+   - Make sure generated YAML file uses strings as subtask names
 
 ### Less important TODOs
  - Make convenience function to generate correct outputs using a program
@@ -12,7 +10,6 @@
  - Add support for partial scoring (fractional scores for each test case allowed, instead of just right or wrong)
  - Use a config file instead of env vars
  - Combine debug env vars into a single DEBUG integer
- - Look into async / threaded workers for gunicorn
  - Organize & document the code (not important YET)
 
 #### Other stuff

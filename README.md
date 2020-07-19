@@ -12,7 +12,7 @@ Documentation is currently lacking (will be added later... whenever i feel like 
 
 Hard-coding things is bad, so most of the 'hard-coded' values are configurable via environment variables! Check the variables in **env_vars.py** to figure out what they do.
 
-Also look at the sample problems in the **problem_info** folder (check the README.txt in problem #1 as well) to figure out how problems are structured. The problem creation process will probably be abstracted into a web form at some point though.
+Also look at the sample problems in the **sample_problem_info** folder (check the README.txt in problem #1 as well) to figure out how problems are structured. The problem creation process will probably be abstracted into a web form at some point though.
 
 ## Demo
 A live version of this Docker image can be found <a href="http://submission-judge.westus2.cloudapp.azure.com:8080/">**here**</a>. Feel free to mess around with it. If you're feeling up for a challenge, see if you can solve the 2nd sample problem.

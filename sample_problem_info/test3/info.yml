@@ -1,0 +1,61 @@
+---
+problem_id: test3
+time_limit: 1
+memory_limit: 64
+scoring_method: minimum
+grader: diff
+max_score: 13
+
+subtasks:
+  - name: "01"
+    score: 1
+    depends_on:
+  - name: "02"
+    score: 1
+    depends_on:
+      - "01"
+  - name: "03"
+    score: 1
+  - name: "04"
+    score: 1
+  - name: "05"
+    score: 1
+    depends_on:
+      - "03"
+      - "02"
+  - name: "06"
+    score: 1
+    depends_on:
+      - "04"
+  - name: "07"
+    score: 1
+    depends_on:
+      - "02"
+  - name: "08"
+    score: 1
+    depends_on:
+      - "03"
+      - "04"
+      - "06"
+  - name: "09"
+    score: 1
+    depends_on:
+      - "06"
+      - "08"
+      - "04"
+  - name: "10"
+    score: 1
+    depends_on:
+      - "09"
+  - name: "11"
+    score: 1
+    depends_on:
+  - name: "12"
+    score: 1
+    depends_on:
+  - name: "13"
+    score: 1
+    depends_on:
+      - "11"
+      - "12"
+...

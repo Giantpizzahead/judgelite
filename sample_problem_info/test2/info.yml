@@ -1,0 +1,20 @@
+---
+problem_id: test2
+time_limit: 1
+memory_limit: 64
+scoring_method: average_stop
+grader: diff
+max_score: 50
+
+subtasks:
+  - name: 01_main
+    score: 30
+  - name: 02_edge
+    score: 20
+  - name: 03_bonus
+    is_bonus: true
+    score: 5
+    depends_on:
+      - 01_main
+      - 02_edge
+...

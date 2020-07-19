@@ -1,5 +1,6 @@
 for i in range(1, 11):
-    with open('{:02d}.in'.format(i), 'w') as fout:
+    num = '{:02d}'.format(i)
+    with open(num + '.in', 'w') as fout:
         fout.write(str(i) + '\n')
-    with open('{:02d}.out'.format(i), 'w') as fout:
+    with open(num + '.out', 'w') as fout:
         fout.write(str(i) + '\n')

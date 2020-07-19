@@ -178,7 +178,7 @@ def check_results(output_path: str, answer_path: str, subtask_name: str, grader:
     """
     if grader == 'diff':
         # Diff the results, ignoring whitespace issues and carriage returns
-        diff_result = subprocess.run(['diff', '--ignore-trailing-space', '--ignore-space-change', '--strip-trailing-cr',
+        diff_result = subprocess.run(['diff', '--ignore-trailing-space', '--strip-trailing-cr',
                                       output_path, answer_path], stdout=subprocess.DEVNULL)
         if diff_result.returncode != 0:
             return 0
@@ -402,7 +402,7 @@ def judge_submission(tempdir, problem_id, code_filename, code_type):
         subtask = problem_info['subtasks'][i]
 
         # Should this subtask actually be run?
-        if 'depends_on' in subtask:
+        if 'depends_on' in subtask and subtask['depends_on'] is not None:
             should_run = True
             for required in subtask['depends_on']:
                 if required not in subtask_results:
