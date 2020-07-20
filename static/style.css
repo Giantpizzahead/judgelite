@@ -24,51 +24,63 @@ h2 {
 }
 
 .color-blue {
-    color: #2E77D1;
+    color: #2e77d1;
 }
 
 .color-green {
-    color: #51DB27;
+    color: #51db27;
 }
 
 .color-yellow {
-    color: #C7B120;
+    color: #c7b120;
 }
 
 .color-red {
-    color: #C72020;
+    color: #c72020;
 }
 
 #submission-result-box {
+    position: relative;
     border: 1px solid black;
     padding: 10px;
     margin: 20px;
     font-weight: bold;
 }
 
-#submission-status {
+#submission-result-box #progress-box {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 0%;
+    height: 100%;
+    background-color: #eeeeee;
+    z-index: -2;
+    transition: width 0.6s ease;
+}
+
+#submission-result-box #submission-status {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-#test-results-box {
+#submission-result-box #test-results-box {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     align-content: space-around;
 }
 
-#status-text {
+#submission-result-box #status-text {
     margin: 5px;
     text-align: center;
 }
 
-.tooltip-no-underline {
+#submission-result-box .tooltip-no-underline {
     text-decoration: none;
 }
 
-.test-result {
+#submission-result-box .test-result {
     height: 4.25em;
     width: 5em;
     margin: 3px;
@@ -80,36 +92,36 @@ h2 {
     vertical-align: top;
 }
 
-.test-result-pass {
-    background: #EEFFEE;
+#submission-result-box .test-result-pass {
+    background: #eeffee;
     border-color: #339933;
     color: #339933;
 }
 
-.test-result-fail {
-    background: #FFE2E2;
+#submission-result-box .test-result-fail {
+    background: #ffe2e2;
     border-color: #993333;
     color: #993333;
 }
 
-.test-result-skipped {
-    background: #EEEEEE;
+#submission-result-box .test-result-skipped {
+    background: #eeeeee;
     border-color: #333333;
     color: #666666;
 }
 
-.test-result-bonus {
-    background: #E5E5FF;
+#submission-result-box .test-result-bonus {
+    background: #e5e5ff;
     border-color: #333399;
     color: #333399;
 }
 
-.test-verdict {
+#submission-result-box .test-verdict {
     font-size: 2.8em;
     text-align: center;
 }
 
-.test-number {
+#submission-result-box .test-number {
     bottom: 2px;
     left: 3px;
     position: absolute;
@@ -118,7 +130,7 @@ h2 {
     text-align: left;
 }
 
-.test-info {
+#submission-result-box .test-info {
     bottom: 2px;
     right: 3px;
     position: absolute;

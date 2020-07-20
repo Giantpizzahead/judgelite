@@ -99,8 +99,8 @@ function displayTestResult(verdict, subtask, test, time=0, memory=0) {
 
 function updateResults(resp) {
     // Debug info
-    let rawText = document.getElementById("raw-text");
-    rawText.innerText = JSON.stringify(resp);
+    // let rawText = document.getElementById("raw-text");
+    // rawText.innerText = JSON.stringify(resp);
 
     // Clear test results
     document.querySelector("#test-results-box").innerHTML = "";
@@ -139,10 +139,10 @@ function updateResults(resp) {
         let subtaskNum = i+1;
         for (let j = 0; j < subtask.length; j++) {
             let test = subtask[j];
-            if (test[0] != '--') {
+            if (test[0] != "--") {
                 testsCompleted++;
-                if (resp["is_bonus"][i] == 1 && test[0] == 'AC') {
-                    displayTestResult('BO', printSubtasks ? i+1 : 0, printSubtasks ? j+1 : testsTotal+j+1, test[1], test[2].toFixed(1));
+                if (resp["is_bonus"][i] == 1 && test[0] == "AC") {
+                    displayTestResult("BO", printSubtasks ? i+1 : 0, printSubtasks ? j+1 : testsTotal+j+1, test[1], test[2].toFixed(1));
                 } else if (resp["is_bonus"][i] == 0) {
                     displayTestResult(test[0], printSubtasks ? i+1 : 0, printSubtasks ? j+1 : testsTotal+j+1, test[1], test[2].toFixed(1));
                 }
@@ -151,7 +151,10 @@ function updateResults(resp) {
         testsTotal += subtask.length;
     }
 
+    // Update progress indicator
     let progressPercent = Math.round(testsCompleted / testsTotal * 100);
+    document.querySelector("#submission-result-box #progress-box").style.width = `${progressPercent}%`;
+
     if (resp["status"] == "judging") {
         statusText.innerHTML = `Judging in progress (${progressPercent}%)...`
     }

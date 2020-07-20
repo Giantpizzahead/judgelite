@@ -63,4 +63,4 @@ Miscellaneous settings
 PROBLEM_INFO_PATH = os.environ.get('PROBLEM_INFO_PATH', './sample_problem_info')
 # How long to keep the results of jobs (in seconds). Applies to both failed and successful jobs.
 # If debugging, set this to a short value (300 seconds). Else, set it to a high value (1 year = 31536000 seconds).
-RESULT_TTL = os.environ.get('RESULT_TTL', 300)
+RESULT_TTL = os.environ.get('RESULT_TTL', 31536000)#300)
