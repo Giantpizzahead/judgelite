@@ -4,6 +4,7 @@
 misc/isolate-check-environment --execute
 
 # Start the redis server
+mkdir -p /redis_db
 redis-server misc/redis.conf &
 
 # Make sure the redis server starts first
