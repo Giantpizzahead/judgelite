@@ -20,8 +20,13 @@ pip3 install --quiet pytest pytest-cov
 
 # Copied from start.sh
 echo "Configuring isolate settings..."
-misc/isolate-check-environment.sh --execute
+ls -al .
+ls -al misc
+chmod 777 misc/isolate
+chmod 777 misc/isolate-check-environment
+misc/isolate-check-environment --execute
 echo "Starting redis server..."
+mkdir /redis_db
 redis-server misc/redis.conf & # </dev/null &>/dev/null &
 sleep 1.5
 echo "Starting rq worker..."
