@@ -53,4 +53,6 @@ def test_compile_error_java(tempdir):
 
 def test_stack_java(tempdir):
     """Make sure that the judge accepts a Java program that does stack-heavy things (test uses DFS)."""
-    assert True
+    copyfile('./sample_problem_info/test4/solutions/lca.java', tempdir + '/lca.java')
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test4', 'lca.java', 'java'))
+    assert job.result['final_score'] == 42

@@ -1,9 +1,9 @@
 ---
 problem_id: test4
-time_limit: 2
+time_limit: 2.5
 memory_limit: 256
 scoring_method: minimum
-grader: diff
+checker: diff
 max_score: 42
 
 subtasks:

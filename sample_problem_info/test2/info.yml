@@ -3,7 +3,7 @@ problem_id: test2
 time_limit: 1
 memory_limit: 64
 scoring_method: average_stop
-grader: diff
+checker: diff
 max_score: 50
 
 subtasks:

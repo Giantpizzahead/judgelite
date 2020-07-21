@@ -18,8 +18,8 @@ function runInterval() {
         if (this.readyState === XMLHttpRequest.DONE) {
             clearTimeout(xmlHttpTimeout);
             if (this.status == 200) {
-                updateResults(JSON.parse(xhttp.responseText));
-                finalizeResults(JSON.parse(xhttp.responseText));
+                let noError = updateResults(JSON.parse(xhttp.responseText));
+                finalizeResults(JSON.parse(xhttp.responseText), noError);
             } else if (this.status == 202) {
                 let shortWait = updateResults(JSON.parse(xhttp.responseText));
                 // Random timeout to make it exciting! (and to spread out server request load)
@@ -36,13 +36,13 @@ function runInterval() {
             }
         }
     }
-    xhttp.open("GET", "/results/" + urlParams.get("job_id"), true);
+    xhttp.open("GET", "/api/results/" + urlParams.get("job_id"), true);
     xhttp.send();
 }
 
 function handleRequestError() {
     xhttp.abort();
-    let statusText = document.getElementById("status-text");
+    let statusText = document.querySelector("#submission-result-box .status-text");
     if (numFailed > 3) {
         statusText.innerHTML = "Error contacting server. Please try again in a bit.";
         return;
@@ -54,7 +54,7 @@ function handleRequestError() {
 }
 
 function displayTestResult(verdict, subtask, test, time=0, memory=0) {
-    let testResultsBox = document.querySelector("#test-results-box");
+    let testResultsBox = document.querySelector("#submission-result-box .test-results-box");
     let template = document.querySelector("#test-result");
 
     // Clone & fill in the template
@@ -103,27 +103,27 @@ function updateResults(resp) {
     // rawText.innerText = JSON.stringify(resp);
 
     // Clear test results
-    document.querySelector("#test-results-box").innerHTML = "";
+    document.querySelector("#submission-result-box .test-results-box").innerHTML = "";
 
     // Update status text
-    let statusText = document.getElementById("status-text");
+    let statusText = document.querySelector("#submission-result-box .status-text");
     if (resp["status"] == "queued") {
-        statusText.innerHTML = "Waiting...";
+        statusText.innerHTML = "In queue";
         return false;
     } else if (resp["status"] == "judging") {
-        statusText.innerHTML = "Judging in progress...";
+        statusText.innerHTML = "Grading in progress";
     } else if (resp["status"] == "done") {
-        statusText.innerHTML = "Judging complete! Score: " + resp["final_score"] + " out of " + resp["max_score"];
+        statusText.innerHTML = "Grading complete! Score: " + resp["final_score"] + " / " + resp["max_score"];
     } else if (resp["status"] == "compile_error") {
         statusText.innerHTML = "Compilation error :(";
-        document.querySelector("#submission-result-box").classList.add("test-result-fail");
-        document.querySelector("#test-results-box").innerText = resp["compile_error"];
-        return true;
+        document.querySelector("#submission-result-box").classList.add("submission-result-compile-error");
+        document.querySelector("#submission-result-box .test-results-box").innerText = resp["compile_error"];
+        return false;
     } else if (resp["status"] == "internal_error") {
         statusText.innerHTML = "Uh-oh! An internal error occured. :(";
-        document.querySelector("#submission-result-box").classList.add("test-result-fail");
-        document.querySelector("#test-results-box").innerText = "Error code: " + resp["error"] + "\nJob ID: " + resp["job_id"];
-        return true;
+        document.querySelector("#submission-result-box").classList.add("submission-result-compile-error");
+        document.querySelector("#submission-result-box .test-results-box").innerText = "Error code: " + resp["error"] + "\nJob ID: " + resp["job_id"];
+        return false;
     }
 
     // Show test results
@@ -153,15 +153,29 @@ function updateResults(resp) {
 
     // Update progress indicator
     let progressPercent = Math.round(testsCompleted / testsTotal * 100);
-    document.querySelector("#submission-result-box #progress-box").style.width = `${progressPercent}%`;
+    document.querySelector("#submission-result-box .progress-box").style.width = `${progressPercent}%`;
 
-    if (resp["status"] == "judging") {
-        statusText.innerHTML = `Judging in progress (${progressPercent}%)...`
-    }
     return true;
 }
 
-function finalizeResults(resp) {
+function finalizeResults(resp, noError) {
+    let progressBox = document.querySelector("#submission-result-box .progress-box");
+
+    // Color progress indicator based on results
+    if (noError) {
+        if (resp["final_score"] <= 0) {
+            progressBox.classList.add("progress-box-fail");
+        } else if (resp["final_score"] < resp["max_score"]) {
+            progressBox.classList.add("progress-box-partial");
+        } else {
+            progressBox.classList.add("progress-box-pass");
+        }
+    }
+
+    // Remove loader
+    document.querySelector("#submission-result-box .loader").remove();
+
+    // Create back button
     let backButton = document.createElement("button");
     backButton.setAttribute("onclick", "window.history.back();");
     backButton.innerText = "Go Back";

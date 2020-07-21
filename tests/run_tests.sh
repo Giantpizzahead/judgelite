@@ -12,7 +12,7 @@ center() {
   then
     termwidth="$(tput cols)";
   else
-    termwidth=39;
+    termwidth=80;
   fi
   padding="$(printf '%0.1s' ={1..500})"
   printf '%*.*s %s %*.*s\n' 0 "$(((termwidth-2-${#1})/2))" "$padding" "$1" 0 "$(((termwidth-1-${#1})/2))" "$padding"
@@ -25,18 +25,18 @@ pip3 install --quiet pytest pytest-cov
 
 # Copied from start.sh
 echo "Configuring isolate settings..."
-isolate/isolate-check-environment --execute
+misc/isolate-check-environment --execute
 echo "Starting redis server..."
-redis-server --daemonize yes </dev/null &>/dev/null
-sleep 3
+redis-server misc/redis.conf </dev/null &>/dev/null &
+sleep 1.5
 echo "Starting rq worker..."
 python3 worker.py </dev/null &>/dev/null &
 echo "Starting gunicorn server..."
-nice -n -10 gunicorn -c gunicorn.conf.py app:app </dev/null &>/dev/null &
+nice -n -10 gunicorn -c misc/gunicorn.conf.py app:app </dev/null &>/dev/null &
 echo "Setup complete!"
 
 # Make sure the web server finishes starting, then run pytest
-sleep 3
+sleep 2
 echo ""
 pytest -W ignore::DeprecationWarning --cov-report=xml --cov=./
 PYTEST_RESULT=$?

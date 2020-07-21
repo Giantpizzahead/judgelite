@@ -14,3 +14,6 @@ Bonus subtasks are evaluated in the same way as regular subtasks, but the result
 Any auxillary files that aren't needed in the actual system can be put in the misc folder. This could include things like testcase generators and solution explanations.
 
 Try not to use the 'average' grading method when you have lots of test cases. It will slow down the system a lot.
+
+fill_missing_output = true
+This fills in .out files if they are missing when you submit a program. It's useful for automatically generating output files to test cases. This will not overwrite any existing output files. MAKE SURE YOUR CODE IS CORRECT BEFORE USING THIS!!!

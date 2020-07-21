@@ -11,6 +11,7 @@ from judge_submission import judge_submission
 from redis import Redis
 from rq import Queue
 from shutil import copyfile
+from os.path import isfile
 import re
 import tempfile
 import pytest
@@ -118,3 +119,14 @@ def test_file_limiting(tempdir, capsys):
             assert x <= MAX_OUTPUT_SIZE + 0.1
         except ValueError:
             pass
+
+
+def test_fill_missing_output(tempdir):
+    """
+    Make sure that the judge generates output files using the submitted program if the
+    fill_missing_output setting is true. Also makes sure that minimum stops the program early.
+    """
+    copyfile('./sample_problem_info/test5/solutions/sol.py', tempdir + '/sol.py')
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test5', 'sol.py', 'python'))
+    assert isfile('./sample_problem_info/test5/subtasks/main/01.out') and \
+        not isfile('./sample_problem_info/test5/subtasks/main/03.out') and  job.result['final_score'] == 0

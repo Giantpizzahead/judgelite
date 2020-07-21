@@ -47,33 +47,65 @@ h2 {
     font-weight: bold;
 }
 
-#submission-result-box #progress-box {
+.submission-result-compile-error {
+    background: #ffe2e2;
+    border-color: #993333;
+    color: #993333;
+}
+
+#submission-result-box .progress-box {
     position: absolute;
     left: 0px;
     top: 0px;
     width: 0%;
     height: 100%;
-    background-color: #eeeeee;
-    z-index: -2;
+    background-color: #f4f4f4;
+    z-index: -1;
     transition: width 0.6s ease;
 }
 
-#submission-result-box #submission-status {
+#submission-result-box .progress-box-fail {
+    background: #fff6f6;
+}
+
+#submission-result-box .progress-box-partial {
+    background: #ffffed;
+}
+
+#submission-result-box .progress-box-pass {
+    background: #f6fff6;
+}
+
+#submission-result-box .submission-status {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-#submission-result-box #test-results-box {
+#submission-result-box .status-text {
+    margin: 5px 7px 5px 5px;
+    text-align: center;
+}
+
+#submission-result-box .loader {
+  border: 4px solid #f0f0f0;
+  border-top: 4px solid #888888;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  animation: spin 0.85s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#submission-result-box .test-results-box {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     align-content: space-around;
-}
-
-#submission-result-box #status-text {
-    margin: 5px;
-    text-align: center;
 }
 
 #submission-result-box .tooltip-no-underline {

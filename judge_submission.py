@@ -81,7 +81,7 @@ def isolate_init(tempdir: str, problem_folder: str, code_filename: str) -> [str,
     """
     # Initialize the sandbox
     isolate_cleanup()
-    init_result = subprocess.run(['isolate/isolate', '--init', '--cg'], capture_output=True)
+    init_result = subprocess.run(['misc/isolate', '--init', '--cg'], capture_output=True)
     if init_result.returncode != 0:
         # Error initializing sandbox
         error_log = init_result.stderr.decode('utf-8')
@@ -103,7 +103,7 @@ def only_copy_input(src: str, dest: str) -> None:
 
 def isolate_cleanup() -> None:
     """Cleans up the isolate sandbox."""
-    subprocess.run(['isolate/isolate', '--cleanup', '--cg'])
+    subprocess.run(['misc/isolate', '--cleanup', '--cg'])
 
 
 def compile_submission(isolate_dir: str, code_filename: str, code_type: str) -> (bool, str):
@@ -136,7 +136,7 @@ def compile_submission(isolate_dir: str, code_filename: str, code_type: str) -> 
         fcode_new.close()
         compile_args = ['/bin/python3', '-m', 'pylint', '--errors-only', 'code.new.py']
 
-    isolate_args = ['isolate/isolate', '--run', '--cg', '--processes=50', '--silent',
+    isolate_args = ['misc/isolate', '--run', '--cg', '--processes=50', '--silent',
                     '--time=' + str(COMPILE_TIME_LIMIT), '--wall-time=' + str(COMPILE_TIME_LIMIT),
                     '--cg-mem=' + str(COMPILE_MEMORY_LIMIT * 1024), '--chdir=/box', '--stdout=error.err.txt',
                     '--stderr-to-stdout', '--fsize=' + str(MAX_COMPILE_SIZE * 1024), '--']
@@ -167,16 +167,16 @@ def compile_submission(isolate_dir: str, code_filename: str, code_type: str) -> 
     return True, compiled_filename
 
 
-def check_results(output_path: str, answer_path: str, subtask_name: str, grader: str) -> float:
-    """Checks the answer of the program using the specified grader.
+def check_results(output_path: str, answer_path: str, subtask_name: str, checker: str) -> float:
+    """Checks the answer of the program using the specified checker.
 
     :param output_path: The path to the program's output file.
     :param answer_path: The path to the answer file (the correct output).
-    :param subtask_name: The name of the subtask being graded. Passed to a custom grader as extra info.
-    :param grader: The grader to use.
+    :param subtask_name: The name of the subtask being graded. Passed to a custom checker as extra info.
+    :param checker: The checker to use.
     :return: The score that the program got (a float between 0 and 1).
     """
-    if grader == 'diff':
+    if checker == 'diff':
         # Diff the results, ignoring whitespace issues and carriage returns
         diff_result = subprocess.run(['diff', '--ignore-trailing-space', '--strip-trailing-cr',
                                       output_path, answer_path], stdout=subprocess.DEVNULL)
@@ -184,11 +184,11 @@ def check_results(output_path: str, answer_path: str, subtask_name: str, grader:
             return 0
         else:
             return 1
-    elif grader == 'custom':
-        log('Would now call custom grader with subtask name ' + subtask_name)
+    elif checker == 'custom':
+        log('Would now call custom checker with subtask name ' + subtask_name)
         return 0
     else:
-        log_error(str(grader) + ' is not a valid grader!')
+        log_error(str(checker) + ' is not a valid checker!')
 
 
 def run_testcase(isolate_dir, input_path, answer_path, subtask_name, problem_info, compiled_filename, code_type):
@@ -206,7 +206,7 @@ def run_testcase(isolate_dir, input_path, answer_path, subtask_name, problem_inf
     elif code_type == 'python':
         time_limit *= 2
         code_args = ['/bin/python3', compiled_filename]
-    isolate_args = ['isolate/isolate', '--run', '--cg', '--processes=50', '--silent', '--time=' + str(time_limit),
+    isolate_args = ['misc/isolate', '--run', '--cg', '--processes=50', '--silent', '--time=' + str(time_limit),
                     '--wall-time=' + str(time_limit + WALL_TIME_EXTENSION), '--cg-mem=' + str(mem_limit * 1024),
                     '--chdir=/box', '--stdin=' + input_path, '--stdout=output.out.txt', '--stderr=error.err.txt',
                     '--meta=' + isolate_dir + '/../meta.info.txt', '--fsize=' + str(MAX_OUTPUT_SIZE * 1024), '--']
@@ -234,7 +234,7 @@ def run_testcase(isolate_dir, input_path, answer_path, subtask_name, problem_inf
 
     if DEBUG_LOWEST:
         # Check the results early to see if they are correct
-        result = check_results(isolate_dir + '/output.out.txt', answer_path, subtask_name, problem_info['grader'])
+        result = check_results(isolate_dir + '/output.out.txt', answer_path, subtask_name, problem_info['checker'])
         log('Answer would get ' + str(result) + ' score')
 
     # Did the program TLE?
@@ -257,7 +257,15 @@ def run_testcase(isolate_dir, input_path, answer_path, subtask_name, problem_inf
             return verdict_test(isolate_dir, 'RE', 0, time, memory)
 
     # Check results, and return a verdict
-    final_score = check_results(isolate_dir + '/output.out.txt', answer_path, subtask_name, problem_info['grader'])
+    if not os.path.isfile(answer_path):
+        if 'fill_missing_output' in problem_info and problem_info['fill_missing_output']:
+            # Fill output file with the program's output
+            if DEBUG_LOW:
+                log('Filling output file ' + str(answer_path) + ' with program output')
+            shutil.copy(isolate_dir + '/output.out.txt', answer_path)
+        else:
+            log_error('Missing answer file ' + str(answer_path) + '!!!')
+    final_score = check_results(isolate_dir + '/output.out.txt', answer_path, subtask_name, problem_info['checker'])
     if final_score == 0:
         return verdict_test(isolate_dir, 'WA', final_score, time, memory)
     # Anything that is not 0 means a correct answer! :D
@@ -310,7 +318,11 @@ def run_subtask(isolate_dir, problem_info, problem_folder, subtask_info, compile
             first_wrong = {**run_verdict, 'testcase': test_i + 1}
             if test_i < num_samples or problem_info['scoring_method'] == 'average_stop':
                 # Stop early (failed samples or average_stop method)
-                score_to_return = score_sum / len(test_inputs)
+                score_to_return = 0
+                if problem_info['scoring_method'] == 'minimum':
+                    score_to_return = min_score
+                elif problem_info['scoring_method'] in ['average', 'average_stop']:
+                    score_to_return = score_sum / len(test_inputs)
                 if DEBUG_LOWEST:
                     log('Stopping early due to failed sample or average_stop scoring method')
                 # Update job meta

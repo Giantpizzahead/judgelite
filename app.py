@@ -34,7 +34,18 @@ def show_form():
     return render_template('form.html', filesize_limit=round(app.config['MAX_CONTENT_LENGTH'] / 1024 - 1))
 
 
-@app.route('/submit', methods=['POST'])
+@app.route('/status', methods=['GET'])
+def get_status():
+    if 'job_id' not in request.args:
+        return redirect(url_for('.handle_submission'))
+    try:
+        Job.fetch(request.args['job_id'], connection=conn)
+    except NoSuchJobError:
+        return error('Job not found!')
+    return render_template('status.html', job_id=request.args['job_id'])
+
+
+@app.route('/api/submit', methods=['POST'])
 def handle_submission():
     # Validate request
     problems_file = open(PROBLEM_INFO_PATH + '/problems.yml', 'r')
@@ -75,18 +86,7 @@ def handle_submission():
     return redirect(url_for('.get_status', job_id=job.get_id()))
 
 
-@app.route('/status', methods=['GET'])
-def get_status():
-    if 'job_id' not in request.args:
-        return redirect(url_for('.handle_submission'))
-    try:
-        Job.fetch(request.args['job_id'], connection=conn)
-    except NoSuchJobError:
-        return error('Job not found!')
-    return render_template('status.html', job_id=request.args['job_id'])
-
-
-@app.route('/results/<job_key>', methods=['GET'])
+@app.route('/api/results/<job_key>', methods=['GET'])
 def get_results(job_key):
     try:
         job = Job.fetch(job_key, connection=conn)

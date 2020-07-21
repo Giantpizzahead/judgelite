@@ -6,6 +6,7 @@ import sys
 sys.path.append('./')
 
 from time import sleep
+from flask import *
 import io
 import pytest
 import app
@@ -20,7 +21,7 @@ def client():
 
 def test_submit(client):
     """Test the process of submitting code."""
-    rv = client.post('/submit', data=dict(
+    rv = client.post('/api/submit', data=dict(
         problem_id='test',
         type='python',
         code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py')
@@ -32,13 +33,13 @@ def test_submit(client):
 
 def test_submit_no_form(client):
     """Make sure the right error is returned for an empty POST request."""
-    rv = client.post('/submit', data=None, follow_redirects=True, content_type='multipart/form-data')
+    rv = client.post('/api/submit', data=None, follow_redirects=True, content_type='multipart/form-data')
     assert b'Empty request form' in rv.data
 
 
 def test_submit_no_id(client):
     """Make sure the right error is returned for a POST request with no id."""
-    rv = client.post('/submit', data=dict(
+    rv = client.post('/api/submit', data=dict(
         type='python',
         code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py')
     ), follow_redirects=True, content_type='multipart/form-data')
@@ -47,7 +48,7 @@ def test_submit_no_id(client):
 
 def test_submit_invalid_id(client):
     """Make sure the right error is returned for a POST request with an invalid id."""
-    rv = client.post('/submit', data=dict(
+    rv = client.post('/api/submit', data=dict(
         problem_id='lol_no_this_is_very_invalid_id',
         type='python',
         code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py')
@@ -57,7 +58,7 @@ def test_submit_invalid_id(client):
 
 def test_submit_no_type(client):
     """Make sure the right error is returned for a POST request with no language type."""
-    rv = client.post('/submit', data=dict(
+    rv = client.post('/api/submit', data=dict(
         problem_id='test',
         code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py')
     ), follow_redirects=True, content_type='multipart/form-data')
@@ -66,7 +67,7 @@ def test_submit_no_type(client):
 
 def test_submit_invalid_type(client):
     """Make sure the right error is returned for a POST request with an invalid language type."""
-    rv = client.post('/submit', data=dict(
+    rv = client.post('/api/submit', data=dict(
         problem_id='test',
         type='brainf*ck',
         code=(io.BytesIO(b'+[-->-[>>+>-----<<]<--<---]>-.>>>+.>>..+++[.>]<<<<.+++.------.<<-.>>>>+.'), 'code.bf')
@@ -76,7 +77,7 @@ def test_submit_invalid_type(client):
 
 def test_submit_no_code(client):
     """Make sure the right error is returned for a POST request with no code."""
-    rv = client.post('/submit', data=dict(
+    rv = client.post('/api/submit', data=dict(
         problem_id='test',
         type='python'
     ), follow_redirects=True, content_type='multipart/form-data')
@@ -85,7 +86,7 @@ def test_submit_no_code(client):
 
 def test_submit_invalid_filename(client):
     """Make sure the right error is returned for a POST request with an invalid code filename."""
-    rv = client.post('/submit', data=dict(
+    rv = client.post('/api/submit', data=dict(
         problem_id='test',
         type='python',
         code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'input.in.txt')
@@ -95,7 +96,7 @@ def test_submit_invalid_filename(client):
 
 def test_submit_invalid_java_extension(client):
     """Make sure the right error is returned for a POST request with an invalid java extension."""
-    rv = client.post('/submit', data=dict(
+    rv = client.post('/api/submit', data=dict(
         problem_id='test',
         type='java',
         code=(io.BytesIO(b'public class java {}\n'), 'java.cpp')
@@ -110,6 +111,6 @@ def test_invalid_job_errors(client):
 
 
 def test_invalid_job_redirect(client):
-    """Make sure invalid job ids sent to /result return the right JSON error."""
-    rv = client.get('/results/abacadabra')
+    """Make sure invalid job ids sent to /api/results return the right JSON error."""
+    rv = client.get('/api/results/abacadabra')
     assert b'NO_SUCH_JOB' in rv.data

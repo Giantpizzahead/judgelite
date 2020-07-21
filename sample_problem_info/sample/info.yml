@@ -20,10 +20,10 @@ memory_limit: 192
 #   it depends on got a non-zero score (at least one test case passed in each depends-on subtask).
 scoring_method: minimum
 
-# Grader can be one of the following options:
+# Checker can be one of the following options:
 # diff = Compares the program output with the answer using diff. Produces a 0 or 1 score.
 # custom = Not yet implemented.
-grader: diff
+checker: diff
 
 # The maximum score that can be received by solving this question, NOT INCLUDING BONUS POINTS.
 max_score: 100

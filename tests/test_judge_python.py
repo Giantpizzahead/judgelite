@@ -51,4 +51,6 @@ def test_compile_error_python(tempdir):
 
 def test_stack_python(tempdir):
     """Make sure that the judge accepts a Python program that does stack-heavy things (test uses DFS)."""
-    assert True
+    copyfile('./sample_problem_info/test4/solutions/lca.py', tempdir + '/lca.py')
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test4', 'lca.py', 'python'))
+    assert job.result['final_score'] == 42

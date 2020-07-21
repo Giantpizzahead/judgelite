@@ -1,16 +1,26 @@
 ## TODOs
- - Fill in the stack tests (use LCA array generation in a tree with DFS)
- - Make a front-end web interface to create and edit problems
-   - Make sure generated YAML file uses strings as subtask names
+ - Organize & document the code
+ - Polish up the submission API (add a username & secret key)
+   - Make sure to include documentation for the API
+ - Add problem statement support (markdown) to the problem info
+   - https://benweet.github.io/stackedit.js/
+ - Use a config file instead of env vars
+   - Take a look at docker config (https://medium.com/better-programming/about-using-docker-config-e967d4a74b83)
+ - Combine debug env vars into a single DEBUG integer
+ - Add a way to send a POST request to some other web server when a submission is done being evaluated (for easier integration)
+ - Keep track of past submissions, and make a way to view all past submissions in a table
+   - Great way to get started with databases! :D
+   - Redis would be a great choice since it's already part of the application (https://redis.io/ for docs)
+ - Add customizable Redis database mount point (to persist data between Docker updates)
+   - Add documentation for this, along with problem info mount point
 
 ### Less important TODOs
+ - Make a front-end web interface to create and edit problems
+   - Make sure generated YAML file uses strings as subtask names
  - Make convenience function to generate correct outputs using a program
    - Have it check the program's output if the .out file already exists (to manually check for correctness)
  - Allow custom graders (other than diff, as a standalone binary)
  - Add support for partial scoring (fractional scores for each test case allowed, instead of just right or wrong)
- - Use a config file instead of env vars
- - Combine debug env vars into a single DEBUG integer
- - Organize & document the code (not important YET)
 
 #### Other stuff
  - See if there's some way to automate the 'swapoff -a' command (maybe replace with swap accounting?)
