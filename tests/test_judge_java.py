@@ -47,8 +47,8 @@ def test_compile_error_java(tempdir):
     """Make sure that the judge returns a compile error for Java, along with a reason for the error."""
     copyfile('./sample_problem_info/test/solutions/compileerror.java', tempdir + '/compileerror.java')
     job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'compileerror.java', 'java'))
-    assert job.result['status'] == 'compile_error' and 'error: cannot find symbol' in job.result['compile_error'] and \
-        'variable N' in job.result['compile_error']
+    assert job.result['status'] == 'compile_error' and 'error: cannot find symbol' in job.result['error'] and \
+        'variable N' in job.result['error']
 
 
 def test_stack_java(tempdir):

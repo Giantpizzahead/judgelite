@@ -23,6 +23,12 @@ h2 {
     margin: 10px 0;
 }
 
+#result-iframe {
+    height: 600px;
+    width: 100%;
+    border: none;
+}
+
 .color-blue {
     color: #2e77d1;
 }

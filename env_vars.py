@@ -59,8 +59,13 @@ MAX_CODE_SIZE = int(os.environ.get('MAX_CODE_SIZE', 256))
 """
 Miscellaneous settings
 """
-# Path to the root problem_info folder. Useful when mounting a problem info directory.
-PROBLEM_INFO_PATH = os.environ.get('PROBLEM_INFO_PATH', './sample_problem_info')
 # How long to keep the results of jobs (in seconds). Applies to both failed and successful jobs.
 # Defaults to 1 year = 31536000 seconds.
 RESULT_TTL = os.environ.get('RESULT_TTL', 31536000)
+
+"""
+Non-configurable variables
+"""
+PROBLEM_INFO_PATH = "./sample_problem_info"
+if os.path.isdir("/problem_info"):
+    PROBLEM_INFO_PATH = "/problem_info"

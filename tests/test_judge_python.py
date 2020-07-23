@@ -46,7 +46,7 @@ def test_compile_error_python(tempdir):
     """Make sure that the judge returns a compile error for Python, along with a reason for the error."""
     copyfile('./sample_problem_info/test/solutions/compileerror.py', tempdir + '/compileerror.py')
     job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'compileerror.py', 'python'))
-    assert job.result['status'] == 'compile_error' and 'Undefined variable \'N\'' in job.result['compile_error']
+    assert job.result['status'] == 'compile_error' and 'Undefined variable \'N\'' in job.result['error']
 
 
 def test_stack_python(tempdir):

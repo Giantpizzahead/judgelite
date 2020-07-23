@@ -49,9 +49,9 @@ def verdict_subtask(verdict_code, score, time=0.0, memory=0.0, testcase=1):
 
 
 def verdict_compile_error(verdict_code, score, max_score, error):
-    final_verdict = {'verdict': verdict_code, 'score': score, 'max_score': max_score, 'compile_error': error}
+    final_verdict = {'verdict': verdict_code, 'score': score, 'max_score': max_score, 'error': error}
     log('Final verdict: ' + str(final_verdict))
-    return {'status': 'compile_error', 'final_score': score, 'max_score': max_score, 'compile_error': error}
+    return {'status': 'compile_error', 'final_score': score, 'max_score': max_score, 'error': error}
 
 
 def verdict_problem(verdict_code, score, max_score, time=0.0, memory=0.0, testcase=1):
@@ -66,7 +66,7 @@ def verdict_problem(verdict_code, score, max_score, time=0.0, memory=0.0, testca
 
 
 def verdict_error(msg):
-    to_return = {'status': 'internal_error', 'error': msg, 'job_id': job.get_id()}
+    to_return = {'status': 'internal_error', 'error': msg}
     log('Returning error: ' + str(to_return))
     return to_return
 

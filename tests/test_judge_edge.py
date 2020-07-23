@@ -27,7 +27,7 @@ def test_compiler_bomb(tempdir):
     """Make sure the judge is not vulnerable to a compiler bomb (size of error output)."""
     copyfile('./sample_problem_info/test/solutions/compilerbomb.cpp', tempdir + '/compilerbomb.cpp')
     job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'compilerbomb.cpp', 'cpp'))
-    assert job.result['status'] == 'compile_error' and len(job.result['compile_error']) < COMPILE_ERROR_OUTPUT + 256
+    assert job.result['status'] == 'compile_error' and len(job.result['error']) < COMPILE_ERROR_OUTPUT + 256
 
 
 def test_runtime_bomb(tempdir):

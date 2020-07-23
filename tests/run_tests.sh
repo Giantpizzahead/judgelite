@@ -1,4 +1,11 @@
-#!/bin/bash
+#!/bin/sh
+
+# Don't test anything if on Docker Hub
+if [ ! -d "/shared" ]
+then
+  echo "Skipping tests (on Docker Hub)."
+  exit 0
+fi
 
 # Set debug environment variables
 export DEBUG=1
@@ -6,20 +13,7 @@ export DEBUG_LOW=1
 export DEBUG_LOWEST=1
 export PROGRAM_OUTPUT=64
 
-# Source: https://unix.stackexchange.com/a/267730
-center() {
-  if [ -n "$TERM" ]; then
-    echo "terminal!"
-    termwidth="$(tput cols)"
-  else
-    echo "no terminal :("
-    termwidth=80
-  fi
-  padding="$(printf '%0.1s' ={1..500})"
-  printf '%*.*s %s %*.*s\n' 0 "$(((termwidth-2-${#1})/2))" "$padding" "$1" 0 "$(((termwidth-1-${#1})/2))" "$padding"
-}
-
-center "setting up environment"
+echo "=============================setting up environment============================="
 # Install pytest
 echo "Installing pytest..."
 pip3 install --quiet pytest pytest-cov
@@ -29,12 +23,12 @@ echo "Configuring isolate settings..."
 misc/isolate-check-environment --execute
 echo "Starting redis server..."
 mkdir -p /redis_db
-redis-server misc/redis.conf </dev/null &>/dev/null &
+redis-server misc/redis.conf </dev/null >/dev/null 2>&1 &
 sleep 1.5
 echo "Starting rq worker..."
-python3 worker.py </dev/null &>/dev/null &
+python3 worker.py </dev/null >/dev/null 2>&1 &
 echo "Starting gunicorn server..."
-nice -n -10 gunicorn -c misc/gunicorn.conf.py app:app </dev/null &>/dev/null &
+nice -n -10 gunicorn -c misc/gunicorn.conf.py app:app </dev/null >/dev/null 2>&1 &
 echo "Setup complete!"
 
 # Make sure the web server finishes starting, then run pytest

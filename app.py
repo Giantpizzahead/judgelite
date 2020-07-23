@@ -25,7 +25,7 @@ q = Queue(connection=Redis())
 
 
 def error(msg):
-    return render_template('error.html', error_msg=msg), 400
+    return {'status': 'fail', 'error': msg}, 400
 
 
 @app.route('/', methods=['GET'])
@@ -37,7 +37,7 @@ def show_form():
 @app.route('/status', methods=['GET'])
 def get_status():
     if 'job_id' not in request.args:
-        return redirect(url_for('.handle_submission'))
+        return error('No job id provided!')
     try:
         Job.fetch(request.args['job_id'], connection=conn)
     except NoSuchJobError:
@@ -83,10 +83,10 @@ def handle_submission():
         log('New job id: {}'.format(job.get_id()))
 
     # Return submitted, along with the job id
-    return redirect(url_for('.get_status', job_id=job.get_id()))
+    return {'status': 'success', 'job_id': job.get_id()}
 
 
-@app.route('/api/results/<job_key>', methods=['GET'])
+@app.route('/api/status/<job_key>', methods=['GET'])
 def get_results(job_key):
     try:
         job = Job.fetch(job_key, connection=conn)

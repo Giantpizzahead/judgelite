@@ -28,7 +28,7 @@ def test_submit(client):
     ), follow_redirects=True, content_type='multipart/form-data')
     # Make sure submission finishes to avoid issues
     sleep(2)
-    assert b'submission-result-box' in rv.data
+    assert b'success' in rv.data
 
 
 def test_submit_no_form(client):
@@ -112,5 +112,5 @@ def test_invalid_job_errors(client):
 
 def test_invalid_job_redirect(client):
     """Make sure invalid job ids sent to /api/results return the right JSON error."""
-    rv = client.get('/api/results/abacadabra')
+    rv = client.get('/api/status/abacadabra')
     assert b'NO_SUCH_JOB' in rv.data

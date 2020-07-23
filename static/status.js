@@ -1,27 +1,25 @@
-const urlParams = new URLSearchParams(window.location.search);
-const QUERY_DELAY = 1000;
-window.onload = function() {
-    // Repeatedly query for status
-    if (urlParams.has("job_id")) {
-        runInterval();
-    }
+var urlParams = new URLSearchParams(window.location.search);
+var QUERY_DELAY = 1000;
+// Repeatedly query for status
+if (urlParams.has("job_id")) {
+    runInterval();
 }
 
-var xhttp;
+var xhr;
 var xmlHttpTimeout;
 var numDelay = 0;
 var numFailed = 1;
 function runInterval() {
     xmlHttpTimeout = setTimeout(handleRequestError, 5000);
-    xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
+    xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
         if (this.readyState === XMLHttpRequest.DONE) {
             clearTimeout(xmlHttpTimeout);
             if (this.status == 200) {
-                let noError = updateResults(JSON.parse(xhttp.responseText));
-                finalizeResults(JSON.parse(xhttp.responseText), noError);
+                let noError = updateResults(JSON.parse(xhr.response));
+                finalizeResults(JSON.parse(xhr.responseText), noError);
             } else if (this.status == 202) {
-                let shortWait = updateResults(JSON.parse(xhttp.responseText));
+                let shortWait = updateResults(JSON.parse(xhr.response));
                 // Random timeout to make it exciting! (and to spread out server request load)
                 if (shortWait) {
                     setTimeout(runInterval, QUERY_DELAY + (Math.random() * QUERY_DELAY));
@@ -36,12 +34,12 @@ function runInterval() {
             }
         }
     }
-    xhttp.open("GET", "/api/results/" + urlParams.get("job_id"), true);
-    xhttp.send();
+    xhr.open("GET", "/api/status/" + urlParams.get("job_id"), true);
+    xhr.send();
 }
 
 function handleRequestError() {
-    xhttp.abort();
+    xhr.abort();
     let statusText = document.querySelector("#submission-result-box .status-text");
     if (numFailed > 3) {
         statusText.innerHTML = "Error contacting server. Please try again in a bit.";
@@ -117,12 +115,12 @@ function updateResults(resp) {
     } else if (resp["status"] == "compile_error") {
         statusText.innerHTML = "Compilation error :(";
         document.querySelector("#submission-result-box").classList.add("submission-result-compile-error");
-        document.querySelector("#submission-result-box .test-results-box").innerText = resp["compile_error"];
+        document.querySelector("#submission-result-box .test-results-box").innerText = resp["error"];
         return false;
     } else if (resp["status"] == "internal_error") {
         statusText.innerHTML = "Uh-oh! An internal error occured. :(";
         document.querySelector("#submission-result-box").classList.add("submission-result-compile-error");
-        document.querySelector("#submission-result-box .test-results-box").innerText = "Error code: " + resp["error"] + "\nJob ID: " + resp["job_id"];
+        document.querySelector("#submission-result-box .test-results-box").innerText = "Error code: " + resp["error"];
         return false;
     }
 
@@ -176,8 +174,8 @@ function finalizeResults(resp, noError) {
     document.querySelector("#submission-result-box .loader").remove();
 
     // Create back button
-    let backButton = document.createElement("button");
-    backButton.setAttribute("onclick", "window.history.back();");
-    backButton.innerText = "Go Back";
-    document.body.appendChild(backButton);
+    // let backButton = document.createElement("button");
+    // backButton.setAttribute("onclick", "window.history.back();");
+    // backButton.innerText = "Go Back";
+    // document.body.appendChild(backButton);
 }

@@ -1,5 +1,6 @@
 ## TODOs
  - Organize & document the code
+ - Modify submission form so that it reloads the page on a submit (to prevent weird JS issues)
  - Polish up the submission API (add a username & secret key)
    - Make sure to include documentation for the API
  - Add problem statement support (markdown) to the problem info
@@ -20,6 +21,8 @@
  - Make convenience function to generate correct outputs using a program
    - Have it check the program's output if the .out file already exists (to manually check for correctness)
  - Allow custom graders (other than diff, as a standalone binary)
+ - Allow custom graders for interactive problems!
+   - Maybe make two modes: One where your program is directly linked to the submitted code via stdin and stdout, and one where your program's stdout is used (to allow for completely custom problem setup)
  - Add support for partial scoring (fractional scores for each test case allowed, instead of just right or wrong)
 
 #### Other stuff

@@ -11,12 +11,10 @@
 <body onunload="document.getElementById('submit-button').disabled = false;
                 document.getElementById('submit-button').innerText = 'Submit!';">
     <!--Simple form to test the submission process-->
+    <div id="result-panel"></div>
     <h1>Test Interface</h1>
-    <form action="/api/submit" method="POST" enctype="multipart/form-data" autocomplete="on"
-          onsubmit="document.getElementById('submit-button').disabled = true;
-                    document.getElementById('submit-button').innerText = 'Submitting...'; return true;">
+    <form id="test-form" autocomplete="on">
         <p>Memory limit and time limit vary per problem (x1 for C++, x1.5 for Java, x2 for Python).</p>
-        <p>Stack size SHOULD only be limited by memory limit.</p>
         <p>Max code file size is {{ filesize_limit }} KB.</p>
         <h3>Sample Problem Statement</h3>
         <p>
@@ -96,5 +94,36 @@
         <br> <br>
         <button type="submit" id="submit-button" autocomplete="off">Submit!</button>
     </form>
+
+    <div id="response-text"></div>
+
+    <script src="static/index.js"></script>
+
+    <template id="submit-status-display">
+        <div id="submission-result-box">
+            <div class="progress-box"></div>
+            <div class="submission-status">
+                <p class="status-text">Waiting...</p>
+                <div class="loader"></div>
+            </div>
+            <div class="test-results-box"></div>
+        </div>
+
+        <p id="raw-text"></p>
+
+        <template id="test-result">
+            <a href="#" class="tooltip-no-underline">
+                <div class="test-result">
+                    <div class="test-verdict"></div>
+                    <div class="test-number"></div>
+                    <div class="test-info">
+                        <div class="test-memory"></div>
+                        <div class="test-time"></div>
+                    </div>
+                </div>
+            </a>
+        </template>
+        <script src="/static/status.js"></script>
+    </template>
 </body>
 </html>

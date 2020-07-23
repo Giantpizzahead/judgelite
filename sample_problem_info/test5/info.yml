@@ -9,5 +9,6 @@ fill_missing_output: true
 
 subtasks:
   - name: main
+    num_samples: 3
     score: 2
 ...

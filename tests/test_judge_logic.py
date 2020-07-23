@@ -98,11 +98,8 @@ def test_output_limiting(tempdir, capsys):
     captured = capsys.readouterr()
     truncated_amount = re.findall('\[([0-9.]+) MB truncated\]', captured.err)
     for amount in truncated_amount:
-        try:
-            x = float(amount)
-            assert x <= MAX_OUTPUT_SIZE + 0.1
-        except ValueError:
-            pass
+        x = float(amount)
+        assert x <= MAX_OUTPUT_SIZE + 0.1
 
 
 def test_file_limiting(tempdir, capsys):
@@ -114,11 +111,8 @@ def test_file_limiting(tempdir, capsys):
     captured = capsys.readouterr()
     truncated_amount = re.findall('\[([0-9.]+) MB truncated\]', captured.err)
     for amount in truncated_amount:
-        try:
-            x = float(amount)
-            assert x <= MAX_OUTPUT_SIZE + 0.1
-        except ValueError:
-            pass
+        x = float(amount)
+        assert x <= MAX_OUTPUT_SIZE + 0.1
 
 
 def test_fill_missing_output(tempdir):

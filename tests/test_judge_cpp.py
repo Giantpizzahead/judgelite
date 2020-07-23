@@ -46,7 +46,7 @@ def test_compile_error_cpp(tempdir):
     """Make sure that the judge returns a compile error for C++, along with a reason for the error."""
     copyfile('./sample_problem_info/test/solutions/compileerror.cpp', tempdir + '/compileerror.cpp')
     job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'compileerror.cpp', 'cpp'))
-    assert job.result['status'] == 'compile_error' and 'error: \'N\' was not declared' in job.result['compile_error']
+    assert job.result['status'] == 'compile_error' and 'error: \'N\' was not declared' in job.result['error']
 
 
 def test_stack_cpp(tempdir):
