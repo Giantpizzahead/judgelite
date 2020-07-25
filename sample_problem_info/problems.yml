@@ -1,9 +1,32 @@
 ---
-- sample
-- sample2
-- test
-- test2
-- test3
-- test4
-- test5
+groups:
+  - id: samples
+    name: Sample Problems
+    active: true
+    problems:
+      - id: sample
+        name: A Sample Problem
+        active: true
+      - id: sample2
+        name: Echo (Sample 2)
+        active: true
+  - id: tests
+    name: Test Problems
+    active: true
+    problems:
+      - id: test
+        name: test
+        active: false
+      - id: test2
+        name: test2
+        active: false
+      - id: test3
+        name: test3
+        active: true
+      - id: test4
+        name: test4
+        active: true
+      - id: test5
+        name: test5
+        active: false
 ...

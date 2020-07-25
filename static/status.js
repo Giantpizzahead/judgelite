@@ -34,7 +34,7 @@ function runInterval() {
             }
         }
     }
-    xhr.open("GET", "/api/status/" + urlParams.get("job_id"), true);
+    xhr.open("GET", "/api/get_status/" + urlParams.get("job_id"), true);
     xhr.send();
 }
 

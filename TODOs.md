@@ -1,6 +1,4 @@
 ## TODOs
- - Organize & document the code
- - Modify submission form so that it reloads the page on a submit (to prevent weird JS issues)
  - Polish up the submission API (add a username & secret key)
    - Make sure to include documentation for the API
  - Add problem statement support (markdown) to the problem info
@@ -12,12 +10,12 @@
  - Keep track of past submissions, and make a way to view all past submissions in a table
    - Great way to get started with databases! :D
    - Redis would be a great choice since it's already part of the application (https://redis.io/ for docs)
- - Add customizable Redis database mount point (to persist data between Docker updates)
-   - Add documentation for this, along with problem info mount point
 
 ### Less important TODOs
+ - Make a front-end web interface to view and submit problems
  - Make a front-end web interface to create and edit problems
    - Make sure generated YAML file uses strings as subtask names
+ - Organize & document the code
  - Make convenience function to generate correct outputs using a program
    - Have it check the program's output if the .out file already exists (to manually check for correctness)
  - Allow custom graders (other than diff, as a standalone binary)
