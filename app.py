@@ -7,21 +7,21 @@ import yaml
 
 from werkzeug.utils import secure_filename
 from flask import *
-from redis import Redis
 from rq import Queue
 from rq.job import Job
 from rq.exceptions import NoSuchJobError
-from worker import conn
 
 from env_vars import *
 from logger import *
+from manage_redis import *
 from judge_submission import judge_submission
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', os.urandom(16))
 # Set max uploaded code file size
 app.config['MAX_CONTENT_LENGTH'] = (MAX_CODE_SIZE + 1) * 1024
 
-q = Queue(connection=Redis())
+q = Queue(connection=REDIS_CONN)
 
 
 """
@@ -50,10 +50,32 @@ def show_status():
     if 'job_id' not in request.args:
         return json_error('No job id provided!')
     try:
-        Job.fetch(request.args['job_id'], connection=conn)
+        Job.fetch(request.args['job_id'], connection=REDIS_CONN)
     except NoSuchJobError:
         return json_error('Job not found!')
     return render_template('status.html', job_id=request.args['job_id'])
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login_form():
+    if request.method == 'GET':
+        if 'admin' not in session:
+            return render_template('login.html')
+        else:
+            return redirect('/')
+    if not request.form or 'secret-key' not in request.form:
+        return render_template('login.html')
+    if request.form['secret-key'] != app.secret_key:
+        return render_template('login.html', error='Incorrect secret key!')
+    # Login successful
+    session['admin'] = True
+    return redirect('/')
+
+
+@app.route('/logout', methods=['GET'])
+def logout():
+    session.pop('admin', None)
+    return redirect('/')
 
 
 """
@@ -73,6 +95,21 @@ def is_valid_problem_id(problem_id):
             if problem['id'] == problem_id:
                 valid_problem = True
     return valid_problem
+
+
+@app.route('/api/get_submissions', methods=['GET'])
+def get_submissions():
+    return str(redis_get_all_submissions())
+
+
+@app.route('/api/get_submission_source/<i>', methods=['GET'])
+def get_submission_source(i):
+    source_code = redis_get_submission_source(i)
+    if source_code is None:
+        return '<code>Invalid submission index!</code>'
+    else:
+        source_code = source_code.decode('utf-8').replace('<', '&lt;').replace('>', '&gt;')
+        return '<code><pre>{}</pre></code>'.format(source_code)
 
 
 @app.route('/api/get_problem_list', methods=['GET'])
@@ -137,6 +174,8 @@ def handle_submission():
         return json_error('Invalid submission language!')
     if 'code' not in request.files or not request.files['code']:
         return json_error('No code file submitted!')
+    if 'username' not in request.form or request.form['username'] == '':
+        return json_error('No username!')
     sec_filename = secure_filename(request.files['code'].filename)
     if sec_filename in ['', 'input.in.txt', 'output.out.txt', 'answer.ans.txt', 'code.new.py']:
         return json_error('Invalid code filename!')
@@ -151,7 +190,8 @@ def handle_submission():
     # Enqueue the job
     job = q.enqueue_call(func=judge_submission, timeout=60,
                          ttl=RESULT_TTL, result_ttl=RESULT_TTL, failure_ttl=RESULT_TTL,
-                         args=(tempdir, request.form['problem_id'], sec_filename, request.form['type']))
+                         args=(tempdir, request.form['problem_id'], sec_filename,
+                               request.form['type'], request.form['username']))
     job.meta['status'] = 'queued'
     job.save_meta()
     if DEBUG_LOWEST:
@@ -165,7 +205,7 @@ def handle_submission():
 def get_status(job_id):
     # Make sure the job id is valid
     try:
-        job = Job.fetch(job_id, connection=conn)
+        job = Job.fetch(job_id, connection=REDIS_CONN)
     except NoSuchJobError:
         return {'status': 'internal_error', 'error': 'NO_SUCH_JOB', 'job_id': job_id}, 200
     

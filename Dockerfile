@@ -24,7 +24,8 @@ RUN pip3 install \
     psutil \
     rq \
     pyyaml \
-    pylint
+    pylint \
+    requests
 
 # Copy local code to the container image
 ENV APP_HOME /app

@@ -28,7 +28,7 @@ def tempdir():
 def test_stop_on_sample(tempdir):
     """Test that the judge stops evaluating test cases if a sample case fails."""
     copyfile('./sample_problem_info/test/solutions/stop_on_sample.py', tempdir + '/stop_on_sample.py')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'stop_on_sample.py', 'python'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'stop_on_sample.py', 'python', 'username'))
     assert job.result['final_score'] == 0
 
 
@@ -38,7 +38,7 @@ def test_stop_on_fail_average(tempdir):
     method is set to average_stop.
     """
     copyfile('./sample_problem_info/test2/solutions/wrong.py', tempdir + '/wrong.py')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test2', 'wrong.py', 'python'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test2', 'wrong.py', 'python', 'username'))
 
     correct_verdicts = ['AC', 'WA', 'SK', 'AC', 'WA', 'SK', 'AC', 'SK', 'SK']
     judge_verdicts = []
@@ -57,7 +57,7 @@ def test_stop_on_fail(tempdir):
     method is set to minimum.
     """
     copyfile('./sample_problem_info/test3/solutions/wrong.py', tempdir + '/wrong.py')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test3', 'wrong.py', 'python'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test3', 'wrong.py', 'python', 'username'))
     assert job.result['subtasks'][0][1][0] == 'SK' and job.result['subtasks'][2][3][0] == 'SK' \
         and job.result['final_score'] == 5
 
@@ -65,7 +65,7 @@ def test_stop_on_fail(tempdir):
 def test_depends_on(tempdir):
     """Test that the 'depends_on' setting works as expected."""
     copyfile('./sample_problem_info/test3/solutions/depends_on.py', tempdir + '/depends_on.py')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test3', 'depends_on.py', 'python'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test3', 'depends_on.py', 'python', 'username'))
 
     correct_subtask_verdicts = ['AC', 'WA', 'AC', 'AC', 'SK', 'AC', 'SK', 'WA', 'SK', 'SK', 'WA', 'AC', 'SK']
     judge_subtask_verdicts = []
@@ -77,7 +77,7 @@ def test_depends_on(tempdir):
 def test_carriage_return(tempdir):
     """Test that the judge will still give a correct verdict if carriage returns are present."""
     copyfile('./sample_problem_info/test/solutions/carriage_return.py', tempdir + '/carriage_return.py')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'carriage_return.py', 'python'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'carriage_return.py', 'python', 'username'))
 
     correct_verdicts = ['AC', 'AC', 'WA', 'WA', 'AC', 'AC', 'WA', 'SK', 'SK', 'SK']
     judge_verdicts = []
@@ -91,7 +91,7 @@ def test_carriage_return(tempdir):
 def test_output_limiting(tempdir, capsys):
     """Make sure the judge limits the amount of data a program can write to stdout and stderr."""
     copyfile('./sample_problem_info/test4/solutions/output_dump.py', tempdir + '/output_dump.py')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test4', 'output_dump.py', 'python'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test4', 'output_dump.py', 'python', 'username'))
     assert not job.is_failed
 
     # Make sure all file sizes are small
@@ -105,7 +105,7 @@ def test_output_limiting(tempdir, capsys):
 def test_file_limiting(tempdir, capsys):
     """Make sure the judge limits the amount of data a program can write to files."""
     copyfile('./sample_problem_info/test4/solutions/file_dump.py', tempdir + '/file_dump.py')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test4', 'file_dump.py', 'python'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test4', 'file_dump.py', 'python', 'username'))
 
     # Make sure all file sizes are small
     captured = capsys.readouterr()
@@ -121,6 +121,6 @@ def test_fill_missing_output(tempdir):
     fill_missing_output setting is true. Also makes sure that minimum stops the program early.
     """
     copyfile('./sample_problem_info/test5/solutions/sol.py', tempdir + '/sol.py')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test5', 'sol.py', 'python'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test5', 'sol.py', 'python', 'username'))
     assert isfile('./sample_problem_info/test5/subtasks/main/01.out') and \
         not isfile('./sample_problem_info/test5/subtasks/main/03.out') and  job.result['final_score'] == 0

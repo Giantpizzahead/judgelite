@@ -1,4 +1,14 @@
 import os
+import redis
+
+
+"""
+This setting allows you to create a webhook to another website. JudgeLite will send a POST request to the
+specified URL when a submission is processed. The data sent will be JSON data, which will look like this:
+{'problem_id': str, 'username': str, 'score': float, 'job_id': str}
+You can use this however you want (perhaps to integrate into your own scoreboard).
+"""
+WEBHOOK_URL = os.environ.get('WEBHOOK_URL', None)
 
 
 """
@@ -70,3 +80,4 @@ Non-configurable variables
 PROBLEM_INFO_PATH = "./sample_problem_info"
 if os.path.isdir("/problem_info"):
     PROBLEM_INFO_PATH = "/problem_info"
+REDIS_CONN = redis.Redis()

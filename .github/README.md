@@ -19,19 +19,23 @@ A simple, easy to setup judge for checking the correctness of code.
 
 ## Demo
 
-**http://judgelite.westus2.cloudapp.azure.com:8080**
+**http://judgelite.westus2.cloudapp.azure.com**
 
 A live version of JudgeLite can be found at the above link. Feel free to mess around with it. If you're feeling up for a challenge, see if you can solve the 2nd sample problem.
 
 ## Setup
 
+(Setup instructions are currently outdated, so they may not work as expected!)
+
 Easy setup instructions for Linux and Windows are on <a href="https://github.com/Giantpizzahead/judgelite/wiki/Setup-Instructions">this wiki page</a>.
 
-The web server listens on **port 8080**. You'll be greeted by a testing interface to mess around with.
+The web server listens on **port 80**. You'll be greeted by a testing interface to mess around with.
 
 Andddd that's it! Go get that AC! :)
 
 ## Usage
+
+(Note: This is a personal project, so it's probably best to find another judge if you're trying to host a contest / create a big website. JudgeLite is ideal for smaler use cases, like programming clubs and small practice sites.)
 
 JudgeLite is designed to be used for competitive programming problems, although anything requiring automatic testing of source code will work.
 

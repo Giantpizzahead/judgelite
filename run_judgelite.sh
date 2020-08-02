@@ -6,18 +6,18 @@ if [ ! "$(docker ps -q -f name=judgelite)" ]; then
 fi
 
 echo "Pulling latest JudgeLite docker image from Docker Hub..."
-sudo docker pull giantpizzahead/judgelite:version-0.2.1
+sudo docker pull giantpizzahead/judgelite:version-0.3
 
 echo "Turning swap off..."
 sudo swapoff -a
 
 echo "Starting JudgeLite docker container..."
 sudo docker run --name judgelite --privileged -dit \
-  -p 8080:8080 \
+  -p 80:80 \
   -e DEBUG=0 -e DEBUG_LOW=0 -e DEBUG_LOWEST=0 -e PROGRAM_OUTPUT=0 \
   -v $PWD/problem_info:/problem_info \
   -v $PWD/redis_db:/redis_db \
-  giantpizzahead/judgelite:version-0.2.1
+  giantpizzahead/judgelite:version-0.3
 
 echo "Sending logs to judgelite.log..."
 echo "------------------JUDGELITE STARTED------------------" >> judgelite.log

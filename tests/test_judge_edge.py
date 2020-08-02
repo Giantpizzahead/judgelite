@@ -26,12 +26,12 @@ def tempdir():
 def test_compiler_bomb(tempdir):
     """Make sure the judge is not vulnerable to a compiler bomb (size of error output)."""
     copyfile('./sample_problem_info/test/solutions/compilerbomb.cpp', tempdir + '/compilerbomb.cpp')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'compilerbomb.cpp', 'cpp'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'compilerbomb.cpp', 'cpp', 'username'))
     assert job.result['status'] == 'compile_error' and len(job.result['error']) < COMPILE_ERROR_OUTPUT + 256
 
 
 def test_runtime_bomb(tempdir):
     """Make sure the judge is not vulnerable to a runtime bomb (size of code output)."""
     copyfile('./sample_problem_info/test/solutions/runtimebomb.py', tempdir + '/runtimebomb.py')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'runtimebomb.py', 'python'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'runtimebomb.py', 'python', 'username'))
     assert job.result['subtasks'][0][0][0] == 'MLE'

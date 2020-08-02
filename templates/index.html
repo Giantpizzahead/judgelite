@@ -2,6 +2,13 @@
 
 {% block content %}
     <h2>Welcome to JudgeLite</h2>
-    <p>Please click <a href="/test_form">this link</a> for the (very temporary) test submission form.</p>
+    <p>Click <a href="/login">this link</a> to login to the (currently nonexistent) admin panel. (Won't work if you are already logged in)</p>
+    <p>Alternatively, click <a href="/test_form">this link</a> for the (very temporary) test submission form.</p>
+    <h3>API Stuff</h3>
+    <p><a href="/api/get_submissions">Get Evaluated Submissions</a></p>
+    <p><a href="/api/get_submission_source/0">Get Evaluated Submission Source (change 0 to desired index)</a></p>
+    <p><a href="/api/get_status/job_id">Get Submission Status (change job_id to desired job ID)</a></p>
+    <p><a href="/api/get_problem_list">Get Problem List</a></p>
+    <p><a href="/api/get_problem_info/sample">Get Problem Info (change sample to desired problem ID)</a></p>
     <div id="root"></div>
 {% endblock %}

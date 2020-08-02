@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if error is defined %}
+        <h3>{{ error }}</h3>
+    {% endif %}
+    <h2>Login Form</h2>
+    <form method="POST">
+        <label for="secret-key">Secret Key: </label>
+        <input id="secret-key" name="secret-key" type="password">
+        <br> <br>
+        <button type="submit">Log In</button>
+    </form>
+{% endblock %}

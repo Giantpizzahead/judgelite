@@ -24,7 +24,8 @@ def test_submit(client):
     rv = client.post('/api/submit', data=dict(
         problem_id='test',
         type='python',
-        code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py')
+        code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py'),
+        username='test_user'
     ), follow_redirects=True, content_type='multipart/form-data')
     # Make sure submission finishes to avoid issues
     sleep(2)
@@ -41,7 +42,8 @@ def test_submit_no_id(client):
     """Make sure the right error is returned for a POST request with no id."""
     rv = client.post('/api/submit', data=dict(
         type='python',
-        code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py')
+        code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py'),
+        username='test_user'
     ), follow_redirects=True, content_type='multipart/form-data')
     assert b'Invalid problem ID' in rv.data
 
@@ -51,7 +53,8 @@ def test_submit_invalid_id(client):
     rv = client.post('/api/submit', data=dict(
         problem_id='lol_no_this_is_very_invalid_id',
         type='python',
-        code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py')
+        code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py'),
+        username='test_user'
     ), follow_redirects=True, content_type='multipart/form-data')
     assert b'Invalid problem ID' in rv.data
 
@@ -60,7 +63,8 @@ def test_submit_no_type(client):
     """Make sure the right error is returned for a POST request with no language type."""
     rv = client.post('/api/submit', data=dict(
         problem_id='test',
-        code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py')
+        code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py'),
+        username='test_user'
     ), follow_redirects=True, content_type='multipart/form-data')
     assert b'No submission language' in rv.data
 
@@ -70,7 +74,8 @@ def test_submit_invalid_type(client):
     rv = client.post('/api/submit', data=dict(
         problem_id='test',
         type='brainf*ck',
-        code=(io.BytesIO(b'+[-->-[>>+>-----<<]<--<---]>-.>>>+.>>..+++[.>]<<<<.+++.------.<<-.>>>>+.'), 'code.bf')
+        code=(io.BytesIO(b'+[-->-[>>+>-----<<]<--<---]>-.>>>+.>>..+++[.>]<<<<.+++.------.<<-.>>>>+.'), 'code.bf'),
+        username='test_user'
     ), follow_redirects=True, content_type='multipart/form-data')
     assert b'Invalid submission language' in rv.data
 
@@ -79,7 +84,8 @@ def test_submit_no_code(client):
     """Make sure the right error is returned for a POST request with no code."""
     rv = client.post('/api/submit', data=dict(
         problem_id='test',
-        type='python'
+        type='python',
+        username='test_user'
     ), follow_redirects=True, content_type='multipart/form-data')
     assert b'No code file submitted' in rv.data
 
@@ -89,7 +95,8 @@ def test_submit_invalid_filename(client):
     rv = client.post('/api/submit', data=dict(
         problem_id='test',
         type='python',
-        code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'input.in.txt')
+        code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'input.in.txt'),
+        username='test_user'
     ), follow_redirects=True, content_type='multipart/form-data')
     assert b'Invalid code filename' in rv.data
 
@@ -99,18 +106,24 @@ def test_submit_invalid_java_extension(client):
     rv = client.post('/api/submit', data=dict(
         problem_id='test',
         type='java',
-        code=(io.BytesIO(b'public class java {}\n'), 'java.cpp')
+        code=(io.BytesIO(b'public class java {}\n'), 'java.cpp'),
+        username='test_user'
     ), follow_redirects=True, content_type='multipart/form-data')
     assert b'Missing .java file extension' in rv.data
 
 
-def test_invalid_job_errors(client):
-    """Make sure invalid job ids sent to /status return the right user-friendly error."""
-    rv = client.get('/status?job_id=abacadabra')
-    assert b'Job not found' in rv.data
+def test_submit_no_username(client):
+    """Make sure the right error is returned for a POST request with no username."""
+    rv = client.post('/api/submit', data=dict(
+        problem_id='test',
+        type='python',
+        code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py')
+    ), follow_redirects=True, content_type='multipart/form-data')
+    # Make sure submission finishes to avoid issues
+    assert b'No username' in rv.data
 
 
-def test_invalid_job_redirect(client):
-    """Make sure invalid job ids sent to /api/results return the right JSON error."""
-    rv = client.get('/api/status/abacadabra')
+def test_invalid_job(client):
+    """Make sure invalid job ids sent to /api/get_status return the right JSON error."""
+    rv = client.get('/api/get_status/abacadabra')
     assert b'NO_SUCH_JOB' in rv.data

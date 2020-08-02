@@ -24,14 +24,14 @@ def tempdir():
 def test_ac_cpp(tempdir):
     """Make sure that the judge works correctly for a correct C++ program."""
     copyfile('./sample_problem_info/test/solutions/sol.cpp', tempdir + '/sol.cpp')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'sol.cpp', 'cpp'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'sol.cpp', 'cpp', 'username'))
     assert job.result['final_score'] == 101
 
 
 def test_wrong_cpp(tempdir):
     """Make sure that the judge gives accurate verdicts for a wrong C++ program."""
     copyfile('./sample_problem_info/test/solutions/wrong.cpp', tempdir + '/wrong.cpp')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'wrong.cpp', 'cpp'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'wrong.cpp', 'cpp', 'username'))
 
     correct_verdicts = ['AC', 'RE', 'AC', 'MLE', 'WA', 'AC', 'TLE', 'SK', 'SK', 'AC']
     judge_verdicts = []
@@ -45,12 +45,12 @@ def test_wrong_cpp(tempdir):
 def test_compile_error_cpp(tempdir):
     """Make sure that the judge returns a compile error for C++, along with a reason for the error."""
     copyfile('./sample_problem_info/test/solutions/compileerror.cpp', tempdir + '/compileerror.cpp')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'compileerror.cpp', 'cpp'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'compileerror.cpp', 'cpp', 'username'))
     assert job.result['status'] == 'compile_error' and 'error: \'N\' was not declared' in job.result['error']
 
 
 def test_stack_cpp(tempdir):
     """Make sure that the judge accepts a C++ program that does stack-heavy things (test uses DFS)."""
     copyfile('./sample_problem_info/test4/solutions/lca.cpp', tempdir + '/lca.cpp')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test4', 'lca.cpp', 'cpp'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test4', 'lca.cpp', 'cpp', 'username'))
     assert job.result['final_score'] == 42

@@ -16,10 +16,10 @@ groups:
     problems:
       - id: test
         name: test
-        active: false
+        active: true
       - id: test2
         name: test2
-        active: false
+        active: true
       - id: test3
         name: test3
         active: true
@@ -28,5 +28,5 @@ groups:
         active: true
       - id: test5
         name: test5
-        active: false
+        active: true
 ...

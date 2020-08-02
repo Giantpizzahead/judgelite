@@ -9,9 +9,11 @@ import shutil
 import rq
 import yaml
 import glob
+import requests
 
 from env_vars import *
 from logger import *
+from manage_redis import *
 
 job: rq.job
 
@@ -362,7 +364,7 @@ def run_subtask(isolate_dir, problem_info, problem_folder, subtask_info, compile
     return verdict_subtask(final_verdict, final_score, max_time, max_memory, testcase)
 
 
-def judge_submission(tempdir, problem_id, code_filename, code_type):
+def judge_submission(tempdir, problem_id, code_filename, code_type, username):
     global job
     job = rq.get_current_job()
     if DEBUG_LOWEST:
@@ -473,10 +475,23 @@ def judge_submission(tempdir, problem_id, code_filename, code_type):
     final_score = round(final_score, 2)
     if testcase == -1:
         testcase = curr_testcase
-    isolate_cleanup()
     if final_score > problem_info['max_score']:
         # AC* :O
         final_verdict = 'AC*'
+    
+    # Add submission result to Redis database
+    with open(isolate_dir + '/' + code_filename, 'r') as fcode:
+        source_code = fcode.read()
+        redis_add_submission(problem_info['problem_id'], username, final_score, job.get_id(), source_code)
+
+    # Send POST request to webhook URL
+    if WEBHOOK_URL is not None:
+        try:
+            requests.post(WEBHOOK_URL, data={'problem_id': problem_info['problem_id'], 'username': username,
+                                             'score': final_score, 'job_id': job.get_id()}, timeout=10)
+        except Exception as e:
+            return verdict_error('WEBHOOK_FAIL')
 
     # Finally, return the result. :)
+    isolate_cleanup()
     return verdict_problem(final_verdict, final_score, problem_info['max_score'], max_time, max_memory, testcase)

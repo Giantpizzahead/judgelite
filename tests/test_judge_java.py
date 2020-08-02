@@ -25,14 +25,14 @@ def tempdir():
 def test_ac_java(tempdir):
     """Make sure that the judge works correctly for a normal Java program."""
     copyfile('./sample_problem_info/test/solutions/sol.java', tempdir + '/sol.java')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'sol.java', 'java'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'sol.java', 'java', 'username'))
     assert job.result['final_score'] == 101
 
 
 def test_wrong_java(tempdir):
     """Make sure that the judge gives accurate verdicts for a wrong Java program."""
     copyfile('./sample_problem_info/test/solutions/wrong.java', tempdir + '/wrong.java')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'wrong.java', 'java'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'wrong.java', 'java', 'username'))
 
     correct_verdicts = ['AC', 'MLE', 'WA', 'AC', 'RE', 'TLE', 'AC', 'SK', 'AC', 'SK']
     judge_verdicts = []
@@ -46,7 +46,7 @@ def test_wrong_java(tempdir):
 def test_compile_error_java(tempdir):
     """Make sure that the judge returns a compile error for Java, along with a reason for the error."""
     copyfile('./sample_problem_info/test/solutions/compileerror.java', tempdir + '/compileerror.java')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'compileerror.java', 'java'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'compileerror.java', 'java', 'username'))
     assert job.result['status'] == 'compile_error' and 'error: cannot find symbol' in job.result['error'] and \
         'variable N' in job.result['error']
 
@@ -54,5 +54,5 @@ def test_compile_error_java(tempdir):
 def test_stack_java(tempdir):
     """Make sure that the judge accepts a Java program that does stack-heavy things (test uses DFS)."""
     copyfile('./sample_problem_info/test4/solutions/lca.java', tempdir + '/lca.java')
-    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test4', 'lca.java', 'java'))
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test4', 'lca.java', 'java', 'username'))
     assert job.result['final_score'] == 42
