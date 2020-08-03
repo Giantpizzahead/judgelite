@@ -21,7 +21,7 @@ A simple, easy to setup judge for checking the correctness of code.
 
 **http://judgelite.westus2.cloudapp.azure.com**
 
-The secret key is "VERYSTRONGSECRETKEY". You'll need this to submit solutions to the problems on the demo website.
+The secret key is "VERYSTRONGSECRETKEY". You'll need this to submit solutions to the problems on the demo website. Warning: Trying to submit a solution to a problem without logging in first will result in an error (this will be fixed in the next release).
 
 A live version of JudgeLite can be found at the above link. Feel free to mess around with it. If you're feeling up for a challenge, see if you can solve the 2nd sample problem.
 
