@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <p style="text-align: center;"><a href="/problem_list">Back to problem list</a></p>
+
+    <div id="result-panel"></div>
+
+    <h1>{{ problem.name }}</h1>
+    {% if problem.time_limit == 1 %}
+        <h4>Time limit: {{ problem.time_limit }} second</h4>
+    {% else %}
+        <h4>Time limit: {{ problem.time_limit }} seconds</h4>
+    {% endif %}
+    <h4>Memory limit: {{ problem.memory_limit }} MB</h4>
+    <h4>Max score: {{ problem.max_score }} points</h4>
+
+    <hr>
+    {{ problem.statement | safe }}
+    <hr>
+
+    <form id="test-form" autocomplete="on">
+        <h2>Submission Form</h2>
+        <br>
+        <input id="problem_id" name="problem_id" type="hidden" value="{{ problem.id }}">
+        <label for="username">Username:</label>
+        <input id="username" name="username" type="text">
+        <br> <br>
+        <label for="type">Language:</label>
+        <select id="type" name="type">
+            <option value="java">Java</option>
+            <option value="cpp">C++</option>
+            <option value="python">Python 3</option>
+        </select>
+        <br> <br>
+        <label for="code">Code to submit:</label>
+        <input id="code" name="code" type="file">
+        <br> <br>
+        <button type="submit" id="submit-button" autocomplete="off">Submit!</button>
+    </form>
+
+    <br>
+    <div id="response-text"></div>
+
+    <script src="/static/submit.js"></script>
+
+    <template id="submit-status-display">
+        <div id="submission-result-box">
+            <div class="progress-box"></div>
+            <div class="submission-status">
+                <p class="status-text">Waiting...</p>
+                <div class="loader"></div>
+            </div>
+            <div class="test-results-box"></div>
+        </div>
+
+        <p id="raw-text"></p>
+
+        <template id="test-result">
+            <a href="#" class="tooltip-no-underline">
+                <div class="test-result">
+                    <div class="test-verdict"></div>
+                    <div class="test-number"></div>
+                    <div class="test-info">
+                        <div class="test-memory"></div>
+                        <div class="test-time"></div>
+                    </div>
+                </div>
+            </a>
+        </template>
+        <script src="/static/status.js"></script>
+    </template>
+{% endblock %}
