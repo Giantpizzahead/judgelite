@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <p style="text-align: center;"><a href="/">Back to home page</a></p>
+    <h1>Problem List</h1>
+    {% for group in problem_list.groups %}
+        <h2>{{ group.name }}</h2>
+        {% for problem in group.problems %}
+            <p><a href="view_problem/{{ problem.id }}">{{ problem.name }}</a></p>
+        {% endfor %}
+    {% endfor %}
+{% endblock %}

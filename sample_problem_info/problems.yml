@@ -1,5 +1,12 @@
 ---
 groups:
+  - id: week1
+    name: Week 1
+    active: true
+    problems:
+      - id: PRB1
+        name: The Homework Prank
+        active: true
   - id: samples
     name: Sample Problems
     active: true

@@ -25,7 +25,9 @@ RUN pip3 install \
     rq \
     pyyaml \
     pylint \
-    requests
+    requests \
+    markdown \
+    python-markdown-math
 
 # Copy local code to the container image
 ENV APP_HOME /app

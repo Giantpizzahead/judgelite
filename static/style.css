@@ -12,6 +12,8 @@ Check it out at http://usaco.org/
 
 body {
     /*background-color: #D6FFD4;*/
+    margin: auto;
+    max-width: min(1000px, 90%);
     font-family: 'Open Sans', sans-serif;
 }
 

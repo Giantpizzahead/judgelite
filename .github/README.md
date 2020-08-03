@@ -25,8 +25,6 @@ A live version of JudgeLite can be found at the above link. Feel free to mess ar
 
 ## Setup
 
-(Setup instructions are currently outdated, so they may not work as expected!)
-
 Easy setup instructions for Linux and Windows are on <a href="https://github.com/Giantpizzahead/judgelite/wiki/Setup-Instructions">this wiki page</a>.
 
 The web server listens on **port 80**. You'll be greeted by a testing interface to mess around with.

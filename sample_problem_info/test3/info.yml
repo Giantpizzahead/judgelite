@@ -1,5 +1,6 @@
 ---
 problem_id: test3
+problem_name: test3
 time_limit: 1
 memory_limit: 64
 scoring_method: minimum

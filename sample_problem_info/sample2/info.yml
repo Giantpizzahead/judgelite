@@ -1,5 +1,6 @@
 ---
 problem_id: sample2
+problem_name: Echo (Sample 2)
 time_limit: 3
 memory_limit: 256
 scoring_method: average_stop

@@ -8,82 +8,16 @@
     <title>Submission Form</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body onunload="document.getElementById('submit-button').disabled = false;
-                document.getElementById('submit-button').innerText = 'Submit!';">
+<body>
     <!--Simple form to test the submission process-->
     <div id="result-panel"></div>
-    <h1>Test Interface</h1>
+    <h1>Test Submission Form</h1>
     <form id="test-form" autocomplete="on">
-        <p>Memory limit and time limit vary per problem (x1 for C++, x1.5 for Java, x2 for Python).</p>
-        <p>Max code file size is {{ filesize_limit }} KB.</p>
-        <h3>Sample Problem Statement</h3>
-        <p>
-            Time limit: 2 seconds<br>
-            Memory limit: 192 MB<br>
-            <br>
-            You like to sum numbers. Please write a program that sums numbers.<br>
-            Note that the sum might not fit into an 32-bit integer!<br>
-            <br>
-            Input:<br>
-            First line - A single integer N, the # of numbers to sum. N will be small... enough.<br>
-            Second line - N space separated, positive integers.<br>
-            <br>
-            Output:<br>
-            A single line containing a single integer: The sum of the N numbers.<br>
-            <br>
-            Scoring (out of 100):<br>
-            Grading method is minimum (all or nothing)!<br>
-            30 points for the small subtask, 70 points for the large subtask.<br>
-            You can get up to 10 bonus points if your code is REALLY efficient! ;)<br>
-            <br>
-            Problem ID: <b>sample</b>
-        </p>
-        <h3>Sample Problem Statement #2</h3>
-        <p>
-            Time limit: 3 seconds<br>
-            Memory limit: 256 MB<br>
-            <br>
-            I like to echo. Do you like to echo?<br>
-            (Oh by the way, I also like doubling numbers. Big numbers. HUGE numbers.)<br>
-            <br>
-            Input: Something to echo, consisting of only alphanumeric characters, possibly separated by a single space (no newlines).<br>
-            <br>
-            Output: ???<br>
-            <br>
-            Scoring (out of 1000):<br>
-            Grading method is average_stop (partials allowed, but stops on the first failed test for each subtask).<br>
-            250 points for subtask 1, 250 points for subtask 2, 500 points for subtask 3.<br>
-            Bonus:<br>
-            50 points for subtask 4, 100 points for subtask 5.<br>
-            <br>
-            Note: A real problem probably shouldn't have this many test cases (it'll slow down the system). This is just to show off the capabilities of the judge system. :D<br>
-            <br>
-            Problem ID: <b>sample2</b>
-        </p>
-        <h3>Sample Problem Statement #3</h3>
-        <p>
-            Time limit: 2 seconds<br>
-            Memory limit: 64 MB<br>
-            <br>
-            This problem serves as a way for you to test the submission system. It also shows off sample cases, along with a special mode where subtask numbers are not shown!<br>
-            Each test case gives you a single integer as input (from 1 to 10). Just echo the integer back to get AC.<br>
-            Have fun experimenting!<br>
-            <br>
-            Sample input: 1<br>
-            Sample output: 1<br>
-            <br>
-            Scoring (out of 100):<br>
-            Grading method is average (partials allowed). There is 1 sample case. If this sample doesn't pass, none of the other cases will be evaluated.<br>
-            1 bonus point is available as well! ;)<br>
-            <br>
-            Problem ID: <b>test</b>
-        </p>
-        <h3>Submission Form</h3>
-        <label for="username">Username:</label>
-        <input id="username" name="username" type="text">
-        <br> <br>
         <label for="problem_id">Problem ID:</label>
         <input id="problem_id" name="problem_id" type="text">
+        <br> <br>
+        <label for="username">Username:</label>
+        <input id="username" name="username" type="text">
         <br> <br>
         <label for="type">Language:</label>
         <select id="type" name="type">

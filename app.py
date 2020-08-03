@@ -1,9 +1,11 @@
 """
 This python script contains the main Flask app.
 """
-
+import random
+import string
 import tempfile
 import yaml
+import markdown
 
 from werkzeug.utils import secure_filename
 from flask import *
@@ -11,13 +13,12 @@ from rq import Queue
 from rq.job import Job
 from rq.exceptions import NoSuchJobError
 
-from env_vars import *
 from logger import *
 from manage_redis import *
 from judge_submission import judge_submission
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', os.urandom(16))
+app.secret_key = os.environ.get('SECRET_KEY', ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(24)))
 # Set max uploaded code file size
 app.config['MAX_CONTENT_LENGTH'] = (MAX_CODE_SIZE + 1) * 1024
 
@@ -36,7 +37,18 @@ def favicon():
 
 @app.route('/', methods=['GET'])
 def show_index():
-    return render_template('index.html')
+    is_admin = 'admin' in session
+    return render_template('index.html', is_admin=is_admin)
+
+
+@app.route('/problem_list', methods=['GET'])
+def show_problem_list():
+    return render_template('problem_list.html', problem_list=get_problem_list())
+
+
+@app.route('/view_problem/<problem_id>', methods=['GET'])
+def view_problem(problem_id):
+    return render_template('view_problem.html', problem=get_problem_info(problem_id))
 
 
 @app.route('/test_form', methods=['GET'])
@@ -153,12 +165,19 @@ def get_problem_info(problem_id):
     if os.path.isfile('{}/{}/statement.md'.format(PROBLEM_INFO_PATH, problem_id)):
         with open('{}/{}/statement.md'.format(PROBLEM_INFO_PATH, problem_id), 'r') as statement_file:
             problem_statement = statement_file.read()
+            problem_statement = markdown.markdown(problem_statement,
+                                                  extensions=['fenced_code', 'nl2br', 'mdx_math'],
+                                                  extension_configs={
+                                                      'mdx_math': {
+                                                          'enable_dollar_delimiter': True
+                                                      }
+                                                  })
     else:
-        problem_statement = "No problem statement available."
+        problem_statement = "<p>No problem statement available.</p>"
     
     # Return only the info that the client needs to know about the problem
-    return {'time_limit': pinfo['time_limit'], 'memory_limit': pinfo['memory_limit'],
-            'max_score': pinfo['max_score'], 'statement': problem_statement}
+    return {'id': pinfo['problem_id'], 'name': pinfo['problem_name'], 'time_limit': pinfo['time_limit'],
+            'memory_limit': pinfo['memory_limit'], 'max_score': pinfo['max_score'], 'statement': problem_statement}
 
 
 @app.route('/api/submit', methods=['POST'])
@@ -166,6 +185,10 @@ def handle_submission():
     # Validate request
     if not request.form:
         return json_error('Empty request form (maybe invalid code file?)')
+    # Secret key needed if not admin
+    if 'admin' not in session and ('secret' not in request.form or request.form['secret'] != app.secret_key):
+        return {'key': app.secret_key, 'secret': request.form['secret']}
+        # return json_error('You are not authorized to make submissions (must be admin or provide the right secret key)!')
     if 'problem_id' not in request.form or not is_valid_problem_id(request.form['problem_id']):
         return json_error('Invalid problem ID!')
     if 'type' not in request.form:
@@ -176,6 +199,7 @@ def handle_submission():
         return json_error('No code file submitted!')
     if 'username' not in request.form or request.form['username'] == '':
         return json_error('No username!')
+
     sec_filename = secure_filename(request.files['code'].filename)
     if sec_filename in ['', 'input.in.txt', 'output.out.txt', 'answer.ans.txt', 'code.new.py']:
         return json_error('Invalid code filename!')

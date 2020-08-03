@@ -3,6 +3,7 @@
 
 # The problem id must match the problem's directory name.
 problem_id: sample
+problem_name: A Sample Problem
 
 # Time limit for this problem, in seconds.
 time_limit: 2
