@@ -23,7 +23,7 @@ function sendData() {
     document.getElementById("submit-button").innerText = "Submitting...";
 
     // Get form data / use an AJAX request to call the submission API
-    let formData = new FormData(form);
+    let formData = new FormData(submitForm);
     let xhr = new XMLHttpRequest();
     xhr.onload = function() {
         let resp = JSON.parse(xhr.response);
