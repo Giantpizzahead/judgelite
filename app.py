@@ -75,9 +75,9 @@ def login_form():
             return render_template('login.html')
         else:
             return redirect('/')
-    if not request.form or 'secret-key' not in request.form:
+    if not request.form or 'secret_key' not in request.form:
         return render_template('login.html')
-    if request.form['secret-key'] != SECRET_KEY:
+    if request.form['secret_key'] != SECRET_KEY:
         return render_template('login.html', error='Incorrect secret key!')
     # Login successful
     session['admin'] = True
@@ -199,7 +199,7 @@ def handle_submission():
     if not request.form:
         return json_error('Empty request form (maybe invalid code file?)')
     # Secret key needed if not admin
-    if 'admin' not in session and ('secret-key' not in request.form or request.form['secret-key'] != SECRET_KEY):
+    if 'admin' not in session and ('secret_key' not in request.form or request.form['secret_key'] != SECRET_KEY):
         return json_error('You are not authorized to make submissions (must be admin or provide the right secret key)!')
     if 'problem_id' not in request.form or not is_valid_problem_id(request.form['problem_id']):
         return json_error('Invalid problem ID!')

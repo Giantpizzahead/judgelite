@@ -9,6 +9,7 @@ from time import sleep
 import io
 import pytest
 import app
+from env_vars import *
 
 
 @pytest.fixture
@@ -37,7 +38,7 @@ def test_submit(client):
         type='python',
         code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py'),
         username='test_user',
-        secret=app.app.secret_key
+        secret_key=SECRET_KEY
     ), follow_redirects=True, content_type='multipart/form-data')
     # Make sure submission finishes to avoid issues
     sleep(2)
@@ -50,13 +51,24 @@ def test_submit_no_form(client):
     assert b'Empty request form' in rv.data
 
 
+def test_submit_no_key(client):
+    """Make sure the right error is returned for a POST request with no secret key."""
+    rv = client.post('/api/submit', data=dict(
+        problem_id='test',
+        type='python',
+        code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py'),
+        username='test_user'
+    ), follow_redirects=True, content_type='multipart/form-data')
+    assert b'not authorized' in rv.data
+
+
 def test_submit_no_id(client):
     """Make sure the right error is returned for a POST request with no id."""
     rv = client.post('/api/submit', data=dict(
         type='python',
         code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py'),
         username='test_user',
-        secret=app.app.secret_key
+        secret_key=SECRET_KEY
     ), follow_redirects=True, content_type='multipart/form-data')
     assert b'Invalid problem ID' in rv.data
 
@@ -68,7 +80,7 @@ def test_submit_invalid_id(client):
         type='python',
         code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py'),
         username='test_user',
-        secret=app.app.secret_key
+        secret_key=SECRET_KEY
     ), follow_redirects=True, content_type='multipart/form-data')
     assert b'Invalid problem ID' in rv.data
 
@@ -79,7 +91,7 @@ def test_submit_no_type(client):
         problem_id='test',
         code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py'),
         username='test_user',
-        secret=app.app.secret_key
+        secret_key=SECRET_KEY
     ), follow_redirects=True, content_type='multipart/form-data')
     assert b'No submission language' in rv.data
 
@@ -91,7 +103,7 @@ def test_submit_invalid_type(client):
         type='brainf*ck',
         code=(io.BytesIO(b'+[-->-[>>+>-----<<]<--<---]>-.>>>+.>>..+++[.>]<<<<.+++.------.<<-.>>>>+.'), 'code.bf'),
         username='test_user',
-        secret=app.app.secret_key
+        secret_key=SECRET_KEY
     ), follow_redirects=True, content_type='multipart/form-data')
     assert b'Invalid submission language' in rv.data
 
@@ -102,7 +114,7 @@ def test_submit_no_code(client):
         problem_id='test',
         type='python',
         username='test_user',
-        secret=app.app.secret_key
+        secret_key=SECRET_KEY
     ), follow_redirects=True, content_type='multipart/form-data')
     assert b'No code file submitted' in rv.data
 
@@ -114,7 +126,7 @@ def test_submit_invalid_filename(client):
         type='python',
         code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'input.in.txt'),
         username='test_user',
-        secret=app.app.secret_key
+        secret_key=SECRET_KEY
     ), follow_redirects=True, content_type='multipart/form-data')
     assert b'Invalid code filename' in rv.data
 
@@ -126,7 +138,7 @@ def test_submit_invalid_java_extension(client):
         type='java',
         code=(io.BytesIO(b'public class java {}\n'), 'java.cpp'),
         username='test_user',
-        secret=app.app.secret_key
+        secret_key=SECRET_KEY
     ), follow_redirects=True, content_type='multipart/form-data')
     assert b'Missing .java file extension' in rv.data
 
@@ -137,7 +149,7 @@ def test_submit_no_username(client):
         problem_id='test',
         type='python',
         code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py'),
-        secret=app.app.secret_key
+        secret_key=SECRET_KEY
     ), follow_redirects=True, content_type='multipart/form-data')
     # Make sure submission finishes to avoid issues
     assert b'No username' in rv.data
