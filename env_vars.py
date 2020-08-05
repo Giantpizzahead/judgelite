@@ -1,5 +1,7 @@
 import os
 import redis
+import random
+import string
 
 
 """
@@ -74,10 +76,11 @@ Miscellaneous settings
 # Defaults to 1 year = 31536000 seconds.
 RESULT_TTL = os.environ.get('RESULT_TTL', 31536000)
 
-"""
-Non-configurable variables
-"""
 PROBLEM_INFO_PATH = "./sample_problem_info"
 if os.path.isdir("/problem_info"):
     PROBLEM_INFO_PATH = "/problem_info"
+PROBLEM_INFO_PATH = os.environ.get('PROBLEM_INFO_PATH', PROBLEM_INFO_PATH)
+
+SECRET_KEY = os.environ.get('SECRET_KEY', ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(24)))
+
 REDIS_CONN = redis.Redis()

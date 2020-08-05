@@ -2,38 +2,38 @@
 groups:
   - id: week1
     name: Week 1
-    active: true
+    status: up
     problems:
       - id: PRB1
         name: The Homework Prank
-        active: true
+        status: up
   - id: samples
     name: Sample Problems
-    active: true
+    status: up
     problems:
       - id: sample
         name: A Sample Problem
-        active: true
+        status: up
       - id: sample2
         name: Echo (Sample 2)
-        active: true
+        status: up
   - id: tests
     name: Test Problems
-    active: true
+    status: up
     problems:
       - id: test
         name: test
-        active: true
+        status: up
       - id: test2
         name: test2
-        active: true
+        status: up
       - id: test3
         name: test3
-        active: true
+        status: up
       - id: test4
         name: test4
-        active: true
+        status: up
       - id: test5
         name: test5
-        active: true
+        status: up
 ...

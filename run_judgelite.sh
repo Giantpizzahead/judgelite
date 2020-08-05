@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ "$(docker ps -q -f name=judgelite)" ]; then
+if [ "$(docker ps -q -a -f name=judgelite)" ]; then
   echo "Stopping existing JudgeLite docker container..."
   sudo docker rm -f judgelite
 fi

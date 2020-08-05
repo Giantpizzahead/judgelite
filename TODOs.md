@@ -1,8 +1,9 @@
 ## TODOs
+ - Stop the submit form from giving weird errors when code file is changed
+ - Limit the frequency of submission by a single user (at least make it so they can't submit multiple at once)
  - Make a front-end web interface to create and edit problems
    - Make sure generated YAML file uses strings as subtask names
  - Decorate the front-end interface a bit (look into Bootstrap?)
- - Combine debug env vars into a single DEBUG integer
  - Make a way to view all past submissions in a table
 
 ### Less important TODOs

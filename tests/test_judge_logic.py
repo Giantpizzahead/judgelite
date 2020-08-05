@@ -123,4 +123,4 @@ def test_fill_missing_output(tempdir):
     copyfile('./sample_problem_info/test5/solutions/sol.py', tempdir + '/sol.py')
     job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test5', 'sol.py', 'python', 'username'))
     assert isfile('./sample_problem_info/test5/subtasks/main/01.out') and \
-        not isfile('./sample_problem_info/test5/subtasks/main/03.out') and  job.result['final_score'] == 0
+        not isfile('./sample_problem_info/test5/subtasks/main/03.out') and job.result['final_score'] == 0

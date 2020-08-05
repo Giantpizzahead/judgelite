@@ -18,7 +18,7 @@ from manage_redis import *
 from judge_submission import judge_submission
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(24)))
+app.secret_key = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(24))
 # Set max uploaded code file size
 app.config['MAX_CONTENT_LENGTH'] = (MAX_CODE_SIZE + 1) * 1024
 
@@ -77,7 +77,7 @@ def login_form():
             return redirect('/')
     if not request.form or 'secret-key' not in request.form:
         return render_template('login.html')
-    if request.form['secret-key'] != app.secret_key:
+    if request.form['secret-key'] != SECRET_KEY:
         return render_template('login.html', error='Incorrect secret key!')
     # Login successful
     session['admin'] = True
@@ -109,6 +109,23 @@ def is_valid_problem_id(problem_id):
     return valid_problem
 
 
+def change_md_to_html(md_file, default):
+    raw: str
+    if os.path.isfile(md_file):
+        with open(md_file, 'r') as mdf:
+            raw = mdf.read()
+            raw = markdown.markdown(raw,
+                                    extensions=['fenced_code', 'nl2br', 'mdx_math'],
+                                    extension_configs={
+                                        'mdx_math': {
+                                            'enable_dollar_delimiter': True
+                                        }
+                                    })
+    else:
+        raw = default
+    return raw
+
+
 @app.route('/api/get_submissions', methods=['GET'])
 def get_submissions():
     return str(redis_get_all_submissions())
@@ -134,15 +151,17 @@ def get_problem_list():
     # Only return problems that are active
     active_groups = []
     for group in problem_data['groups']:
-        if not group['active']:
+        if group['status'] == 'down':
             continue
         # This group is active; add to active problem data
         current_group = {'id': group['id'], 'name': group['name'], 'problems': []}
         for problem in group['problems']:
-            if not problem['active']:
+            if problem['status'] == 'down':
                 continue
-            # Problem is active; add to active group
-            current_group['problems'].append({'id': problem['id'], 'name': problem['name']})
+            # Problem is not down; add to active group
+            current_group['problems'].append({'id': problem['id'], 'name': problem['name'],
+                                              'blurb': problem['blurb'] if 'blurb' in problem else '',
+                                              'difficulty': problem['difficulty'] if 'difficulty' in problem else ''})
         active_groups.append(current_group)
     
     # Return the active groups / problems
@@ -161,23 +180,17 @@ def get_problem_info(problem_id):
     problem_info_file.close()
 
     # Get problem statement (if there is one)
-    problem_statement: str
-    if os.path.isfile('{}/{}/statement.md'.format(PROBLEM_INFO_PATH, problem_id)):
-        with open('{}/{}/statement.md'.format(PROBLEM_INFO_PATH, problem_id), 'r') as statement_file:
-            problem_statement = statement_file.read()
-            problem_statement = markdown.markdown(problem_statement,
-                                                  extensions=['fenced_code', 'nl2br', 'mdx_math'],
-                                                  extension_configs={
-                                                      'mdx_math': {
-                                                          'enable_dollar_delimiter': True
-                                                      }
-                                                  })
-    else:
-        problem_statement = "<p>No problem statement available.</p>"
-    
+    problem_statement = change_md_to_html('{}/{}/statement.md'.format(PROBLEM_INFO_PATH, problem_id),
+                                          '<p>No problem statement available.</p>')
+
+    # Get hints (if there are any)
+    hints = change_md_to_html('{}/{}/hints.md'.format(PROBLEM_INFO_PATH, problem_id), 'No hints available.')
+
     # Return only the info that the client needs to know about the problem
     return {'id': pinfo['problem_id'], 'name': pinfo['problem_name'], 'time_limit': pinfo['time_limit'],
-            'memory_limit': pinfo['memory_limit'], 'max_score': pinfo['max_score'], 'statement': problem_statement}
+            'memory_limit': pinfo['memory_limit'], 'max_score': pinfo['max_score'],
+            'statement': problem_statement, 'hints': hints,
+            'difficulty': pinfo['difficulty'] if 'difficulty' in pinfo else ''}
 
 
 @app.route('/api/submit', methods=['POST'])
@@ -186,9 +199,8 @@ def handle_submission():
     if not request.form:
         return json_error('Empty request form (maybe invalid code file?)')
     # Secret key needed if not admin
-    if 'admin' not in session and ('secret' not in request.form or request.form['secret'] != app.secret_key):
-        return {'key': app.secret_key, 'secret': request.form['secret']}
-        # return json_error('You are not authorized to make submissions (must be admin or provide the right secret key)!')
+    if 'admin' not in session and ('secret-key' not in request.form or request.form['secret-key'] != SECRET_KEY):
+        return json_error('You are not authorized to make submissions (must be admin or provide the right secret key)!')
     if 'problem_id' not in request.form or not is_valid_problem_id(request.form['problem_id']):
         return json_error('Invalid problem ID!')
     if 'type' not in request.form:

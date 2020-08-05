@@ -16,9 +16,21 @@
 
     <hr>
     {{ problem.statement | safe }}
+    <br>
+    {% if problem.hints != "No hints available." %}
+        <button id="hint-button" onclick="toggleHints();">Show Hints</button>
+        <div id="hint-container" style="display: none; margin-bottom: 0;">
+            {{ problem.hints | safe }}
+        </div>
+        <br> <br>
+    {% else %}
+        <p>No hints available for this problem.</p>
+        <br>
+    {% endif %}
     <hr>
 
-    <form id="test-form" autocomplete="on">
+    <form id="submit-form" autocomplete="on">
+        <br>
         <h2>Submission Form</h2>
         <br>
         <input id="problem_id" name="problem_id" type="hidden" value="{{ problem.id }}">

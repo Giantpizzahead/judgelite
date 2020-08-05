@@ -1,3 +1,15 @@
+function toggleHints() {
+    let hintButton = document.getElementById("hint-button");
+    let hintContainer = document.getElementById("hint-container");
+    if (hintContainer.style.display === "none") {
+        hintButton.innerText = "Hide Hints";
+        hintContainer.style.display = "block";
+    } else {
+        hintButton.innerText = "Show Hints";
+        hintContainer.style.display = "none";
+    }
+}
+
 function showSubmitStatus() {
     // Display status at top of page
     let statusClone = document.getElementById("submit-status-display").content.cloneNode(true);
@@ -30,13 +42,20 @@ function sendData() {
         document.getElementById("submit-button").disabled = false;
         document.getElementById("submit-button").innerText = "Submit!";
     };
+    xhr.onerror = function() {
+        // Display error in a very unfriendly way
+        document.getElementById("response-text").innerHTML = "Submission failed: Unknown error.";
+        // Reenable submit button
+        document.getElementById("submit-button").disabled = false;
+        document.getElementById("submit-button").innerText = "Submit!";
+    }
     xhr.open("POST", "/api/submit", true);
     xhr.send(formData);
 };
 
 // Override form's default submit behavior
-const form = document.getElementById("test-form");
-form.addEventListener("submit", function (event) {
+const submitForm = document.getElementById("submit-form");
+submitForm.addEventListener("submit", function (event) {
     event.preventDefault();
     sendData();
 });

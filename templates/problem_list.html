@@ -6,7 +6,9 @@
     {% for group in problem_list.groups %}
         <h2>{{ group.name }}</h2>
         {% for problem in group.problems %}
-            <p><a href="view_problem/{{ problem.id }}">{{ problem.name }}</a></p>
+            <h3><a href="view_problem/{{ problem.id }}">{{ problem.name }}</a></h3>
+            <p>{{ problem.blurb }}</p>
+            <p>Difficulty: {{ problem.difficulty }}</p>
         {% endfor %}
     {% endfor %}
 {% endblock %}
