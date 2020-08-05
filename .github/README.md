@@ -21,6 +21,8 @@ A simple, easy to setup judge for checking the correctness of code.
 
 **http://judgelite.westus2.cloudapp.azure.com**
 
+The secret key is "VERYSTRONGSECRETKEY". You'll need this to submit solutions to the problems on the demo website. Warning: Trying to submit a solution to a problem without logging in first will result in an error (this will be fixed in the next release).
+
 A live version of JudgeLite can be found at the above link. Feel free to mess around with it. If you're feeling up for a challenge, see if you can solve the 2nd sample problem.
 
 ## Setup
@@ -33,7 +35,7 @@ Andddd that's it! Go get that AC! :)
 
 ## Usage
 
-(Note: This is a personal project, so it's probably best to find another judge if you're trying to host a contest / create a big website. JudgeLite is ideal for smaler use cases, like programming clubs and small practice sites.)
+(Note: This is a personal project, so it's probably best to find another judge if you're trying to host a contest / create a big website. JudgeLite is ideal for smaller use cases, like programming clubs and small practice sites.)
 
 JudgeLite is designed to be used for competitive programming problems, although anything requiring automatic testing of source code will work.
 
