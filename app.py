@@ -1,14 +1,14 @@
 """
 This python script contains the main Flask app.
 """
-import random
-import string
+import logging as logg
 import tempfile
 import yaml
 import markdown
 
 from werkzeug.utils import secure_filename
 from flask import *
+from flask_cors import cross_origin
 from rq import Queue
 from rq.job import Job
 from rq.exceptions import NoSuchJobError
@@ -23,6 +23,7 @@ app.secret_key = ''.join(random.SystemRandom().choice(string.ascii_letters + str
 app.config['MAX_CONTENT_LENGTH'] = (MAX_CODE_SIZE + 1) * 1024
 
 q = Queue(connection=REDIS_CONN)
+logg.getLogger('flask_cors').level = logg.DEBUG
 
 
 """
@@ -43,12 +44,12 @@ def show_index():
 
 @app.route('/problem_list', methods=['GET'])
 def show_problem_list():
-    return render_template('problem_list.html', problem_list=get_problem_list())
+    return render_template('problem_list.html', problem_list=_get_problem_list())
 
 
 @app.route('/view_problem/<problem_id>', methods=['GET'])
 def view_problem(problem_id):
-    return render_template('view_problem.html', problem=get_problem_info(problem_id))
+    return render_template('view_problem.html', problem=_get_problem_info(problem_id))
 
 
 @app.route('/test_form', methods=['GET'])
@@ -100,7 +101,7 @@ def json_error(msg):
 
 
 def is_valid_problem_id(problem_id):
-    problem_list = get_problem_list()
+    problem_list = _get_problem_list()
     valid_problem = False
     for group in problem_list['groups']:
         for problem in group['problems']:
@@ -127,12 +128,18 @@ def change_md_to_html(md_file, default):
 
 
 @app.route('/api/get_submissions', methods=['GET'])
+@cross_origin()
 def get_submissions():
     return str(redis_get_all_submissions())
 
 
 @app.route('/api/get_submission_source/<i>', methods=['GET'])
+@cross_origin()
 def get_submission_source(i):
+    return _get_submission_source(i)
+
+
+def _get_submission_source(i):
     source_code = redis_get_submission_source(i)
     if source_code is None:
         return '<code>Invalid submission index!</code>'
@@ -142,7 +149,12 @@ def get_submission_source(i):
 
 
 @app.route('/api/get_problem_list', methods=['GET'])
+@cross_origin()
 def get_problem_list():
+    return _get_problem_list()
+
+
+def _get_problem_list():
     # Get problem list
     problem_file = open('{}/problems.yml'.format(PROBLEM_INFO_PATH), 'r')
     problem_data = yaml.safe_load(problem_file)
@@ -163,13 +175,18 @@ def get_problem_list():
                                               'blurb': problem['blurb'] if 'blurb' in problem else '',
                                               'difficulty': problem['difficulty'] if 'difficulty' in problem else ''})
         active_groups.append(current_group)
-    
+
     # Return the active groups / problems
     return {'groups': active_groups}
 
 
 @app.route('/api/get_problem_info/<problem_id>', methods=['GET'])
+@cross_origin()
 def get_problem_info(problem_id):
+    return _get_problem_info(problem_id)
+
+
+def _get_problem_info(problem_id):
     # Make sure there is a problem with the given id
     if not is_valid_problem_id(problem_id):
         return json_error('Invalid problem ID!')
@@ -194,6 +211,7 @@ def get_problem_info(problem_id):
 
 
 @app.route('/api/submit', methods=['POST'])
+@cross_origin()
 def handle_submission():
     # Validate request
     if not request.form:
@@ -238,7 +256,12 @@ def handle_submission():
 
 
 @app.route('/api/get_status/<job_id>', methods=['GET'])
+@cross_origin()
 def get_status(job_id):
+    return _get_status(job_id)
+
+
+def _get_status(job_id):
     # Make sure the job id is valid
     try:
         job = Job.fetch(job_id, connection=REDIS_CONN)

@@ -106,7 +106,7 @@ function updateResults(resp) {
     // Update status text
     let statusText = document.querySelector("#submission-result-box .status-text");
     if (resp["status"] == "queued") {
-        statusText.innerHTML = "In queue";
+        statusText.innerHTML = "Waiting...";
         return false;
     } else if (resp["status"] == "judging") {
         statusText.innerHTML = "Grading in progress";

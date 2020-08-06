@@ -27,7 +27,8 @@ RUN pip3 install \
     pylint \
     requests \
     markdown \
-    python-markdown-math
+    python-markdown-math \
+    flask-cors
 
 # Copy local code to the container image
 ENV APP_HOME /app
