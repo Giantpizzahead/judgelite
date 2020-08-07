@@ -21,7 +21,7 @@ Made by (and used by) <a href="http://hhsprogramming.com/">Homestead High School
 
 ## Demo
 
-A live version of JudgeLite can be found at <a href="http://hhsprogramming.com/problems/">Homestead High School's Programming Club</a> website. Feel free to mess around with it. If you're feeling up for a challenge, see if you solve some of the challenge problems!
+A live version of JudgeLite can be found at <a href="http://hhsprogramming.com/problems/">Homestead High School's Programming Club</a> website. Feel free to mess around with it. If you're feeling up for a challenge, see if you can solve some of the challenge problems!
 
 ## Setup
 
