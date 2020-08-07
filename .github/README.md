@@ -6,6 +6,8 @@
 
 A simple, easy to setup judge for checking the correctness of code.
 
+Made by (and used by) <a href="http://hhsprogramming.com/">Homestead High School's Programming Club</a>.
+
 ## Features
 
 * **Multiple test cases and subtasks!**
@@ -19,11 +21,7 @@ A simple, easy to setup judge for checking the correctness of code.
 
 ## Demo
 
-**http://judgelite.westus2.cloudapp.azure.com**
-
-The secret key is "VERYSTRONGSECRETKEY". You'll need this to submit solutions to the problems on the demo website. Warning: Trying to submit a solution to a problem without logging in first will result in an error (this will be fixed in the next release).
-
-A live version of JudgeLite can be found at the above link. Feel free to mess around with it. If you're feeling up for a challenge, see if you can solve the 2nd sample problem.
+A live version of JudgeLite can be found at <a href="http://hhsprogramming.com/problems/">Homestead High School's Programming Club</a> website. Feel free to mess around with it. If you're feeling up for a challenge, see if you solve some of the challenge problems!
 
 ## Setup
 
@@ -46,6 +44,8 @@ To submit code, send a **POST** request to **/api/submit** with the content type
 * **problem_id** - The ID of the problem that you're submitting a solution for.
 * **type** - The language that your code is written in. Should be one of "java", "cpp", or "python".
 * **code** - The file containing the submission's source code. Note that this is an actual *file*, not just a string representing the source code.
+* **username** - The username of the person who is submitting the code. If you don't need usernames, just set this to something like "guest".
+* **secret_key** - The secret key that is set using JudgeLite's SECRET_KEY environment variable. This makes sure that only servers you control can actually submit code.
 
 The returned status code will be 200 if the submission was successful, and 400 if the submission failed. The returned repsonse will be JSON. It will have exactly two of the following entries:
 
@@ -66,9 +66,9 @@ The following entries may or may not be available, depending on the returned sta
 * **final_score** - (done, compile_error) The final score that a submission recieved.
 * **error** - (compile_error, internal_error) If status is compiler_error, the error message that the compiler generated. Else, the error code for the internal error.
 
-A sample submission form / results page can be found on the demo website. You can use the code there as an example on how to use the API.
+A sample submission website can be found in this Github repository (check app.py). You can use the code as an example on how to use the API.
 
-In order to use the submission API, you would first need to create some problems to submit to! Unfortunately, JudgeLite is currently in alpha, so the web interface for making problems isn't finished yet. The file structure for creating problems is pretty easy to create though. If you want to try making some problems, take a look at the sample problems in the **sample_problem_info** directory.
+In order to use the submission API, you would first need to create some problems to submit to! The web interface for making problems isn't finished yet, but the file structure for creating problems is pretty easy to create (uses YAML and Markdown). If you want to try making some problems, take a look at the sample problems in the **sample_problem_info** directory.
 
 ## License
 
@@ -78,4 +78,4 @@ JudgeLite is distributed under the MIT License. This means that you are **free t
 
 This repository is maintained by <a href="https://github.com/Giantpizzahead">Giantpizzahead</a>.
 
-Special thanks to <a href="https://github.com/frodakcin">frodakcin</a> for helping out with JudgeLite's design!
+Special thanks to <a href="https://github.com/frodakcin">frodakcin</a> and the other HHS Programming Club officers for helping out with JudgeLite's development!
