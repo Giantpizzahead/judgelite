@@ -34,7 +34,7 @@ def test_wrong_java(tempdir):
     copyfile('./sample_problem_info/test/solutions/wrong.java', tempdir + '/wrong.java')
     job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'wrong.java', 'java', 'username'))
 
-    correct_verdicts = ['AC', 'MLE', 'WA', 'AC', 'RE', 'TLE', 'AC', 'SK', 'AC', 'SK']
+    correct_verdicts = ['AC', 'MLE', 'WA', 'AC', 'RE', 'TLE', 'AC', 'MLE', 'AC', 'WA']
     judge_verdicts = []
     for i in range(7):
         judge_verdicts.append(job.result['subtasks'][0][i][0])

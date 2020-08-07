@@ -17,6 +17,14 @@
     <hr>
     {{ problem.statement | safe }}
     <br>
+    {% if problem.bonus != "No bonus available." %}
+        <button id="bonus-button" onclick="toggleBonus();">Show Bonus</button>
+        <div id="bonus-container" style="display: none; margin-bottom: 0;">
+            {{ problem.bonus | safe }}
+        </div>
+        <br>
+    {% endif %}
+    <br>
     {% if problem.hints != "No hints available." %}
         <button id="hint-button" onclick="toggleHints();">Show Hints</button>
         <div id="hint-container" style="display: none; margin-bottom: 0;">

@@ -40,7 +40,7 @@ def test_stop_on_fail_average(tempdir):
     copyfile('./sample_problem_info/test2/solutions/wrong.py', tempdir + '/wrong.py')
     job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test2', 'wrong.py', 'python', 'username'))
 
-    correct_verdicts = ['AC', 'WA', 'SK', 'AC', 'WA', 'SK', 'AC', 'SK', 'SK']
+    correct_verdicts = ['AC', 'WA', 'SK', 'AC', 'WA', 'SK', 'AC', 'WA', 'SK']
     judge_verdicts = []
     for i in range(3):
         judge_verdicts.append(job.result['subtasks'][0][i][0])
@@ -79,7 +79,7 @@ def test_carriage_return(tempdir):
     copyfile('./sample_problem_info/test/solutions/carriage_return.py', tempdir + '/carriage_return.py')
     job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'carriage_return.py', 'python', 'username'))
 
-    correct_verdicts = ['AC', 'AC', 'WA', 'WA', 'AC', 'AC', 'WA', 'SK', 'SK', 'SK']
+    correct_verdicts = ['AC', 'AC', 'WA', 'WA', 'AC', 'AC', 'WA', 'WA', 'WA', 'WA']
     judge_verdicts = []
     for i in range(7):
         judge_verdicts.append(job.result['subtasks'][0][i][0])

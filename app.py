@@ -200,13 +200,16 @@ def _get_problem_info(problem_id):
     problem_statement = change_md_to_html('{}/{}/statement.md'.format(PROBLEM_INFO_PATH, problem_id),
                                           '<p>No problem statement available.</p>')
 
+    # Get bonus (if there is any)
+    bonus = change_md_to_html('{}/{}/bonus.md'.format(PROBLEM_INFO_PATH, problem_id), 'No bonus available.')
+
     # Get hints (if there are any)
     hints = change_md_to_html('{}/{}/hints.md'.format(PROBLEM_INFO_PATH, problem_id), 'No hints available.')
 
     # Return only the info that the client needs to know about the problem
     return {'id': pinfo['problem_id'], 'name': pinfo['problem_name'], 'time_limit': pinfo['time_limit'],
             'memory_limit': pinfo['memory_limit'], 'max_score': pinfo['max_score'],
-            'statement': problem_statement, 'hints': hints,
+            'statement': problem_statement, 'bonus': bonus, 'hints': hints,
             'difficulty': pinfo['difficulty'] if 'difficulty' in pinfo else ''}
 
 
@@ -236,6 +239,10 @@ def handle_submission():
     code_filename, code_extension = os.path.splitext(sec_filename)
     if request.form['type'] == 'java' and code_extension != '.java':
         return json_error('Missing .java file extension!')
+    elif request.form['type'] == 'cpp' and code_extension != '.cpp':
+        return json_error('Missing .cpp file extension!')
+    elif request.form['type'] == 'python' and code_extension != '.py':
+        return json_error('Missing .py file extension!')
 
     # Make a temporary directory / save files there
     tempdir = tempfile.mkdtemp(prefix='judge-')
@@ -276,7 +283,7 @@ def _get_status(job_id):
     elif job.is_failed:
         return {'status': 'internal_error', 'error': 'JOB_FAILED', 'job_id': job_id}, 200
     else:
-        return job.meta, 202
+        return job.meta, 202 if job.meta['status'] != 'done' else 200
 
 
 if __name__ == "__main__":

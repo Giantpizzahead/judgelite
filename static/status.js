@@ -51,7 +51,7 @@ function handleRequestError() {
     setTimeout(runInterval, numFailed * 2 * QUERY_DELAY);
 }
 
-function displayTestResult(verdict, subtask, test, time=0, memory=0) {
+function displayTestResult(verdict, subtask, test, isBonus, time=0, memory=0) {
     let testResultsBox = document.querySelector("#submission-result-box .test-results-box");
     let template = document.querySelector("#test-result");
 
@@ -67,18 +67,18 @@ function displayTestResult(verdict, subtask, test, time=0, memory=0) {
     if (subtask != 0) testNumber.innerText = subtask + "-" + test;
     else testNumber.innerText = test;
 
-    if (verdict == "AC" || verdict == "BO") {
+    if (verdict == "AC") {
         tooltip.setAttribute("title", "Correct answer");
-        testResult.classList.add(verdict == "AC" ? "test-result-pass" : "test-result-bonus");
+        testResult.classList.add(isBonus ? "test-result-bonus" : "test-result-pass");
         testVerdict.innerText = "*";
         testMemory.innerText = memory + "mb";
         testTime.innerText = time + "ms";
     } else if (verdict == "SK") {
         tooltip.setAttribute("title", "Test skipped");
-        testResult.classList.add("test-result-fail");
+        testResult.classList.add(isBonus ? "test-result-skipped" : "test-result-fail");
         testVerdict.innerText = "-";
     } else {
-        testResult.classList.add("test-result-fail");
+        testResult.classList.add(isBonus ? "test-result-skipped" : "test-result-fail");
         if (verdict == "WA") {
             tooltip.setAttribute("title", "Wrong answer");
             testVerdict.innerText = "x";
@@ -135,14 +135,21 @@ function updateResults(resp) {
     for (let i = 0; i < resp["subtasks"].length; i++) {
         let subtask = resp["subtasks"][i];
         let subtaskNum = i+1;
+        let subtaskIsBonus = resp["is_bonus"][i] == 1;
+        let atLeast1AC = false;
+        for (let j = 0; j < subtask.length; j++) {
+            let test = subtask[j]
+            if (test[0] == "AC") {
+                atLeast1AC = true;
+                break;
+            }
+        }
         for (let j = 0; j < subtask.length; j++) {
             let test = subtask[j];
             if (test[0] != "--") {
                 testsCompleted++;
-                if (resp["is_bonus"][i] == 1 && test[0] == "AC") {
-                    displayTestResult("BO", printSubtasks ? i+1 : 0, printSubtasks ? j+1 : testsTotal+j+1, test[1], test[2].toFixed(1));
-                } else if (resp["is_bonus"][i] == 0) {
-                    displayTestResult(test[0], printSubtasks ? i+1 : 0, printSubtasks ? j+1 : testsTotal+j+1, test[1], test[2].toFixed(1));
+                if (!subtaskIsBonus || atLeast1AC) {
+                    displayTestResult(test[0], printSubtasks ? i+1 : 0, printSubtasks ? j+1 : testsTotal+j+1, subtaskIsBonus, test[1], test[2].toFixed(1));
                 }
             }
         }

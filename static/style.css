@@ -53,6 +53,7 @@ h2 {
     padding: 10px;
     margin: 20px;
     font-weight: bold;
+    overflow-wrap: anywhere;
 }
 
 .submission-result-compile-error {

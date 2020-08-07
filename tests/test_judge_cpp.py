@@ -33,7 +33,7 @@ def test_wrong_cpp(tempdir):
     copyfile('./sample_problem_info/test/solutions/wrong.cpp', tempdir + '/wrong.cpp')
     job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'wrong.cpp', 'cpp', 'username'))
 
-    correct_verdicts = ['AC', 'RE', 'AC', 'MLE', 'WA', 'AC', 'TLE', 'SK', 'SK', 'AC']
+    correct_verdicts = ['AC', 'RE', 'AC', 'MLE', 'WA', 'AC', 'TLE', 'WA', 'RE', 'AC']
     judge_verdicts = []
     for i in range(7):
         judge_verdicts.append(job.result['subtasks'][0][i][0])

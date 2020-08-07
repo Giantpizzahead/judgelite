@@ -1,3 +1,15 @@
+function toggleBonus() {
+    let bonusButton = document.getElementById("bonus-button");
+    let bonusContainer = document.getElementById("bonus-container");
+    if (bonusContainer.style.display === "none") {
+        bonusButton.innerText = "Hide Bonus";
+        bonusContainer.style.display = "block";
+    } else {
+        bonusButton.innerText = "Show Bonus";
+        bonusContainer.style.display = "none";
+    }
+}
+
 function toggleHints() {
     let hintButton = document.getElementById("hint-button");
     let hintContainer = document.getElementById("hint-container");

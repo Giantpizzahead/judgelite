@@ -304,15 +304,12 @@ def run_subtask(isolate_dir, problem_info, problem_folder, subtask_info, compile
         max_time = max(run_verdict['time'], max_time)
         max_memory = max(run_verdict['memory'], max_memory)
 
-        # Update job meta, but don't reveal any bonus verdicts
+        # Update job meta
         if problem_info['scoring_method'] in ['average', 'average_stop']:
             job.meta['score'][subtask_i] = score_sum / len(test_inputs) * subtask_info['score']
-        if run_verdict['verdict'] == 'AC' or 'is_bonus' not in subtask_info or not subtask_info['is_bonus']:
-            job.meta['subtasks'][subtask_i][test_i][0] = run_verdict['verdict']
-            job.meta['subtasks'][subtask_i][test_i][1] = run_verdict['time']
-            job.meta['subtasks'][subtask_i][test_i][2] = run_verdict['memory']
-        else:
-            job.meta['subtasks'][subtask_i][test_i][0] = 'SK'
+        job.meta['subtasks'][subtask_i][test_i][0] = run_verdict['verdict']
+        job.meta['subtasks'][subtask_i][test_i][1] = run_verdict['time']
+        job.meta['subtasks'][subtask_i][test_i][2] = run_verdict['memory']
         job.save_meta()
 
         # If first wrong answer, track results
@@ -472,12 +469,15 @@ def judge_submission(tempdir, problem_id, code_filename, code_type, username):
             curr_testcase += testcase_count
 
     # Do some final cleanup
-    final_score = round(final_score, 2)
+    final_score = round(final_score)
     if testcase == -1:
         testcase = curr_testcase
     if final_score > problem_info['max_score']:
         # AC* :O
         final_verdict = 'AC*'
+    job.meta['status'] = 'done'
+    job.meta['final_score'] = final_score
+    job.save_meta()
     
     # Add submission result to Redis database
     with open(isolate_dir + '/' + code_filename, 'r') as fcode:
@@ -487,8 +487,14 @@ def judge_submission(tempdir, problem_id, code_filename, code_type, username):
     # Send POST request to webhook URL
     if WEBHOOK_URL is not None:
         try:
-            requests.post(WEBHOOK_URL, data={'problem_id': problem_info['problem_id'], 'username': username,
-                                             'score': final_score, 'job_id': job.get_id()}, timeout=10)
+            if DEBUG_LOW:
+                log('Sending POST request to ' + WEBHOOK_URL)
+            req = requests.post(WEBHOOK_URL, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246'},
+                                       data={'problem_id': problem_info['problem_id'], 'username': username,
+                                             'score': final_score, 'job_id': job.get_id(),
+                                             'secret_key': SECRET_KEY}, timeout=10)
+            if DEBUG_LOW:
+                log('Response code: ' + str(req))
         except Exception as e:
             return verdict_error('WEBHOOK_FAIL')
 
