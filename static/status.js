@@ -138,7 +138,7 @@ function updateResults(resp) {
         let subtaskIsBonus = resp["is_bonus"][i] == 1;
         let atLeast1AC = false;
         for (let j = 0; j < subtask.length; j++) {
-            let test = subtask[j]
+            let test = subtask[j];
             if (test[0] == "AC") {
                 atLeast1AC = true;
                 break;

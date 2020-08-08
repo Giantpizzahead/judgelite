@@ -11,6 +11,9 @@ coverage:
         target: auto
         threshold: 3%
         base: auto
+    patch:
+      default:
+        target: 50%
 
 parsers:
   gcov:

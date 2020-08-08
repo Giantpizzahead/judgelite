@@ -10,8 +10,25 @@
     </script>
 </head>
 <body>
-    <h1 style="text-align: center;">JudgeLite</h1>
-    {% block content %}{% endblock %}
+    <header>
+        <h1><a href="/" style="color: white; text-decoration: none;">JudgeLite</a></h1>
+        <nav id="top-navbar">
+            <ul>
+                <li><a href="/problem_list" class="top-navbar-link">Problems</a></li>
+                <li><a href="/submission_list" class="top-navbar-link">Submissions</a></li>
+                <li><a href="/api/submit" class="top-navbar-link">Test Submit</a></li>
+                <li><a href="/api" class="top-navbar-link">API</a></li>
+                {% if session['admin'] %}
+                    <li><a href="/logout" class="top-navbar-link">Logout</a></li>
+                {% else %}
+                    <li><a href="/login" class="top-navbar-link">Login</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <div id="content">
+        {% block content %}{% endblock %}
+    </div>
     <link rel="stylesheet"
       href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/styles/github.min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/highlight.min.js"></script>

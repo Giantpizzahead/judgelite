@@ -1,7 +1,6 @@
 """
 This python script contains the main Flask app.
 """
-import logging as logg
 import tempfile
 import yaml
 import markdown
@@ -23,7 +22,6 @@ app.secret_key = ''.join(random.SystemRandom().choice(string.ascii_letters + str
 app.config['MAX_CONTENT_LENGTH'] = (MAX_CODE_SIZE + 1) * 1024
 
 q = Queue(connection=REDIS_CONN)
-logg.getLogger('flask_cors').level = logg.DEBUG
 
 
 """
@@ -33,13 +31,15 @@ Client webpage methods
 
 @app.route('/favicon.ico', methods=['GET'])
 def favicon():
-    return send_from_directory('images', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    return send_from_directory('media', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 @app.route('/', methods=['GET'])
 def show_index():
-    is_admin = 'admin' in session
-    return render_template('index.html', is_admin=is_admin)
+    timestamp = pytz.timezone('US/Pacific').localize(datetime.now())
+    timestamp = timestamp.strftime("%m/%d/%Y %I:%M %p")
+    return render_template('index.html', num_problems=get_num_problems(), num_submissions=redis_get_num_submissions(),
+                           curr_time=timestamp)
 
 
 @app.route('/problem_list', methods=['GET'])
@@ -47,15 +47,37 @@ def show_problem_list():
     return render_template('problem_list.html', problem_list=_get_problem_list())
 
 
+@app.route('/submission_list', methods=['GET'])
+def show_submission_list():
+    if 'admin' not in session:
+        return render_template('login.html', error='Please login to access this page.')
+    page = 1
+    if 'page' in request.args:
+        page = int(request.args['page'])
+    return render_template('submission_list.html', submissions=_get_submissions(page), page=page,
+                           num_pages=(redis_get_num_submissions() + PAGE_SIZE - 1) // PAGE_SIZE)
+
+
+@app.route('/submission_details/<i>', methods=['GET'])
+def show_submission_details(i):
+    if 'job_id' not in request.args:
+        return json_error('No job id provided!')
+    try:
+        Job.fetch(request.args['job_id'], connection=REDIS_CONN)
+    except NoSuchJobError:
+        return json_error('Job not found!')
+    return render_template('submission_details.html', submission_source=_get_submission_source(i),
+                           submission=redis_get_submission(i), job_id=request.args['job_id'])
+
+
 @app.route('/view_problem/<problem_id>', methods=['GET'])
 def view_problem(problem_id):
     return render_template('view_problem.html', problem=_get_problem_info(problem_id))
 
 
-@app.route('/test_form', methods=['GET'])
-def show_form():
-    # Return a simple testing form for the GET method
-    return render_template('form.html', filesize_limit=round(app.config['MAX_CONTENT_LENGTH'] / 1024 - 1))
+@app.route('/api', methods=['GET'])
+def show_api_reference():
+    return render_template('api_reference.html')
 
 
 @app.route('/status', methods=['GET'])
@@ -82,7 +104,7 @@ def login_form():
         return render_template('login.html', error='Incorrect secret key!')
     # Login successful
     session['admin'] = True
-    return redirect('/')
+    return redirect('/submission_list')
 
 
 @app.route('/logout', methods=['GET'])
@@ -110,6 +132,15 @@ def is_valid_problem_id(problem_id):
     return valid_problem
 
 
+def get_num_problems():
+    problem_list = _get_problem_list()
+    num_problems = 0
+    for group in problem_list['groups']:
+        for _ in group['problems']:
+            num_problems += 1
+    return num_problems
+
+
 def change_md_to_html(md_file, default):
     raw: str
     if os.path.isfile(md_file):
@@ -127,25 +158,37 @@ def change_md_to_html(md_file, default):
     return raw
 
 
-@app.route('/api/get_submissions', methods=['GET'])
+@app.route('/api/get_submissions/<page>', methods=['GET'])
 @cross_origin()
-def get_submissions():
-    return str(redis_get_all_submissions())
+def get_submissions(page):
+    if 'secret_key' not in request.args:
+        return 'Missing secret key in GET parameters!'
+    elif request.args['secret_key'] != SECRET_KEY:
+        return 'Invalid secret key!'
+    return str(_get_submissions(int(page)))
+
+
+def _get_submissions(page=1):
+    return redis_get_submissions(page)
 
 
 @app.route('/api/get_submission_source/<i>', methods=['GET'])
 @cross_origin()
 def get_submission_source(i):
+    if 'secret_key' not in request.args:
+        return 'Missing secret key in GET parameters!'
+    elif request.args['secret_key'] != SECRET_KEY:
+        return 'Invalid secret key!'
     return _get_submission_source(i)
 
 
 def _get_submission_source(i):
     source_code = redis_get_submission_source(i)
     if source_code is None:
-        return '<code>Invalid submission index!</code>'
+        return 'Invalid submission index!'
     else:
-        source_code = source_code.decode('utf-8').replace('<', '&lt;').replace('>', '&gt;')
-        return '<code><pre>{}</pre></code>'.format(source_code)
+        source_code = source_code.decode('utf-8')
+        return source_code
 
 
 @app.route('/api/get_problem_list', methods=['GET'])
@@ -213,15 +256,19 @@ def _get_problem_info(problem_id):
             'difficulty': pinfo['difficulty'] if 'difficulty' in pinfo else ''}
 
 
-@app.route('/api/submit', methods=['POST'])
+@app.route('/api/submit', methods=['GET', 'POST'])
 @cross_origin()
 def handle_submission():
+    if request.method == 'GET':
+        # Return a simple testing form
+        return render_template('test_submit_form.html')
+
     # Validate request
     if not request.form:
         return json_error('Empty request form (maybe invalid code file?)')
     # Secret key needed if not admin
     if 'admin' not in session and ('secret_key' not in request.form or request.form['secret_key'] != SECRET_KEY):
-        return json_error('You are not authorized to make submissions (must be admin or provide the right secret key)!')
+        return json_error('Invalid secret key!')
     if 'problem_id' not in request.form or not is_valid_problem_id(request.form['problem_id']):
         return json_error('Invalid problem ID!')
     if 'type' not in request.form:
@@ -232,6 +279,9 @@ def handle_submission():
         return json_error('No code file submitted!')
     if 'username' not in request.form or request.form['username'] == '':
         return json_error('No username!')
+    run_bonus = True
+    if 'run_bonus' in request.form and (request.form['run_bonus'] == 'off' or not request.form['run_bonus']):
+        run_bonus = False
 
     sec_filename = secure_filename(request.files['code'].filename)
     if sec_filename in ['', 'input.in.txt', 'output.out.txt', 'answer.ans.txt', 'code.new.py']:
@@ -252,7 +302,7 @@ def handle_submission():
     job = q.enqueue_call(func=judge_submission, timeout=60,
                          ttl=RESULT_TTL, result_ttl=RESULT_TTL, failure_ttl=RESULT_TTL,
                          args=(tempdir, request.form['problem_id'], sec_filename,
-                               request.form['type'], request.form['username']))
+                               request.form['type'], request.form['username'], run_bonus))
     job.meta['status'] = 'queued'
     job.save_meta()
     if DEBUG_LOWEST:

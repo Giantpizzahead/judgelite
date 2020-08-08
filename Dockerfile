@@ -28,7 +28,8 @@ RUN pip3 install \
     requests \
     markdown \
     python-markdown-math \
-    flask-cors
+    flask-cors \
+    pytz
 
 # Copy local code to the container image
 ENV APP_HOME /app

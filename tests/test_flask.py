@@ -59,7 +59,7 @@ def test_submit_no_key(client):
         code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py'),
         username='test_user'
     ), follow_redirects=True, content_type='multipart/form-data')
-    assert b'not authorized' in rv.data
+    assert b'Invalid secret key' in rv.data
 
 
 def test_submit_no_id(client):

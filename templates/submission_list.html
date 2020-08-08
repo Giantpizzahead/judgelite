@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Submission List</h1>
+    <table id="submission-table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Problem</th>
+                <th>Score</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for submission in submissions %}
+                <tr onclick="window.location='submission_details/{{ loop.index0 }}?job_id={{ submission["job_id"] }}';" 
+                    {{ 'class=submission-pass' if submission["verdict"] == "AC" else
+                       'class=submission-bonus' if submission["verdict"] == "AC*" else ''}}>
+                    <td>{{ submission["username"] }}</td>
+                    <td>{{ submission["problem_id"] }}</td>
+                    <td>{{ submission["score"] }}</td>
+                    <td>{{ submission["timestamp"] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div id="page-number-controller">
+        <a href="/submission_list?page={{ 1 }}">&lt;&lt;</a>
+        <a href="/submission_list?page={{ [1, page - 1] | max }}">&lt;</a>
+        <p>Page {{ page }} of {{ num_pages }}</p>
+        <a href="/submission_list?page={{ [num_pages, page + 1] | min }}">&gt;</a>
+        <a href="/submission_list?page={{ num_pages }}">&gt;&gt;</a>
+    </div>
+{% endblock %}

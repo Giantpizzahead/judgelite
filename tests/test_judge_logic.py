@@ -124,3 +124,19 @@ def test_fill_missing_output(tempdir):
     job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test5', 'sol.py', 'python', 'username'))
     assert isfile('./sample_problem_info/test5/subtasks/main/01.out') and \
         not isfile('./sample_problem_info/test5/subtasks/main/03.out') and job.result['final_score'] == 0
+
+
+def test_no_run_bonus(tempdir):
+    """Test that the judge honors 'do not run bonus' requests."""
+    copyfile('./sample_problem_info/test2/solutions/wrong.py', tempdir + '/wrong.py')
+    job = q.enqueue_call(func=judge_submission, args=(tempdir, 'test2', 'wrong.py', 'python', 'username', False))
+
+    correct_verdicts = ['AC', 'WA', 'SK', 'AC', 'WA', 'SK', 'SK', 'SK', 'SK']
+    judge_verdicts = []
+    for i in range(3):
+        judge_verdicts.append(job.result['subtasks'][0][i][0])
+    for i in range(3):
+        judge_verdicts.append(job.result['subtasks'][1][i][0])
+    for i in range(3):
+        judge_verdicts.append(job.result['subtasks'][2][i][0])
+    assert correct_verdicts == judge_verdicts

@@ -1,17 +1,10 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Submission Form</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block content %}
     <!--Simple form to test the submission process-->
     <div id="result-panel"></div>
     <h1>Test Submission Form</h1>
+    <p>Note: This form contains all the fields that are needed to send a POST request to /api/submit, along with their correct names and value types. So, to automate the submission of code, all you have to do is copy this form!</p>
     <form id="submit-form" autocomplete="on">
         <label for="problem_id">Problem ID:</label>
         <input id="problem_id" name="problem_id" type="text">
@@ -29,12 +22,19 @@
         <label for="code">Code to submit:</label>
         <input id="code" name="code" type="file">
         <br> <br>
+        <label for="secret_key">Secret key:</label>
+        <input id="secret_key" name="secret_key" type="password">
+        <br> <br>
+        <label for="run_bonus"><input id="run_bonus" name="run_bonus" type="checkbox"> Run on bonus test cases?</label>
+        <br> <br>
         <button type="submit" id="submit-button" autocomplete="off">Submit!</button>
     </form>
 
+    <br>
     <div id="response-text"></div>
+    <br>
 
-    <script src="static/submit.js"></script>
+    <script src="/static/submit.js"></script>
 
     <template id="submit-status-display">
         <div id="submission-result-box">
@@ -62,5 +62,4 @@
         </template>
         <script src="/static/status.js"></script>
     </template>
-</body>
-</html>
+{% endblock %}

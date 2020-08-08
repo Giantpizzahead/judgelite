@@ -36,8 +36,10 @@ function sendData() {
 
     // Get form data / use an AJAX request to call the submission API
     let formData = new FormData(submitForm);
+    if (!formData.has("run_bonus")) formData.append("run_bonus", "off");
     let xhr = new XMLHttpRequest();
     xhr.onload = function() {
+        document.getElementById("code").value = "";
         let resp = JSON.parse(xhr.response);
         if (xhr.status == 200) {
             // Add job_id to URL parameters
@@ -55,8 +57,9 @@ function sendData() {
         document.getElementById("submit-button").innerText = "Submit!";
     };
     xhr.onerror = function() {
+        document.getElementById("code").value = "";
         // Display error in a very unfriendly way
-        document.getElementById("response-text").innerHTML = "Submission failed: Unknown error.";
+        document.getElementById("response-text").innerHTML = "Error occurred while submitting. Maybe try submitting again?";
         // Reenable submit button
         document.getElementById("submit-button").disabled = false;
         document.getElementById("submit-button").innerText = "Submit!";

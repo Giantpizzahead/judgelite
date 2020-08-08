@@ -8,13 +8,152 @@ Check it out at http://usaco.org/
 
 * {
     box-sizing: border-box;
+    word-wrap: break-word;
+}
+
+header * {
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    /*background-color: #D6FFD4;*/
+    margin: 0;
+    background-color: #d8f5fd;
+    font-family: 'Open Sans', sans-serif;
+}
+
+#content {
     margin: auto;
     max-width: min(1000px, 90%);
-    font-family: 'Open Sans', sans-serif;
+}
+
+header {
+    padding: 1em 0;
+    margin-bottom: 50px;
+    background-color: #111d4a;
+}
+
+header h1 {
+    color: white;
+    font-size: 2.5em;
+    text-align: center;
+}
+
+#top-navbar ul {
+    display: flex;
+    justify-content: center;
+    margin-top: 1em;
+    list-style-type: none;
+}
+
+.top-navbar-link {
+    padding: 1em;
+    color: #fff;
+    text-decoration: none;
+}
+
+.top-navbar-link:hover {
+    color: #a3e7fc;
+}
+
+#background-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    min-width: 100%;
+    min-height: 100%;
+    z-index: -6;
+}
+
+#center-jumbotron {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: -5;
+    color: white;
+    opacity: 0;
+    transition: opacity 3s ease;
+}
+
+#center-jumbotron h1 {
+    font-size: 3em;
+}
+
+#center-jumbotron p {
+    margin: 1em;
+    font-size: 1.7em;
+    font-weight: bold;
+}
+
+#center-jumbotron a {
+    color: #a3e7fc;
+}
+
+#submission-table {
+    width: 100%;
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+#submission-table td, #submission-table th {
+    padding: 8px 0;
+    text-align: center;
+}
+
+#submission-table th {
+    background-color: #111d4a;
+    color: white;
+}
+
+#submission-table tbody tr {
+    background-color: #c5f0fc;
+    cursor: pointer;
+}
+
+#submission-table tbody tr:nth-child(odd) {
+    filter: contrast(107%);
+}
+
+#submission-table tbody tr:hover {
+    background-color: #9ee6fa;
+}
+
+#submission-table .submission-pass {
+    color: #009900;
+    font-weight: bold;
+}
+
+#submission-table .submission-bonus {
+    color: #000099;
+    font-weight: bold;
+}
+
+pre {
+    border: 1px solid black;
+}
+
+code {
+    padding: 1em !important;
+}
+
+#page-number-controller {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px -5px -5px -5px;
+}
+
+#page-number-controller * {
+    margin: 5px 5px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.2em;
 }
 
 h1, h2, h3 {
@@ -54,6 +193,8 @@ h2 {
     margin: 20px;
     font-weight: bold;
     overflow-wrap: anywhere;
+    background-color: white;
+    z-index: -2;
 }
 
 .submission-result-compile-error {
@@ -177,4 +318,62 @@ h2 {
     position: absolute;
     font-size: 0.675em;
     text-align: right;
+}
+
+@media only screen and (max-width: 570px), screen and (max-height: 730px) {
+    header h1 {
+        color: white;
+        font-size: 1.5em;
+        text-align: center;
+    }
+
+    #top-navbar ul {
+        margin-top: 0.7em;
+    }
+
+    .top-navbar-link {
+        padding: 0.7em;
+        font-size: 0.8em;
+    }
+
+    #center-jumbotron h1 {
+        font-size: 2.3em;
+    }
+
+    #center-jumbotron p {
+        margin: 0.7em;
+        font-size: 1.4em;
+        font-weight: bold;
+    }
+}
+
+@media only screen and (max-width: 420px), screen and (max-height: 500px) {
+    #content {
+        font-size: 0.8em;
+    }
+
+    header h1 {
+        color: white;
+        font-size: 1.2em;
+        text-align: center;
+    }
+
+    #top-navbar ul {
+        margin-top: 0.5em;
+    }
+
+    .top-navbar-link {
+        padding: 0.2em 0.35em;
+        font-size: 0.7em;
+    }
+
+    #center-jumbotron h1 {
+        font-size: 1.9em;
+    }
+
+    #center-jumbotron p {
+        margin: 0.5em;
+        font-size: 1.25em;
+        font-weight: bold;
+    }
 }

@@ -63,9 +63,9 @@ CHECK_INTERVAL = round(float(os.environ.get('CHECK_INTERVAL', 0.2)), 2)
 These settings deal with the web server (gunicorn).
 """
 # Number of workers for gunicorn to use.
-WORKER_COUNT = os.environ.get('WORKER_COUNT', 1)
+WORKER_COUNT = int(os.environ.get('WORKER_COUNT', 1))
 # Number of threads for gunicorn to use.
-THREAD_COUNT = os.environ.get('THREAD_COUNT', 2)
+THREAD_COUNT = int(os.environ.get('THREAD_COUNT', 2))
 # Max code file size allowed, in KILOBYTES (KB)!!!!! Must be an integer.
 MAX_CODE_SIZE = int(os.environ.get('MAX_CODE_SIZE', 256))
 
@@ -81,6 +81,9 @@ if os.path.isdir("/problem_info"):
     PROBLEM_INFO_PATH = "/problem_info"
 PROBLEM_INFO_PATH = os.environ.get('PROBLEM_INFO_PATH', PROBLEM_INFO_PATH)
 
-SECRET_KEY = os.environ.get('SECRET_KEY', ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(24)))
+default_secret_key = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(24))
+SECRET_KEY = os.environ.get('SECRET_KEY', default_secret_key)
+
+PAGE_SIZE = int(os.environ.get('PAGE_SIZE', 50))
 
 REDIS_CONN = redis.Redis()

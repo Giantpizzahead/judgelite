@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <p style="text-align: center;"><a href="/submission_list">Back to submission list</a></p>
+    <h1>Submission Details</h1>
+    <h3>Username: {{ submission['username'] }}</h3>
+<h3>Problem: <a href="/view_problem/{{ submission['problem_id'] }}">{{ submission['problem_id'] }}</a></h3>
+    <h3>Score: {{ submission['score'] }}</h3>
+    <h3>Time: {{ submission['timestamp'] }}</h3>
+
+    <div id="submission-result-box">
+        <div class="progress-box"></div>
+        <div class="submission-status">
+            <p class="status-text">Waiting...</p>
+            <div class="loader"></div>
+        </div>
+        <div class="test-results-box"></div>
+    </div>
+
+    <p id="raw-text"></p>
+
+    <template id="test-result">
+        <a href="#" class="tooltip-no-underline">
+            <div class="test-result">
+                <div class="test-verdict"></div>
+                <div class="test-number"></div>
+                <div class="test-info">
+                    <div class="test-memory"></div>
+                    <div class="test-time"></div>
+                </div>
+            </div>
+        </a>
+    </template>
+    <script src="/static/status.js"></script>
+
+    <h2>Submission Source:</h2>
+    <pre class="submission-source"><code class="submission-code">{{ submission_source }}</code></pre>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>API Reference</h1>
+
+    <h3>No Key Required</h3>
+    <p><a href="/api/get_problem_list">Get Problem List</a></p>
+    <p><a href="/api/get_problem_info/PRB1">Get Problem Info (change PRB1 to desired problem ID)</a></p>
+    <p><a href="/api/get_status/job_id">Get Submission Status (change job_id to desired job ID)</a></p>
+
+    <h3>Secret Key Required</h3>
+    <p><a href="/api/submit">Submit Code to JudgeLite</a></p>
+    <p><a href="/api/get_submissions/1">Get Evaluated Submissions (change 1 to desired page #)</a></p>
+    <p><a href="/api/get_submission_source/0">Get Evaluated Submission Source (change 0 to desired index)</a></p>
+{% endblock %}

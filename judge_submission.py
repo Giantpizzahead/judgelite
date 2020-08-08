@@ -11,7 +11,6 @@ import yaml
 import glob
 import requests
 
-from env_vars import *
 from logger import *
 from manage_redis import *
 
@@ -361,7 +360,7 @@ def run_subtask(isolate_dir, problem_info, problem_folder, subtask_info, compile
     return verdict_subtask(final_verdict, final_score, max_time, max_memory, testcase)
 
 
-def judge_submission(tempdir, problem_id, code_filename, code_type, username):
+def judge_submission(tempdir, problem_id, code_filename, code_type, username, run_bonus=True):
     global job
     job = rq.get_current_job()
     if DEBUG_LOWEST:
@@ -413,27 +412,30 @@ def judge_submission(tempdir, problem_id, code_filename, code_type, username):
         subtask = problem_info['subtasks'][i]
 
         # Should this subtask actually be run?
+        should_run = True
         if 'depends_on' in subtask and subtask['depends_on'] is not None:
-            should_run = True
             for required in subtask['depends_on']:
                 if required not in subtask_results:
                     log_error(subtask['name'] + ' has an invalid depends_on list! (' + required + ' not yet evaluated)')
                 if subtask_results[required]['score'] == 0:
                     should_run = False
                     break
-            if not should_run:
-                subtask_results[subtask['name']] = verdict_subtask('SK', 0)
-                if DEBUG_LOW:
-                    log('Skipping subtask ' + subtask['name'])
-                if DEBUG:
-                    log('Subtask ' + subtask['name'] + ': ' + str(subtask_results[subtask['name']]))
-                num_tests = len(glob.glob1(problem_folder + '/subtasks/' + subtask['name'], '*.in'))
-                test_num += num_tests
-                # Update job meta
-                for j in range(num_tests):
-                    job.meta['subtasks'][i][j][0] = 'SK'
-                job.save_meta()
-                continue
+        # Honor the "run_bonus" setting
+        if 'is_bonus' in subtask and subtask['is_bonus'] and not run_bonus:
+            should_run = False
+        if not should_run:
+            subtask_results[subtask['name']] = verdict_subtask('SK', 0)
+            if DEBUG_LOW:
+                log('Skipping subtask ' + subtask['name'])
+            if DEBUG:
+                log('Subtask ' + subtask['name'] + ': ' + str(subtask_results[subtask['name']]))
+            num_tests = len(glob.glob1(problem_folder + '/subtasks/' + subtask['name'], '*.in'))
+            test_num += num_tests
+            # Update job meta
+            for j in range(num_tests):
+                job.meta['subtasks'][i][j][0] = 'SK'
+            job.save_meta()
+            continue
 
         subtask_result = run_subtask(isolate_dir, problem_info, problem_folder, subtask,
                                      compiled_filename, code_type, i)
@@ -482,7 +484,8 @@ def judge_submission(tempdir, problem_id, code_filename, code_type, username):
     # Add submission result to Redis database
     with open(isolate_dir + '/' + code_filename, 'r') as fcode:
         source_code = fcode.read()
-        redis_add_submission(problem_info['problem_id'], username, final_score, job.get_id(), source_code)
+        redis_add_submission(problem_info['problem_id'], username, final_score, job.get_id(),
+                             source_code, final_verdict)
 
     # Send POST request to webhook URL
     if WEBHOOK_URL is not None:
@@ -490,12 +493,12 @@ def judge_submission(tempdir, problem_id, code_filename, code_type, username):
             if DEBUG_LOW:
                 log('Sending POST request to ' + WEBHOOK_URL)
             req = requests.post(WEBHOOK_URL, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246'},
-                                       data={'problem_id': problem_info['problem_id'], 'username': username,
-                                             'score': final_score, 'job_id': job.get_id(),
-                                             'secret_key': SECRET_KEY}, timeout=10)
+                                data={'problem_id': problem_info['problem_id'], 'username': username,
+                                      'score': final_score, 'job_id': job.get_id(),
+                                      'secret_key': SECRET_KEY}, timeout=10)
             if DEBUG_LOW:
                 log('Response code: ' + str(req))
-        except Exception as e:
+        except requests.exceptions:
             return verdict_error('WEBHOOK_FAIL')
 
     # Finally, return the result. :)
