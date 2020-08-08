@@ -1,6 +1,6 @@
 ## TODOs (pre-V1)
  - Make a logo for JudgeLite
- - Update the wiki / add documentation
+ - Update the wiki / README / add documentation
  - Continue getting feedback from people
  - Make some stronger tests
 

@@ -194,7 +194,6 @@ h2 {
     font-weight: bold;
     overflow-wrap: anywhere;
     background-color: white;
-    z-index: -2;
 }
 
 .submission-result-compile-error {
@@ -210,7 +209,7 @@ h2 {
     width: 0%;
     height: 100%;
     background-color: #f4f4f4;
-    z-index: -1;
+    z-index: 1;
     transition: width 0.6s ease;
 }
 
@@ -235,6 +234,7 @@ h2 {
 #submission-result-box .status-text {
     margin: 5px 7px 5px 5px;
     text-align: center;
+    z-index: 2;
 }
 
 #submission-result-box .loader {
@@ -260,6 +260,7 @@ h2 {
 
 #submission-result-box .tooltip-no-underline {
     text-decoration: none;
+    z-index: 2;
 }
 
 #submission-result-box .test-result {

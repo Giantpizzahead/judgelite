@@ -13,7 +13,7 @@
         </thead>
         <tbody>
             {% for submission in submissions %}
-                <tr onclick="window.location='submission_details/{{ loop.index0 }}?job_id={{ submission["job_id"] }}';" 
+                <tr onclick="window.location='submission_details?job_id={{ submission["job_id"] }}';"
                     {{ 'class=submission-pass' if submission["verdict"] == "AC" else
                        'class=submission-bonus' if submission["verdict"] == "AC*" else ''}}>
                     <td>{{ submission["username"] }}</td>
@@ -32,4 +32,6 @@
         <a href="/submission_list?page={{ [num_pages, page + 1] | min }}">&gt;</a>
         <a href="/submission_list?page={{ num_pages }}">&gt;&gt;</a>
     </div>
+
+    <br>
 {% endblock %}

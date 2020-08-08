@@ -34,9 +34,14 @@ def favicon():
     return send_from_directory('media', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
+@app.route('/media/particles.mp4', methods=['GET'])
+def media_particles():
+    return send_from_directory('media', 'particles.mp4', mimetype='video/mp4')
+
+
 @app.route('/', methods=['GET'])
 def show_index():
-    timestamp = pytz.timezone('US/Pacific').localize(datetime.now())
+    timestamp = datetime.now(tz=pytz.utc).astimezone(pytz.timezone('US/Pacific'))
     timestamp = timestamp.strftime("%m/%d/%Y %I:%M %p")
     return render_template('index.html', num_problems=get_num_problems(), num_submissions=redis_get_num_submissions(),
                            curr_time=timestamp)
@@ -58,16 +63,17 @@ def show_submission_list():
                            num_pages=(redis_get_num_submissions() + PAGE_SIZE - 1) // PAGE_SIZE)
 
 
-@app.route('/submission_details/<i>', methods=['GET'])
-def show_submission_details(i):
+@app.route('/submission_details', methods=['GET'])
+def show_submission_details():
     if 'job_id' not in request.args:
         return json_error('No job id provided!')
     try:
         Job.fetch(request.args['job_id'], connection=REDIS_CONN)
     except NoSuchJobError:
         return json_error('Job not found!')
-    return render_template('submission_details.html', submission_source=_get_submission_source(i),
-                           submission=redis_get_submission(i), job_id=request.args['job_id'])
+    job_id = request.args['job_id']
+    return render_template('submission_details.html', submission_source=_get_submission_source(job_id),
+                           submission=redis_get_submission(job_id), job_id=job_id)
 
 
 @app.route('/view_problem/<problem_id>', methods=['GET'])
@@ -172,18 +178,18 @@ def _get_submissions(page=1):
     return redis_get_submissions(page)
 
 
-@app.route('/api/get_submission_source/<i>', methods=['GET'])
+@app.route('/api/get_submission_source/<job_id>', methods=['GET'])
 @cross_origin()
-def get_submission_source(i):
+def get_submission_source(job_id):
     if 'secret_key' not in request.args:
         return 'Missing secret key in GET parameters!'
     elif request.args['secret_key'] != SECRET_KEY:
         return 'Invalid secret key!'
-    return _get_submission_source(i)
+    return _get_submission_source(job_id)
 
 
-def _get_submission_source(i):
-    source_code = redis_get_submission_source(i)
+def _get_submission_source(job_id):
+    source_code = redis_get_submission_source(job_id)
     if source_code is None:
         return 'Invalid submission index!'
     else:
