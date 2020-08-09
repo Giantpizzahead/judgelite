@@ -189,6 +189,10 @@ def get_submission_source(job_id):
 
 
 def _get_submission_source(job_id):
+    try:
+        Job.fetch(job_id, connection=REDIS_CONN)
+    except NoSuchJobError:
+        return 'Invalid job id!'
     source_code = redis_get_submission_source(job_id)
     if source_code is None:
         return 'Invalid submission index!'
@@ -273,8 +277,11 @@ def handle_submission():
     if not request.form:
         return json_error('Empty request form (maybe invalid code file?)')
     # Secret key needed if not admin
-    if 'admin' not in session and ('secret_key' not in request.form or request.form['secret_key'] != SECRET_KEY):
-        return json_error('Invalid secret key!')
+    if 'admin' not in session:
+        if 'secret_key' not in request.form:
+            return json_error('Missing secret key in POST parameters!')
+        if request.form['secret_key'] != SECRET_KEY:
+            return json_error('Invalid secret key!')
     if 'problem_id' not in request.form or not is_valid_problem_id(request.form['problem_id']):
         return json_error('Invalid problem ID!')
     if 'type' not in request.form:

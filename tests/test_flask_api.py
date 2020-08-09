@@ -1,5 +1,5 @@
 """
-This test batch makes sure the frontend Flask application works as expected.
+This test batch makes sure the Flask API works as expected.
 """
 
 import sys
@@ -10,6 +10,8 @@ import io
 import pytest
 import app
 from env_vars import *
+
+valid_job_id: str
 
 
 @pytest.fixture
@@ -43,23 +45,16 @@ def test_submit(client):
     # Make sure submission finishes to avoid issues
     sleep(2)
     assert b'success' in rv.data
+    # Save job_id to be used later in the tests
+    rv = eval(rv.data)
+    global valid_job_id
+    valid_job_id = rv['job_id']
 
 
 def test_submit_no_form(client):
     """Make sure the right error is returned for an empty POST request."""
     rv = client.post('/api/submit', data=None, follow_redirects=True, content_type='multipart/form-data')
     assert b'Empty request form' in rv.data
-
-
-def test_submit_no_key(client):
-    """Make sure the right error is returned for a POST request with no secret key."""
-    rv = client.post('/api/submit', data=dict(
-        problem_id='test',
-        type='python',
-        code=(io.BytesIO(b'N=int(input())\nprint(N)\n'), 'code.py'),
-        username='test_user'
-    ), follow_redirects=True, content_type='multipart/form-data')
-    assert b'Invalid secret key' in rv.data
 
 
 def test_submit_no_id(client):
@@ -131,8 +126,8 @@ def test_submit_invalid_filename(client):
     assert b'Invalid code filename' in rv.data
 
 
-def test_submit_invalid_java_extension(client):
-    """Make sure the right error is returned for a POST request with an invalid java extension."""
+def test_submit_invalid_extensions(client):
+    """Make sure the right error is returned for POST requests with invalid extensions."""
     rv = client.post('/api/submit', data=dict(
         problem_id='test',
         type='java',
@@ -141,6 +136,24 @@ def test_submit_invalid_java_extension(client):
         secret_key=SECRET_KEY
     ), follow_redirects=True, content_type='multipart/form-data')
     assert b'Missing .java file extension' in rv.data
+
+    rv = client.post('/api/submit', data=dict(
+        problem_id='test',
+        type='cpp',
+        code=(io.BytesIO(b'#include <iostream>\n'), 'cpp.py'),
+        username='test_user',
+        secret_key=SECRET_KEY
+    ), follow_redirects=True, content_type='multipart/form-data')
+    assert b'Missing .cpp file extension' in rv.data
+
+    rv = client.post('/api/submit', data=dict(
+        problem_id='test',
+        type='python',
+        code=(io.BytesIO(b'if __name__ == "__main__": main()\n'), 'py.java'),
+        username='test_user',
+        secret_key=SECRET_KEY
+    ), follow_redirects=True, content_type='multipart/form-data')
+    assert b'Missing .py file extension' in rv.data
 
 
 def test_submit_no_username(client):
@@ -155,7 +168,25 @@ def test_submit_no_username(client):
     assert b'No username' in rv.data
 
 
-def test_invalid_job(client):
+def test_get_status_invalid_job(client):
     """Make sure invalid job ids sent to /api/get_status return the right JSON error."""
     rv = client.get('/api/get_status/abacadabra')
     assert b'NO_SUCH_JOB' in rv.data
+
+
+def test_get_status(client):
+    """Make sure /api/get_status returns the expected result."""
+    rv = client.get('/api/get_status/{}'.format(valid_job_id))
+    assert b'"status":"done"' in rv.data and b'101' in rv.data
+
+
+def test_get_submissions(client):
+    """Make sure the get submissions API call works correctly."""
+    rv = client.get('/api/get_submissions/1', query_string=dict(secret_key=SECRET_KEY))
+    assert valid_job_id.encode('utf-8') in rv.data and b'101' in rv.data
+
+
+def test_get_source(client):
+    """Make sure the get submission source API call works correctly."""
+    rv = client.get('/api/get_submission_source/{}'.format(valid_job_id), query_string=dict(secret_key=SECRET_KEY))
+    assert b'N=int(input())' in rv.data

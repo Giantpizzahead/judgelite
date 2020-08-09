@@ -1,8 +1,6 @@
 ## TODOs (pre-V1)
- - Make a logo for JudgeLite
  - Update the wiki / README / add documentation
  - Continue getting feedback from people
- - Make some stronger tests
 
 ## TODOs (post-V1)
  - Limit the frequency of submission by a single user (at least make it so they can't submit multiple at once)

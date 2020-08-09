@@ -15,6 +15,7 @@ from os.path import isfile
 import re
 import tempfile
 import pytest
+import subprocess
 
 q = Queue(is_async=False, connection=Redis())
 
@@ -140,3 +141,33 @@ def test_no_run_bonus(tempdir):
     for i in range(3):
         judge_verdicts.append(job.result['subtasks'][2][i][0])
     assert correct_verdicts == judge_verdicts
+
+
+def test_webhook(tempdir):
+    """
+    Test that the judge sends a POST request to the given webhook (already set in env vars).
+    I have no idea how to actually do this test, so it's gonna be left blank for now.
+    If anyone knows, pleaseeeeee help :(
+    """
+    pass
+    '''
+    # Listen for connections
+    os.putenv('WEBHOOK_URL', 'http://localhost:1337')
+    global WEBHOOK_URL
+    WEBHOOK_URL = 'http://localhost:1337'
+    q = Queue(is_async=False, connection=Redis())
+    netcat = subprocess.Popen(['nc', '-l', '1337'])
+    # Make a submission
+    copyfile('./sample_problem_info/test/solutions/sol.py', tempdir + '/sol.py')
+    q.enqueue_call(func=judge_submission, args=(tempdir, 'test', 'sol.py', 'python', 'username'))
+    # Reset webhook
+    os.unsetenv('WEBHOOK_URL')
+    WEBHOOK_URL = None
+    # Check if netcat has exited
+    if netcat.poll() == None:
+        # Has not exited
+        netcat.kill()
+        assert False
+    else:
+        assert netcat.poll() == 999
+    '''

@@ -14,6 +14,9 @@ export DEBUG_LOWEST=1
 export PROGRAM_OUTPUT=64
 
 echo "=============================setting up environment============================="
+# Install netcat
+echo "Installing netcat..."
+apt-get -qq install -y netcat >/dev/null 2>&1
 # Install pytest
 echo "Installing pytest..."
 pip3 install --quiet pytest pytest-cov
