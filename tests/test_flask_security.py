@@ -39,7 +39,7 @@ def test_queuing_system(client):
     ), follow_redirects=True, content_type='multipart/form-data').data)['job_id']
 
     # Wait a bit for jobs to start getting judged
-    sleep(1)
+    sleep(1.5)
 
     # Immediately check status of job1 (should be judging)
     rv = client.get('/api/get_status/{}'.format(job1))
@@ -49,7 +49,7 @@ def test_queuing_system(client):
     assert b'queued' in rv.data
 
     # Wait for jobs to complete
-    sleep(4.5)
+    sleep(5.5)
 
     # Make sure both jobs are done
     rv = client.get('/api/get_status/{}'.format(job1))
