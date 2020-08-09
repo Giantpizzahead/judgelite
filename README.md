@@ -4,30 +4,34 @@
 <a href="https://codecov.io/gh/Giantpizzahead/judgelite"><img alt="codecov" src="https://codecov.io/gh/Giantpizzahead/judgelite/branch/master/graph/badge.svg" /></a>
 <a href="https://github.com/Giantpizzahead/judgelite/.github/LICENSE"><img alt="license" src="https://img.shields.io/github/license/giantpizzahead/judgelite" /></a>
 
-A simple, easy to setup judge for checking the correctness of code.
+<img src="media/logo.png" alt="JudgeLite logo" align="right" width="128">
 
-Made by (and used by) <a href="http://hhsprogramming.com/">Homestead High School's Programming Club</a>.
+### A simple, easy to setup judge for checking the correctness of code.
+
+#### Made by (and used by) <a href="http://hhsprogramming.com/">Homestead High School's Programming Club</a>.
 
 ## Features
 
 * **Multiple test cases and subtasks!**
-* Supports interactive problems (WIP)
-* Variety of scoring methods (all-or-nothing, partials, bonus tests, etc.)
+* Bonus test cases! (less discouraging form of subtasks)
+* Variety of scoring methods (all-or-nothing, partials, stop-on-wrong, etc.)
 * Supports submissions in C++, Java, and Python 3
 * Secure code compilation and execution using <a href="https://github.com/ioi/isolate">isolate</a>
 * Extremely simple setup
 * Easy-to-use submission API
-* Simple administrative web interface (WIP)
+* Easy problem creation (YAML / minimal file structure)
+* Simple administrative web interface
+* Supports interactive problems and custom checkers (WIP)
 
 ## Demo
 
-A live version of JudgeLite can be found at <a href="http://hhsprogramming.com/problems/">Homestead High School's Programming Club</a> website. Feel free to mess around with it. If you're feeling up for a challenge, see if you can solve some of the challenge problems!
+A live version of JudgeLite can be found at <a href="http://hhsprogramming.com/problems/">Homestead High School's Programming Club</a> website. The admin panel is also accessible <a href="http://judgelite.westus2.cloudapp.azure.com/">here</a> (although you can't actually login). Feel free to mess around with it. If you're feeling up for a challenge, see if you can solve some of the challenge problems!
 
 ## Setup
 
 Easy setup instructions for Linux and Windows are on <a href="https://github.com/Giantpizzahead/judgelite/wiki/Setup-Instructions">this wiki page</a>.
 
-The web server listens on **port 80**. You'll be greeted by a testing interface to mess around with.
+The web server listens on **port 80**. You'll be greeted by a nice admin interface.
 
 Andddd that's it! Go get that AC! :)
 
@@ -37,7 +41,9 @@ Andddd that's it! Go get that AC! :)
 
 JudgeLite is designed to be used for competitive programming problems, although anything requiring automatic testing of source code will work.
 
-A more detailed, easier to understand Wiki page explaining how to use the submission API will be created later. For now, here is a quick summary:
+There is an **API Reference page** on JudgeLite, where all the allowed API calls are showcased with examples. You can use the reference as an example on how to use the API.
+
+A more detailed Wiki page explaining the subtleties of the submission API will be created later. For now, here is a quick summary:
 
 To submit code, send a **POST** request to **/api/submit** with the content type **multipart/form-data**. Include the following fields:
 
@@ -66,9 +72,7 @@ The following entries may or may not be available, depending on the returned sta
 * **final_score** - (done, compile_error) The final score that a submission recieved.
 * **error** - (compile_error, internal_error) If status is compiler_error, the error message that the compiler generated. Else, the error code for the internal error.
 
-A sample submission website can be found in this Github repository (check app.py). You can use the code as an example on how to use the API.
-
-In order to use the submission API, you would first need to create some problems to submit to! The web interface for making problems isn't finished yet, but the file structure for creating problems is pretty easy to create (uses YAML and Markdown). If you want to try making some problems, take a look at the sample problems in the **sample_problem_info** directory.
+In order to use the submission API, you would first need to create some problems to submit to! The file structure for creating problems is pretty easy to create (uses YAML and Markdown). If you want to try making some problems, take a look at the sample problem structure in the **sample_problem_info** directory.
 
 ## License
 
