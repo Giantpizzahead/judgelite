@@ -1,33 +1,33 @@
-# JudgeLite
+# JudgeLite <a href="https://github.com/Giantpizzahead/judgelite/actions?query=workflow%3Abuild"><img alt="build" src="https://github.com/Giantpizzahead/judgelite/workflows/build/badge.svg" /></a> <a href="https://hub.docker.com/r/giantpizzahead/judgelite"><img alt="Docker Image Version" src="https://img.shields.io/docker/v/giantpizzahead/judgelite?label=docker&logo=docker" /></a> <a href="https://codecov.io/gh/Giantpizzahead/judgelite"><img alt="codecov" src="https://codecov.io/gh/Giantpizzahead/judgelite/branch/master/graph/badge.svg" /></a> <a href="https://github.com/Giantpizzahead/judgelite/.github/LICENSE"><img alt="license" src="https://img.shields.io/github/license/giantpizzahead/judgelite" /></a>
 
-<a href="https://github.com/Giantpizzahead/judgelite/actions?query=workflow%3Abuild"><img alt="build" src="https://github.com/Giantpizzahead/judgelite/workflows/build/badge.svg" /></a>
-<a href="https://codecov.io/gh/Giantpizzahead/judgelite"><img alt="codecov" src="https://codecov.io/gh/Giantpizzahead/judgelite/branch/master/graph/badge.svg" /></a>
-<a href="https://github.com/Giantpizzahead/judgelite/.github/LICENSE"><img alt="license" src="https://img.shields.io/github/license/giantpizzahead/judgelite" /></a>
+<img src="media/logo.png" alt="JudgeLite logo" align="right" width="128">
 
-A simple, easy to setup judge for checking the correctness of code.
+### A simple, easy to setup judge for checking the correctness of code.
 
-Made by (and used by) <a href="http://hhsprogramming.com/">Homestead High School's Programming Club</a>.
+#### Made by (and used by) <a href="http://hhsprogramming.com/">Homestead High School's Programming Club</a>.
 
 ## Features
 
 * **Multiple test cases and subtasks!**
-* Supports interactive problems (WIP)
-* Variety of scoring methods (all-or-nothing, partials, bonus tests, etc.)
+* Variety of scoring methods (all-or-nothing, partials, stop-on-wrong, etc.)
 * Supports submissions in C++, Java, and Python 3
 * Secure code compilation and execution using <a href="https://github.com/ioi/isolate">isolate</a>
-* Extremely simple setup
-* Easy-to-use submission API
-* Simple administrative web interface (WIP)
+* Extremely simple <a href="https://github.com/Giantpizzahead/judgelite/wiki/Setup-Instructions">setup</a>
+* Bonus test cases! (less discouraging form of subtasks)
+* Easy-to-use <a href="https://github.com/Giantpizzahead/judgelite/wiki/API-Reference">submission API</a>
+* Easy <a href="https://github.com/Giantpizzahead/judgelite/wiki/Creating-Problems">problem creation</a>
+* Simple administrative web interface
+* Supports interactive problems and custom checkers (WIP)
 
 ## Demo
 
-A live version of JudgeLite can be found at <a href="http://hhsprogramming.com/problems/">Homestead High School's Programming Club</a> website. Feel free to mess around with it. If you're feeling up for a challenge, see if you can solve some of the challenge problems!
+A live version of JudgeLite can be found at <a href="http://hhsprogramming.com/problems/">Homestead High School's Programming Club</a> website. The admin panel is also accessible <a href="http://judgelite.westus2.cloudapp.azure.com/">here</a> (although you can't actually login). Feel free to mess around with it. If you're feeling up for a challenge, see if you can solve some of the challenge problems!
 
 ## Setup
 
 Easy setup instructions for Linux and Windows are on <a href="https://github.com/Giantpizzahead/judgelite/wiki/Setup-Instructions">this wiki page</a>.
 
-The web server listens on **port 80**. You'll be greeted by a testing interface to mess around with.
+The web server listens on **port 80**. You'll be greeted by a nice admin interface.
 
 Andddd that's it! Go get that AC! :)
 
@@ -37,38 +37,9 @@ Andddd that's it! Go get that AC! :)
 
 JudgeLite is designed to be used for competitive programming problems, although anything requiring automatic testing of source code will work.
 
-A more detailed, easier to understand Wiki page explaining how to use the submission API will be created later. For now, here is a quick summary:
+There is an **API Reference page** on JudgeLite, where all the allowed API calls are showcased with examples. You can use the reference as an example on how to use the API. A more detailed Wiki page explaining the subtleties of the submission API can be found <a href="https://github.com/Giantpizzahead/judgelite/wiki/API-Reference">here</a>.
 
-To submit code, send a **POST** request to **/api/submit** with the content type **multipart/form-data**. Include the following fields:
-
-* **problem_id** - The ID of the problem that you're submitting a solution for.
-* **type** - The language that your code is written in. Should be one of "java", "cpp", or "python".
-* **code** - The file containing the submission's source code. Note that this is an actual *file*, not just a string representing the source code.
-* **username** - The username of the person who is submitting the code. If you don't need usernames, just set this to something like "guest".
-* **secret_key** - The secret key that is set using JudgeLite's SECRET_KEY environment variable. This makes sure that only servers you control can actually submit code.
-
-The returned status code will be 200 if the submission was successful, and 400 if the submission failed. The returned repsonse will be JSON. It will have exactly two of the following entries:
-
-* **status** - Reports on whether or not the submission was successful. Will be either "success" or "fail".
-* **error** - Only present if the submission failed. Presents a user-friendly message of why the submission failed.
-* **job_id** - Only present if the submission succeeded. This is the unique ID value that was assigned to the submission. It is used to query the status of the submission (see below).
-
-To get the status of a submission, send a **GET** request to **/api/status/<job_id>**, where job_id is the ID returned from the initial POST request. The returned status code will be 202 if the submission is still processing, and 200 if the submission has been fully evaluated (or an error occurred). The returned response will be JSON. It will have the following entries:
-
-* **status** - Contains the status of the submission. Will be one of "queued", "judging", "done", "compile_error", or "internal_error".
-
-The following entries may or may not be available, depending on the returned status:
-
-* **score** - (judging, done) The current score of the submission for each subtask.
-* **is_bonus** - (judging, done) Whether or not each subtask is a bonus subtask (useful for changing how bonus verdicts are displayed).
-* **subtasks** - (judging, done) A list of subtasks. Each subtask has a list of test cases. Each test case is an array with 3 values: ['verdict', time, memory].
-* **max_score** - (judging, done, compile_error) The maximum score that a submission could get on a problem, excluding bonus points.
-* **final_score** - (done, compile_error) The final score that a submission recieved.
-* **error** - (compile_error, internal_error) If status is compiler_error, the error message that the compiler generated. Else, the error code for the internal error.
-
-A sample submission website can be found in this Github repository (check app.py). You can use the code as an example on how to use the API.
-
-In order to use the submission API, you would first need to create some problems to submit to! The web interface for making problems isn't finished yet, but the file structure for creating problems is pretty easy to create (uses YAML and Markdown). If you want to try making some problems, take a look at the sample problems in the **sample_problem_info** directory.
+In order to use JudgeLite, you'll need to first create some problems to submit to! Luckily, the file structure for creating problems is pretty easy to follow (uses <a href="https://yaml.org/">YAML</a> and <a href="https://www.markdownguide.org/">Markdown</a>). Take a look at the sample problem structure in the **sample_problem_info** directory for an example set of problems. A more detailed Wiki page about problem creation can be found <a href="https://github.com/Giantpizzahead/judgelite/wiki/Creating-Problems">here</a>.
 
 ## License
 
