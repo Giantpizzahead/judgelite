@@ -70,18 +70,6 @@ def test_get_submissions_wrong_key(client):
     assert b'Invalid secret key' in rv.data
 
 
-def test_get_source_no_key(client):
-    """Make sure users cannot get the submission source without the secret key."""
-    rv = client.get('/api/get_submission_source/idk')
-    assert b'Missing secret key' in rv.data
-
-
-def test_get_source_wrong_key(client):
-    """Make sure users cannot get the submission source with an invalid secret key."""
-    rv = client.get('/api/get_submission_source/idk', query_string=dict(secret_key='hi'))
-    assert b'Invalid secret key' in rv.data
-
-
 def test_submit_no_key(client):
     """Make sure the right error is returned for a POST request with no secret key."""
     rv = client.post('/api/submit', data=dict(

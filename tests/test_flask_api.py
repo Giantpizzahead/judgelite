@@ -188,5 +188,5 @@ def test_get_submissions(client):
 
 def test_get_source(client):
     """Make sure the get submission source API call works correctly."""
-    rv = client.get('/api/get_submission_source/{}'.format(valid_job_id), query_string=dict(secret_key=SECRET_KEY))
+    rv = client.get('/api/get_submission_source/{}'.format(valid_job_id))
     assert b'N=int(input())' in rv.data

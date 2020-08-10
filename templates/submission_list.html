@@ -8,6 +8,7 @@
                 <th>Username</th>
                 <th>Problem</th>
                 <th>Score</th>
+                <th>Verdict</th>
                 <th>Timestamp</th>
             </tr>
         </thead>
@@ -19,6 +20,7 @@
                     <td>{{ submission["username"] }}</td>
                     <td>{{ submission["problem_id"] }}</td>
                     <td>{{ submission["score"] }}</td>
+                    <td>{{ submission["verdict"] }}</td>
                     <td>{{ submission["timestamp"] }}</td>
                 </tr>
             {% endfor %}

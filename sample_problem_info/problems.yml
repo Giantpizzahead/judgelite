@@ -1,21 +1,18 @@
 ---
 groups:
-  - id: week1
-    name: Week 1
-    status: up
-    problems:
-      - id: PRB1
-        name: The Homework Prank
-        status: up
   - id: samples
     name: Sample Problems
     status: up
     problems:
       - id: sample
         name: A Sample Problem
+        blurb: Summing numbers together
+        difficulty: Beginner
         status: up
       - id: sample2
         name: Echo (Sample 2)
+        blurb: Echooooooooooooooo
+        difficulty: Intermediate
         status: up
   - id: tests
     name: Test Problems

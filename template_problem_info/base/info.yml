@@ -1,0 +1,16 @@
+---
+problem_id: base
+problem_name: Base Problem
+difficulty: Beginner
+time_limit: 0.5
+memory_limit: 64
+scoring_method: average_stop
+checker: diff
+max_score: 100
+fill_missing_output: false
+
+subtasks:
+  - name: main
+    score: 100
+    num_samples: 1
+...

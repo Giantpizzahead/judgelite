@@ -1,0 +1,17 @@
+---
+groups:
+  - id: base_group
+    name: Base Group
+    status: up
+    problems:
+      - id: basebonus
+        name: Base Problem + Bonus
+        blurb: Blurb goes here
+        difficulty: Beginner
+        status: up
+      - id: base
+        name: Base Problem
+        blurb: Blurb goes here
+        difficulty: Beginner
+        status: up
+...

@@ -66,11 +66,11 @@ def show_submission_list():
 @app.route('/submission_details', methods=['GET'])
 def show_submission_details():
     if 'job_id' not in request.args:
-        return json_error('No job id provided!')
+        return render_template('error.html', error_msg='No job id provided!')
     try:
         Job.fetch(request.args['job_id'], connection=REDIS_CONN)
     except NoSuchJobError:
-        return json_error('Job not found!')
+        return render_template('error.html', error_msg='Job not found!')
     job_id = request.args['job_id']
     return render_template('submission_details.html', submission_source=_get_submission_source(job_id),
                            submission=redis_get_submission(job_id), job_id=job_id)
@@ -89,11 +89,11 @@ def show_api_reference():
 @app.route('/status', methods=['GET'])
 def show_status():
     if 'job_id' not in request.args:
-        return json_error('No job id provided!')
+        return render_template('error.html', error_msg='No job id provided!')
     try:
         Job.fetch(request.args['job_id'], connection=REDIS_CONN)
     except NoSuchJobError:
-        return json_error('Job not found!')
+        return render_template('error.html', error_msg='Job not found!')
     return render_template('status.html', job_id=request.args['job_id'])
 
 
@@ -168,10 +168,10 @@ def change_md_to_html(md_file, default):
 @cross_origin()
 def get_submissions(page):
     if 'secret_key' not in request.args:
-        return 'Missing secret key in GET parameters!'
+        return 'Missing secret key in GET parameters!', 400
     elif request.args['secret_key'] != SECRET_KEY:
-        return 'Invalid secret key!'
-    return str(_get_submissions(int(page)))
+        return 'Invalid secret key!', 400
+    return json.dumps(_get_submissions(int(page)))
 
 
 def _get_submissions(page=1):
@@ -181,10 +181,6 @@ def _get_submissions(page=1):
 @app.route('/api/get_submission_source/<job_id>', methods=['GET'])
 @cross_origin()
 def get_submission_source(job_id):
-    if 'secret_key' not in request.args:
-        return 'Missing secret key in GET parameters!'
-    elif request.args['secret_key'] != SECRET_KEY:
-        return 'Invalid secret key!'
     return _get_submission_source(job_id)
 
 
@@ -192,10 +188,10 @@ def _get_submission_source(job_id):
     try:
         Job.fetch(job_id, connection=REDIS_CONN)
     except NoSuchJobError:
-        return 'Invalid job id!'
+        return 'Invalid job id!', 400
     source_code = redis_get_submission_source(job_id)
     if source_code is None:
-        return 'Invalid submission index!'
+        return 'Invalid submission index!', 400
     else:
         source_code = source_code.decode('utf-8')
         return source_code
@@ -250,14 +246,13 @@ def _get_problem_info(problem_id):
     problem_info_file.close()
 
     # Get problem statement (if there is one)
-    problem_statement = change_md_to_html('{}/{}/statement.md'.format(PROBLEM_INFO_PATH, problem_id),
-                                          '<p>No problem statement available.</p>')
+    problem_statement = change_md_to_html('{}/{}/statement.md'.format(PROBLEM_INFO_PATH, problem_id), '')
 
     # Get bonus (if there is any)
-    bonus = change_md_to_html('{}/{}/bonus.md'.format(PROBLEM_INFO_PATH, problem_id), 'No bonus available.')
+    bonus = change_md_to_html('{}/{}/bonus.md'.format(PROBLEM_INFO_PATH, problem_id), '')
 
     # Get hints (if there are any)
-    hints = change_md_to_html('{}/{}/hints.md'.format(PROBLEM_INFO_PATH, problem_id), 'No hints available.')
+    hints = change_md_to_html('{}/{}/hints.md'.format(PROBLEM_INFO_PATH, problem_id), '')
 
     # Return only the info that the client needs to know about the problem
     return {'id': pinfo['problem_id'], 'name': pinfo['problem_name'], 'time_limit': pinfo['time_limit'],

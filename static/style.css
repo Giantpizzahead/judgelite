@@ -197,8 +197,8 @@ h2 {
 }
 
 .submission-result-compile-error {
-    background: #ffe2e2;
-    border-color: #993333;
+    background-color: #ffe2e2 !important;
+    border-color: #993333 !important;
     color: #993333;
 }
 
@@ -244,6 +244,7 @@ h2 {
     width: 22px;
     height: 22px;
     animation: spin 0.85s linear infinite;
+    z-index: 2;
 }
 
 @keyframes spin {

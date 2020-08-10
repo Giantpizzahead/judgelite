@@ -76,14 +76,18 @@ Miscellaneous settings
 # Defaults to 1 year = 31536000 seconds.
 RESULT_TTL = os.environ.get('RESULT_TTL', 31536000)
 
+# The path to the problem_info folder.
 PROBLEM_INFO_PATH = "./sample_problem_info"
 if os.path.isdir("/problem_info"):
     PROBLEM_INFO_PATH = "/problem_info"
 PROBLEM_INFO_PATH = os.environ.get('PROBLEM_INFO_PATH', PROBLEM_INFO_PATH)
 
+# The secret key used to authenticate to JudgeLite.
 default_secret_key = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(24))
 SECRET_KEY = os.environ.get('SECRET_KEY', default_secret_key)
 
+# The page size for the submission list API call.
 PAGE_SIZE = int(os.environ.get('PAGE_SIZE', 50))
 
+# The redis connection (not changeable).
 REDIS_CONN = redis.Redis()

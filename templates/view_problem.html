@@ -17,15 +17,14 @@
     <hr>
     {{ problem.statement | safe }}
     <br>
-    {% if problem.bonus != "No bonus available." %}
+    {% if problem.bonus != "" %}
         <button id="bonus-button" onclick="toggleBonus();">Show Bonus</button>
         <div id="bonus-container" style="display: none; margin-bottom: 0;">
             {{ problem.bonus | safe }}
         </div>
-        <br>
+        <br> <br>
     {% endif %}
-    <br>
-    {% if problem.hints != "No hints available." %}
+    {% if problem.hints != "" %}
         <button id="hint-button" onclick="toggleHints();">Show Hints</button>
         <div id="hint-container" style="display: none; margin-bottom: 0;">
             {{ problem.hints | safe }}
@@ -33,14 +32,13 @@
         <br> <br>
     {% else %}
         <p>No hints available for this problem.</p>
-        <br>
     {% endif %}
     <hr>
 
     <form id="submit-form" autocomplete="on">
         <br>
         <h2>Submission Form</h2>
-        <br>
+        <p>Warning: You must be logged in to submit a solution!</p>
         <input id="problem_id" name="problem_id" type="hidden" value="{{ problem.id }}">
         <label for="username">Username:</label>
         <input id="username" name="username" type="text">
@@ -55,8 +53,10 @@
         <label for="code">Code to submit:</label>
         <input id="code" name="code" type="file">
         <br> <br>
-        <label for="run_bonus"><input id="run_bonus" name="run_bonus" type="checkbox"> Run on bonus test cases?</label>
-        <br> <br>
+        {% if problem.bonus != "" %}
+            <label for="run_bonus"><input id="run_bonus" name="run_bonus" type="checkbox"> Run on bonus test cases?</label>
+            <br> <br>
+        {% endif %}
         <button type="submit" id="submit-button" autocomplete="off">Submit!</button>
     </form>
 

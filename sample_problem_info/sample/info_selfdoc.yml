@@ -1,0 +1,63 @@
+---
+# This is a sample YAML file for a problem
+
+# The problem id must match the problem's directory name.
+# These should probably match the ones specified in the problems.yml file.
+problem_id: sample
+problem_name: A Sample Problem
+# Difficulty is optional
+difficulty: Beginner
+
+# Time limit for this problem, in seconds.
+time_limit: 2
+
+# Memory limit for this problem, in MB.
+memory_limit: 192
+
+# Scoring method can be one of the following options:
+# minimum = The minimum score out of all test cases in a subtask is used. If one test case fails in a
+#   subtask, the rest are immediately skipped (there would be no reason to continue anyways).
+# average_stop = The score for each test case is averaged out to determine the points for each subtask. The
+#   judge will stop on the first failed test in a subtask (the rest are skipped / treated with a score of 0).
+# average = The score for each test case is averaged out to determine the points for each subtask. The
+#   judge will not stop early when evaluating a subtask, but it will only run a subtask if all the subtasks
+#   it depends on got a non-zero score (at least one test case passed in each depends-on subtask).
+scoring_method: minimum
+
+# Checker can be one of the following options:
+# diff = Compares the program output with the answer using diff. Produces a 0 or 1 score.
+# custom = Not yet implemented.
+checker: diff
+
+# The maximum score that can be received by solving this question, NOT INCLUDING BONUS POINTS.
+max_score: 100
+
+# This optional setting fills in .out files if they are missing when you submit a program. It's useful for
+# automatically generating output files to test cases. This will not overwrite any existing output files.
+# MAKE SURE YOUR CODE IS CORRECT BEFORE USING THIS!!!
+# fill_missing_output: true
+
+# A list of subtasks.
+subtasks:
+  # The name specified for a subtask must match the directory name.
+  - name: 01_small
+    # The number of points assigned to a subtask.
+    score: 30
+    # The number of sample cases in this subtask (only needed if the subtask has samples).
+    # If the program does not get AC on samples, the rest of the subtask will be skipped.
+    # Using this attribute saves valuable time when people accidentally submit completely wrong programs.
+    # This only has a noticeable effect on the 'average' scoring method (but it's best to include it anyway).
+    num_samples: 1
+  - name: 02_large
+    score: 70
+    # Which subtasks need to be 'solved' (non-zero score) in order to run this one.
+    # This allows the submission system to skip unneeded subtasks, saving valuable time.
+    depends_on:
+      - 01_small
+  - name: 03_bonus
+    # Use this flag to mark a subtask as a bonus subtask.
+    is_bonus: true
+    score: 10
+    depends_on:
+      - 02_large
+...

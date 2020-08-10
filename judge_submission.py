@@ -498,7 +498,8 @@ def judge_submission(tempdir, problem_id, code_filename, code_type, username, ru
                                       'secret_key': SECRET_KEY}, timeout=10)
             if DEBUG_LOW:
                 log('Response code: ' + str(req))
-        except requests.exceptions:
+        except requests.exceptions.RequestException as e:
+            log_error(str(e))
             return verdict_error('WEBHOOK_FAIL')
 
     # Finally, return the result. :)
