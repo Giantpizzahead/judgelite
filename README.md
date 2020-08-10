@@ -4,16 +4,16 @@
 
 ### A simple, easy to setup judge for checking the correctness of code.
 
-#### Made by (and used by) <a href="http://hhsprogramming.com/">Homestead High School's Programming Club</a>.
+#### Made by (and used by) <a href="http://hhsprogramming.com/" target="_blank">Homestead High School's Programming Club</a>.
 
 ## Features
 
 * **Multiple test cases and subtasks!**
-* Bonus test cases! (less discouraging form of subtasks)
 * Variety of scoring methods (all-or-nothing, partials, stop-on-wrong, etc.)
 * Supports submissions in C++, Java, and Python 3
-* Secure code compilation and execution using <a href="https://github.com/ioi/isolate">isolate</a>
+* Secure code compilation and execution using <a href="https://github.com/ioi/isolate" target="_blank">isolate</a>
 * Extremely simple <a href="https://github.com/Giantpizzahead/judgelite/wiki/Setup-Instructions">setup</a>
+* Bonus test cases! (less discouraging form of subtasks)
 * Easy-to-use <a href="https://github.com/Giantpizzahead/judgelite/wiki/API-Reference">submission API</a>
 * Easy <a href="https://github.com/Giantpizzahead/judgelite/wiki/Creating-Problems">problem creation</a>
 * Simple administrative web interface
@@ -21,7 +21,7 @@
 
 ## Demo
 
-A live version of JudgeLite can be found at <a href="http://hhsprogramming.com/problems/">Homestead High School's Programming Club</a> website. The admin panel is also accessible <a href="http://judgelite.westus2.cloudapp.azure.com/">here</a> (although you can't actually login). Feel free to mess around with it. If you're feeling up for a challenge, see if you can solve some of the challenge problems!
+A live version of JudgeLite can be found at <a href="http://hhsprogramming.com/problems/" target="_blank">Homestead High School's Programming Club</a> website. The admin panel is also accessible <a href="http://judgelite.westus2.cloudapp.azure.com/" target="_blank">here</a> (although you can't actually login). Feel free to mess around with it. If you're feeling up for a challenge, see if you can solve some of the challenge problems!
 
 ## Setup
 
@@ -39,7 +39,7 @@ JudgeLite is designed to be used for competitive programming problems, although 
 
 There is an **API Reference page** on JudgeLite, where all the allowed API calls are showcased with examples. You can use the reference as an example on how to use the API. A more detailed Wiki page explaining the subtleties of the submission API can be found <a href="https://github.com/Giantpizzahead/judgelite/wiki/API-Reference">here</a>.
 
-In order to use JudgeLite, you'll need to first create some problems to submit to! Luckily, the file structure for creating problems is pretty easy to follow (uses <a href="https://yaml.org/">YAML</a> and <a href="https://www.markdownguide.org/">Markdown</a>). Take a look at the sample problem structure in the **sample_problem_info** directory for an example set of problems. A more detailed Wiki page about problem creation can be found <a href="https://github.com/Giantpizzahead/judgelite/wiki/Creating-Problems">here</a>.
+In order to use JudgeLite, you'll need to first create some problems to submit to! Luckily, the file structure for creating problems is pretty easy to follow (uses <a href="https://yaml.org/" target="_blank">YAML</a> and <a href="https://www.markdownguide.org/" target="_blank">Markdown</a>). Take a look at the sample problem structure in the **sample_problem_info** directory for an example set of problems. A more detailed Wiki page about problem creation can be found <a href="https://github.com/Giantpizzahead/judgelite/wiki/Creating-Problems">here</a>.
 
 ## License
 
