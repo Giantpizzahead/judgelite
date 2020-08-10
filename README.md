@@ -43,7 +43,7 @@ In order to use JudgeLite, you'll need to first create some problems to submit t
 
 ## Contributing
 
-We welcome contributions of all kinds, whether they're bug reports, feature requests, or pull requests! See the [contributing guidelines](https://github.com/Giantpizzahead/judgelite/blob/master/CONTRIBUTING.md) for more details.
+We welcome contributions of all kinds, whether they're bug reports, feature requests, or pull requests! See the [contributing guidelines](https://github.com/Giantpizzahead/judgelite/blob/master/CONTRIBUTING.md) for more details. If you'd like to get your hands dirty, try tackling one of the [open issues](https://github.com/Giantpizzahead/judgelite/issues).
 
 ## License
 
