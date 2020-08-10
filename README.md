@@ -41,9 +41,13 @@ There is an **API Reference page** on JudgeLite, where all the allowed API calls
 
 In order to use JudgeLite, you'll need to first create some problems to submit to! Luckily, the file structure for creating problems is pretty easy to follow (uses <a href="https://yaml.org/">YAML</a> and <a href="https://www.markdownguide.org/">Markdown</a>). Take a look at the sample problem structure in the **sample_problem_info** directory for an example set of problems. A more detailed Wiki page about problem creation can be found <a href="https://github.com/Giantpizzahead/judgelite/wiki/Creating-Problems">here</a>.
 
+## Contributing
+
+We welcome contributions of all kinds, whether they're bug reports, feature requests, or pull requests! See the [contributing guidelines](https://github.com/Giantpizzahead/judgelite/blob/master/CONTRIBUTING.md) for more details.
+
 ## License
 
-JudgeLite is distributed under the MIT License. This means that you are **free to customize anything you want**, as long as you distribute your work under the MIT License as well.
+JudgeLite is distributed under the [MIT License](https://github.com/Giantpizzahead/judgelite/blob/master/LICENSE). This means that you are **free to customize anything you want**, as long as you distribute your work under the MIT License as well.
 
 ## Credits
 
