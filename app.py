@@ -12,7 +12,7 @@ from rq import Queue
 from rq.job import Job
 from rq.exceptions import NoSuchJobError
 
-from logger import *
+from misc.logger import *
 from manage_redis import *
 from judge_submission import judge_submission
 

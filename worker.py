@@ -2,7 +2,7 @@
 Simple python script that launches a worker (for rq).
 """
 
-from env_vars import *
+from misc.env_vars import *
 from rq import Worker, Queue, Connection
 
 if __name__ == '__main__':

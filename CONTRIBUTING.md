@@ -24,6 +24,10 @@ These are a bit weirder to do. It probably isn't the best idea to make a pull re
 
 So for now, probably report an issue or suggest a feature first. If you want to help us solve that issue / make the feature by creating a pull request, let us know by saying that in the issue / feature report (I doubt there will ever be a case where we'll say no to a pull request, but just in case...).
 
+#### Development Environment
+
+In order to write / test code for JudgeLite, all you need to do is write the code, then build and run the Dockerfile to test the code. This will be pretty slow the first time you do it, but it will be really fast after the first builds (Docker caches layers in the build).
+
 #### Tests
 
 As a side note, we do have tests in the **tests** folder. If you do make a pull request, try to add a test for the code you write. It's not mandatory, but we wanna try to keep our codecov in the A range (to get that sweet 4.0 GPA :smile:).

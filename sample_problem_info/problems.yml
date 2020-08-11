@@ -14,6 +14,11 @@ groups:
         blurb: Echooooooooooooooo
         difficulty: Intermediate
         status: up
+      - id: sample3
+        name: Budget Fashion
+        blurb: Saving money AND water!
+        difficulty: Advanced
+        status: up
   - id: tests
     name: Test Problems
     status: up

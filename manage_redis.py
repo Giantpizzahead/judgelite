@@ -3,7 +3,7 @@ import pytz
 
 from datetime import datetime
 
-from env_vars import *
+from misc.env_vars import *
 
 
 def redis_add_submission(problem_id: str, username: str, score: float, job_id: str, source_code: str, verdict: str):

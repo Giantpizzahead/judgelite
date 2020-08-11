@@ -12,7 +12,11 @@ A single line containing a single integer: The sum of the $N$ numbers.
 
 #### CONSTRAINTS
 
-$N$ will be small... enough.
+Small subtask:
+$N = 2$
+
+Large subtask:
+$2 \leq N \leq 100{,}000$
 
 Grading method is minimum (all or nothing)!
 30 points for the small subtask, 70 points for the large subtask.

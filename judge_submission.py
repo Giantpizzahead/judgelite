@@ -11,7 +11,7 @@ import yaml
 import glob
 import requests
 
-from logger import *
+from misc.logger import *
 from manage_redis import *
 
 job: rq.job
