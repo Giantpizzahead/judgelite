@@ -205,7 +205,10 @@ def get_problem_list():
 
 def _get_problem_list():
     # Get problem list
-    problem_file = open('{}/problems.yml'.format(PROBLEM_INFO_PATH), 'r')
+    try:
+        problem_file = open('{}/problems.yml'.format(PROBLEM_INFO_PATH), 'r')
+    except OSError:
+        return {'groups': []}
     problem_data = yaml.safe_load(problem_file)
     problem_file.close()
 
