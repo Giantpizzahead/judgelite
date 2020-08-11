@@ -10,7 +10,7 @@ from time import sleep
 import io
 import pytest
 import app
-from env_vars import *
+from misc.env_vars import *
 
 valid_job_id: str
 

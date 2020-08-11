@@ -7,7 +7,7 @@ import sys
 sys.path.append('./')
 
 from judge_submission import judge_submission
-from env_vars import *
+from misc.env_vars import *
 from redis import Redis
 from rq import Queue
 from shutil import copyfile

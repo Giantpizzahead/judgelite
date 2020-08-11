@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Delete the below 2 lines once you've added the remote server location to the rsync command below.
+# Delete the below 2 lines once you've added the remote server location, along with your ssh key, to the rsync command below.
 echo "Please edit the upload script to add the location of the JudgeLite server before running this script."
 exit 1
 
@@ -17,5 +17,5 @@ find . \( -name "*.in" -o -name "*.out" \) | while read txt; do
 done
 
 echo "Uploading to JudgeLite..."
-# rsync -Pav -e "ssh -i <SSH_KEY_HERE>" problem_info/ <USERNAME@REMOTE_HOST_IP>:judgelite/problem_info
+# rsync -Pav -e "ssh -i <SSH_KEY_HERE>" problem_info/ <USERNAME@REMOTE_HOST_IP>:<PATH_TO_PROBLEM_INFO>
 echo "Upload complete!"

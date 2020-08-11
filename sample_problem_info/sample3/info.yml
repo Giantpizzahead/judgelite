@@ -1,0 +1,22 @@
+---
+problem_id: sample3
+problem_name: Budget Fashion
+difficulty: Advanced
+time_limit: 1
+memory_limit: 128
+scoring_method: average_stop
+checker: diff
+max_score: 100
+fill_missing_output: false
+
+subtasks:
+  - name: 01_main
+    score: 100
+    num_samples: 1
+  - name: 02_bonus
+    is_bonus: true
+    score: 10
+    num_samples: 1
+    depends_on:
+      - 01_main
+...

@@ -6,7 +6,7 @@ since that's the fastest one to compile and run.
 import sys
 sys.path.append('./')
 
-from env_vars import *
+from misc.env_vars import *
 from judge_submission import judge_submission
 from redis import Redis
 from rq import Queue
@@ -15,7 +15,6 @@ from os.path import isfile
 import re
 import tempfile
 import pytest
-import subprocess
 
 q = Queue(is_async=False, connection=Redis())
 

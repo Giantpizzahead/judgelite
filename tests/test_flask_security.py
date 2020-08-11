@@ -10,7 +10,7 @@ sys.path.append('./')
 import io
 import pytest
 import app
-from env_vars import *
+from misc.env_vars import *
 
 
 @pytest.fixture

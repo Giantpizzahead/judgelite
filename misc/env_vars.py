@@ -50,9 +50,6 @@ MAX_OUTPUT_SIZE = int(os.environ.get('MAX_OUTPUT_SIZE', 16))
 # Number of seconds to add to the wall time threshold (used to kill a program that runs for too long).
 # Rounded to 1 decimal place.
 WALL_TIME_EXTENSION = round(float(os.environ.get('WALL_TIME_EXTENSION', 1.5)), 1)
-# The amount of seconds to sleep in between each program status check. Too many checks may slow down the program.
-# Rounded to 2 decimal places.
-CHECK_INTERVAL = round(float(os.environ.get('CHECK_INTERVAL', 0.2)), 2)
 
 """
 These settings deal with the web server (gunicorn).
