@@ -198,14 +198,13 @@ def run_testcase(isolate_dir, input_path, answer_path, subtask_name, problem_inf
     # Setup arguments for isolate
     code_args = None
     if code_type == 'java':
-        time_limit *= 1.5
+        time_limit *= JAVA_TIME_MULTIPLIER
         code_args = ['/usr/lib/jvm/java-14-openjdk-amd64/bin/java',
                      '-Xmx' + str(mem_limit) + 'M', '-Xss' + str(mem_limit // 2) + 'M', compiled_filename]
     elif code_type == 'cpp':
-        time_limit *= 1
         code_args = ['./' + compiled_filename]
     elif code_type == 'python':
-        time_limit *= 2
+        time_limit *= PYTHON_TIME_MULTIPLIER
         code_args = ['/bin/python3', compiled_filename]
     isolate_args = ['misc/isolate', '--run', '--cg', '--processes=50', '--silent', '--time=' + str(time_limit),
                     '--wall-time=' + str(time_limit + WALL_TIME_EXTENSION), '--cg-mem=' + str(mem_limit * 1024),

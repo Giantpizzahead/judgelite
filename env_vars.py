@@ -5,15 +5,6 @@ import string
 
 
 """
-This setting allows you to create a webhook to another website. JudgeLite will send a POST request to the
-specified URL when a submission is processed. The data sent will be JSON data, which will look like this:
-{'problem_id': str, 'username': str, 'score': float, 'job_id': str}
-You can use this however you want (perhaps to integrate into your own scoreboard).
-"""
-WEBHOOK_URL = os.environ.get('WEBHOOK_URL', None)
-
-
-"""
 The following settings deal with debug outputs.
 """
 # Enables / disables debug outputs.
@@ -44,12 +35,16 @@ MAX_COMPILE_SIZE = int(os.environ.get('MAX_COMPILE_SIZE', 16))
 These settings deal with the actual running of the compiled program.
 Most of these should be left at default, unless the machine you're running this on has a weak CPU or low RAM.
 """
-# Maximum possible time limit for programs (in seconds). Java gets x1.5, Python gets x2. Rounded to 1 decimal place.
+# Maximum possible time limit for programs (in seconds). Rounded to 1 decimal place.
 # Note that the actual time limit for a program is set by the info.yml file for each individual problem.
 MAX_TIME_LIMIT = round(float(os.environ.get('MAX_TIME_LIMIT', 5)), 1)
 # Maximum possible memory limit for programs (in MB). Must be an integer.
 # Note that the actual memory limit for a program is set by the info.yml file for each individual problem.
 MAX_MEMORY_LIMIT = int(os.environ.get('MAX_MEMORY_LIMIT', 256))
+# Time limit adjustment for Java (base time limit will be multiplied by this). Rounded to 1 decimal place.
+JAVA_TIME_MULTIPLIER = round(float(os.environ.get('JAVA_TIME_MULTIPLIER', 1.5)), 1)
+# Time limit adjustment for Python (base time limit will be multiplied by this). Rounded to 1 decimal place.
+PYTHON_TIME_MULTIPLIER = round(float(os.environ.get('PYTHON_TIME_MULTIPLIER', 2)), 1)
 # Max file size that the program can create (including stdout and stderr) in MB. Must be an integer.
 MAX_OUTPUT_SIZE = int(os.environ.get('MAX_OUTPUT_SIZE', 16))
 # Number of seconds to add to the wall time threshold (used to kill a program that runs for too long).
@@ -72,22 +67,20 @@ MAX_CODE_SIZE = int(os.environ.get('MAX_CODE_SIZE', 256))
 """
 Miscellaneous settings
 """
+# The webhook URL (a POST request will be sent here after processing a submission).
+WEBHOOK_URL = os.environ.get('WEBHOOK_URL', None)
 # How long to keep the results of jobs (in seconds). Applies to both failed and successful jobs.
-# Defaults to 1 year = 31536000 seconds.
-RESULT_TTL = os.environ.get('RESULT_TTL', 31536000)
-
+# Defaults to basically forever.
+RESULT_TTL = os.environ.get('RESULT_TTL', 2000000000)
 # The path to the problem_info folder.
 PROBLEM_INFO_PATH = "./sample_problem_info"
 if os.path.isdir("/problem_info"):
     PROBLEM_INFO_PATH = "/problem_info"
 PROBLEM_INFO_PATH = os.environ.get('PROBLEM_INFO_PATH', PROBLEM_INFO_PATH)
-
 # The secret key used to authenticate to JudgeLite.
 default_secret_key = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(24))
 SECRET_KEY = os.environ.get('SECRET_KEY', default_secret_key)
-
 # The page size for the submission list API call.
 PAGE_SIZE = int(os.environ.get('PAGE_SIZE', 50))
-
 # The redis connection (not changeable).
 REDIS_CONN = redis.Redis()

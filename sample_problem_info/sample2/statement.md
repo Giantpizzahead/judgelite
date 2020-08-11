@@ -3,7 +3,7 @@ I like to echo. Do you like to echo?
 
 #### INPUT FORMAT
 
-Something to echo, consisting of only alphanumeric characters, possibly separated by a single space (no newlines).
+Something to echo, consisting of only alphanumeric characters, possibly separated by a bunch of single spaces. There will be exactly one newline (at the end of the input).
 
 #### OUTPUT FORMAT
 

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+SECRET_KEY="default_change_this"
+
 if [ "$(docker ps -q -a -f name=judgelite)" ]; then
   echo "Stopping existing JudgeLite docker container..."
   sudo docker rm -f judgelite
@@ -15,6 +17,7 @@ echo "Starting JudgeLite docker container..."
 sudo docker run --name judgelite --privileged -dit \
   -p 80:80 \
   -e DEBUG=0 -e DEBUG_LOW=0 -e DEBUG_LOWEST=0 -e PROGRAM_OUTPUT=0 \
+  -e SECRET_KEY=$SECRET_KEY \
   -v $PWD/problem_info:/problem_info \
   -v $PWD/redis_db:/redis_db \
   giantpizzahead/judgelite:version-1.0
