@@ -189,6 +189,7 @@ h2 {
 #submission-result-box {
     position: relative;
     border: 1px solid black;
+    border-radius: 16px;
     padding: 10px;
     margin: 20px;
     font-weight: bold;
@@ -209,6 +210,7 @@ h2 {
     width: 0%;
     height: 100%;
     background-color: #f4f4f4;
+    border-radius: 16px;
     z-index: 1;
     transition: width 0.6s ease;
 }
@@ -271,6 +273,7 @@ h2 {
     position: relative;
     display: inline-block;
     border: 1px solid;
+    border-radius: 6px;
     box-shadow: 0.2em 0.2em 0 0 rgba(15, 28, 63, 0.125);
     font-family: Arial;
     vertical-align: top;

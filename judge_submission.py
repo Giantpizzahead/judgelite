@@ -479,27 +479,28 @@ def judge_submission(tempdir, problem_id, code_filename, code_type, username, ru
     job.meta['status'] = 'done'
     job.meta['final_score'] = final_score
     job.save_meta()
-    
-    # Add submission result to Redis database
-    with open(isolate_dir + '/' + code_filename, 'r') as fcode:
-        source_code = fcode.read()
-        redis_add_submission(problem_info['problem_id'], username, final_score, job.get_id(),
-                             source_code, final_verdict)
 
-    # Send POST request to webhook URL
-    if WEBHOOK_URL is not None:
-        try:
-            if DEBUG_LOW:
-                log('Sending POST request to ' + WEBHOOK_URL)
-            req = requests.post(WEBHOOK_URL, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246'},
-                                data={'problem_id': problem_info['problem_id'], 'username': username,
-                                      'score': final_score, 'job_id': job.get_id(),
-                                      'secret_key': SECRET_KEY}, timeout=10)
-            if DEBUG_LOW:
-                log('Response code: ' + str(req))
-        except requests.exceptions.RequestException as e:
-            log_error(str(e))
-            return verdict_error('WEBHOOK_FAIL')
+    if username != "DO_NOT_TRACK":
+        # Add submission result to Redis database
+        with open(isolate_dir + '/' + code_filename, 'r') as fcode:
+            source_code = fcode.read()
+            redis_add_submission(problem_info['problem_id'], username, final_score, job.get_id(),
+                                 source_code, final_verdict)
+
+        # Send POST request to webhook URL
+        if WEBHOOK_URL is not None:
+            try:
+                if DEBUG_LOW:
+                    log('Sending POST request to ' + WEBHOOK_URL)
+                req = requests.post(WEBHOOK_URL, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246'},
+                                    data={'problem_id': problem_info['problem_id'], 'username': username,
+                                          'score': final_score, 'verdict': final_verdict, 'job_id': job.get_id(),
+                                          'secret_key': SECRET_KEY}, timeout=10)
+                if DEBUG_LOW:
+                    log('Response code: ' + str(req))
+            except requests.exceptions.RequestException as e:
+                log_error(str(e))
+                return verdict_error('WEBHOOK_FAIL')
 
     # Finally, return the result. :)
     isolate_cleanup()

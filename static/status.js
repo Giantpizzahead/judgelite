@@ -118,7 +118,7 @@ function updateResults(resp) {
         document.querySelector("#submission-result-box .test-results-box").innerText = resp["error"];
         return false;
     } else if (resp["status"] == "internal_error") {
-        statusText.innerHTML = "Uh-oh! An internal error occured. :(";
+        statusText.innerHTML = "Uh-oh! An internal error occurred. :(";
         document.querySelector("#submission-result-box").classList.add("submission-result-compile-error");
         document.querySelector("#submission-result-box .test-results-box").innerText = "Error code: " + resp["error"];
         return false;
