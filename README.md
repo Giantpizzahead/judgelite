@@ -10,6 +10,7 @@
 
 * **Multiple test cases and subtasks!**
 * Variety of scoring methods (all-or-nothing, partials, stop-on-wrong, etc.)
+* Support for <a href="https://github.com/Giantpizzahead/judgelite/wiki/Custom-Checkers">custom checkers</a> written in all 3 languages shown below
 * Supports submissions in C++, Java, and Python 3
 * Secure code compilation and execution using <a href="https://github.com/ioi/isolate">isolate</a>
 * Extremely simple <a href="https://github.com/Giantpizzahead/judgelite/wiki/Setup-Instructions">setup</a>
@@ -17,7 +18,7 @@
 * Easy-to-use <a href="https://github.com/Giantpizzahead/judgelite/wiki/API-Reference">submission API</a>
 * Easy <a href="https://github.com/Giantpizzahead/judgelite/wiki/Creating-Problems">problem creation</a>
 * Simple administrative web interface
-* Supports interactive problems and custom checkers (WIP)
+* Supports interactive problems (WIP)
 
 ## Demo
 
