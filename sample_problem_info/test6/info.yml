@@ -1,0 +1,16 @@
+---
+problem_id: test6
+problem_name: Favorite Number
+difficulty: Beginner
+time_limit: 0.5
+memory_limit: 64
+scoring_method: average
+checker: custom
+max_score: 100
+fill_missing_output: false
+
+subtasks:
+  - name: main
+    score: 100
+    num_samples: 1
+...

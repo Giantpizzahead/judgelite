@@ -97,6 +97,25 @@ def isolate_init(tempdir: str, problem_folder: str, code_filename: str) -> [str,
     return isolate_loc
 
 
+def isolate_init_checker(isolate_dir: str, problem_folder : str) -> bool:
+    """Moves the custom checker into the isolate sandbox.
+    Assumes the checker is one of checker.cpp, checker.java, or checker.py in the main folder.
+    :return: Whether or not the checker initialization was successful."""
+    compile_result: (bool, str)
+    if os.path.isfile(problem_folder + '/checker.cpp'):
+        shutil.copy2(problem_folder + '/checker.cpp', isolate_dir + '/checker.cpp')
+        compile_result = compile_source_code(isolate_dir, 'checker.cpp', 'cpp')
+    elif os.path.isfile(problem_folder + '/checker.java'):
+        shutil.copy2(problem_folder + '/checker.java', isolate_dir + '/checker.java')
+        compile_result = compile_source_code(isolate_dir, 'checker.java', 'java')
+    elif os.path.isfile(problem_folder + '/checker.py'):
+        shutil.copy2(problem_folder + '/checker.py', isolate_dir + '/checker.py')
+        compile_result = compile_source_code(isolate_dir, 'checker.py', 'python')
+    else:
+        # Checker missing
+        return False
+    return compile_result[0]
+
 def only_copy_input(src: str, dest: str) -> None:
     if src[-3:] == '.in':
         shutil.copy2(src, dest)
@@ -107,7 +126,7 @@ def isolate_cleanup() -> None:
     subprocess.run(['misc/isolate', '--cleanup', '--cg'])
 
 
-def compile_submission(isolate_dir: str, code_filename: str, code_type: str) -> (bool, str):
+def compile_source_code(isolate_dir: str, code_filename: str, code_type: str) -> (bool, str):
     """Compiles a submission in the isolate directory.
 
     :param isolate_dir: The location of the isolate sandbox.
@@ -123,19 +142,25 @@ def compile_submission(isolate_dir: str, code_filename: str, code_type: str) -> 
     if code_type == 'java':
         compile_args = ['/usr/lib/jvm/java-14-openjdk-amd64/bin/javac', code_filename]
     elif code_type == 'cpp':
-        compiled_filename = 'code'
-        compile_args = ['/usr/bin/g++', '-B', '/usr/bin', '-std=c++17', '-O2', '-o', 'code', code_filename]
+        if code_filename == 'checker.cpp':
+            compiled_filename = 'checker'
+        else:
+            compiled_filename = 'code'
+        compile_args = ['/usr/bin/g++', '-B', '/usr/bin', '-std=c++17', '-O2', '-o', compiled_filename, code_filename]
     elif code_type == 'python':
         # Add two lines at the beginning to allow for deep recursion
-        compiled_filename = 'code.new.py'
+        if code_filename == 'checker.py':
+            compiled_filename = 'checker.new.py'
+        else:
+            compiled_filename = 'code.new.py'
         fcode_old = open(isolate_dir + '/' + code_filename, 'r')
-        fcode_new = open(isolate_dir + '/' + 'code.new.py', 'w')
+        fcode_new = open(isolate_dir + '/' + compiled_filename, 'w')
         fcode_new.write('import sys\n')
         fcode_new.write('sys.setrecursionlimit(99999999)\n')
         fcode_new.write(fcode_old.read())
         fcode_old.close()
         fcode_new.close()
-        compile_args = ['/bin/python3', '-m', 'pylint', '--errors-only', 'code.new.py']
+        compile_args = ['/bin/python3', '-m', 'pylint', '--errors-only', compiled_filename]
 
     isolate_args = ['misc/isolate', '--run', '--cg', '--processes=50', '--silent',
                     '--time=' + str(COMPILE_TIME_LIMIT), '--wall-time=' + str(COMPILE_TIME_LIMIT),
@@ -168,28 +193,80 @@ def compile_submission(isolate_dir: str, code_filename: str, code_type: str) -> 
     return True, compiled_filename
 
 
-def check_results(output_path: str, answer_path: str, subtask_name: str, checker: str) -> float:
+def check_results(isolate_dir, input_path: str, answer_path: str, checker: str, time_limit: int, mem_limit: int):
     """Checks the answer of the program using the specified checker.
 
-    :param output_path: The path to the program's output file.
+    :param isolate_dir: The path to the isolate directory.
+    :param input_path: The path to the input file.
     :param answer_path: The path to the answer file (the correct output).
-    :param subtask_name: The name of the subtask being graded. Passed to a custom checker as extra info.
     :param checker: The checker to use.
+    :param time_limit: The time limit (in seconds).
+    :param mem_limit: The memory limit (in MB).
     :return: The score that the program got (a float between 0 and 1).
     """
     if checker == 'diff':
         # Diff the results, ignoring whitespace issues and carriage returns
         diff_result = subprocess.run(['diff', '--ignore-trailing-space', '--strip-trailing-cr',
-                                      output_path, answer_path], stdout=subprocess.DEVNULL)
+                                      isolate_dir + '/output.out.txt', answer_path], stdout=subprocess.DEVNULL)
         if diff_result.returncode != 0:
             return 0
         else:
             return 1
     elif checker == 'custom':
-        log('Would now call custom checker with subtask name ' + subtask_name)
-        return 0
+        # Copy answer file into isolate sandbox
+        shutil.copy2(answer_path, isolate_dir + '/answer.ans.txt')
+        # Find custom checker
+        code_args = None
+        if os.path.isfile(isolate_dir + '/checker.cpp'):
+            code_args = ['./checker']
+        elif os.path.isfile(isolate_dir + '/checker.java'):
+            time_limit *= JAVA_TIME_MULTIPLIER
+            code_args = ['/usr/lib/jvm/java-14-openjdk-amd64/bin/java',
+                         '-Xmx' + str(mem_limit) + 'M', '-Xss' + str(mem_limit // 2) + 'M', 'checker']
+        elif os.path.isfile(isolate_dir + '/checker.py'):
+            time_limit *= PYTHON_TIME_MULTIPLIER
+            code_args = ['/bin/python3', 'checker.new.py']
+        process = run_with_isolate(isolate_dir, 'output.out.txt', 'checker.check.txt', 'error.err.txt',
+                                   time_limit, mem_limit, code_args + [input_path, 'answer.ans.txt'])
+
+        # Was the answer correct?
+        if process.returncode != 0:
+            # Assume wrong answer since the checker failed
+            if DEBUG_LOWEST:
+                log('Checker did not exit correctly, assuming 0 score')
+            return 0
+
+        # Return the checker's score
+        with open(isolate_dir + '/checker.check.txt', 'r') as result:
+            raw_line = result.readline()
+            score = float(raw_line) if '.' in raw_line else int(raw_line)
+            if DEBUG_LOWEST:
+                log('Checker score is ' + str(score))
+            return score
     else:
         log_error(str(checker) + ' is not a valid checker!')
+
+
+def run_with_isolate(isolate_dir, input_path, output_path, error_path, time_limit, mem_limit, code_args):
+    """Runs a given program (must already be compiled) in the isolate sandbox.
+
+    :param isolate_dir: The location of the isolate sandbox.
+    :param input_path: This file will be redirected to the program's stdin. (Relative to isolate_dir)
+    :param output_path: The program's stdout will be redirected to this file. (Relative to isolate_dir)
+    :param error_path: The program's stderr will be redirected to this file. (Relative to isolate_dir)
+    :param time_limit: The time limit of the program (in seconds).
+    :param mem_limit: The memory limit of the program (in MB).
+    :param code_args: The command / arguments used to run the program."""
+    # Setup arguments for isolate
+    isolate_args = ['misc/isolate', '--run', '--cg', '--processes=50', '--silent', '--time=' + str(time_limit),
+                    '--wall-time=' + str(time_limit + WALL_TIME_EXTENSION), '--cg-mem=' + str(mem_limit * 1024),
+                    '--chdir=/box', '--stdin=' + input_path, '--stdout=' + output_path, '--stderr=' + error_path,
+                    '--meta=' + isolate_dir + '/../meta.info.txt', '--fsize=' + str(MAX_OUTPUT_SIZE * 1024), '--']
+    if DEBUG_LOWEST:
+        log('$' + ' '.join(isolate_args + code_args))
+
+    # Run isolate
+    return subprocess.run(isolate_args + code_args)
 
 
 def run_testcase(isolate_dir, input_path, answer_path, subtask_name, problem_info, compiled_filename, code_type):
@@ -206,15 +283,9 @@ def run_testcase(isolate_dir, input_path, answer_path, subtask_name, problem_inf
     elif code_type == 'python':
         time_limit *= PYTHON_TIME_MULTIPLIER
         code_args = ['/bin/python3', compiled_filename]
-    isolate_args = ['misc/isolate', '--run', '--cg', '--processes=50', '--silent', '--time=' + str(time_limit),
-                    '--wall-time=' + str(time_limit + WALL_TIME_EXTENSION), '--cg-mem=' + str(mem_limit * 1024),
-                    '--chdir=/box', '--stdin=' + input_path, '--stdout=output.out.txt', '--stderr=error.err.txt',
-                    '--meta=' + isolate_dir + '/../meta.info.txt', '--fsize=' + str(MAX_OUTPUT_SIZE * 1024), '--']
-    if DEBUG_LOWEST:
-        log('$' + ' '.join(isolate_args + code_args))
-
     # Run isolate
-    process = subprocess.run(isolate_args + code_args)
+    process = run_with_isolate(isolate_dir, input_path, 'output.out.txt', 'error.err.txt', time_limit, mem_limit, code_args)
+    # process = subprocess.run(isolate_args + code_args)
 
     # Process results
     fmeta = open(isolate_dir + '/../meta.info.txt', 'r')
@@ -234,7 +305,7 @@ def run_testcase(isolate_dir, input_path, answer_path, subtask_name, problem_inf
 
     if DEBUG_LOWEST:
         # Check the results early to see if they are correct
-        result = check_results(isolate_dir + '/output.out.txt', answer_path, subtask_name, problem_info['checker'])
+        result = check_results(isolate_dir, input_path, answer_path, problem_info['checker'], time_limit, mem_limit)
         log('Answer would get ' + str(result) + ' score')
 
     # Did the program TLE?
@@ -265,7 +336,7 @@ def run_testcase(isolate_dir, input_path, answer_path, subtask_name, problem_inf
             shutil.copy(isolate_dir + '/output.out.txt', answer_path)
         else:
             log_error('Missing answer file ' + str(answer_path) + '!!!')
-    final_score = check_results(isolate_dir + '/output.out.txt', answer_path, subtask_name, problem_info['checker'])
+    final_score = check_results(isolate_dir, input_path, answer_path, problem_info['checker'], time_limit, mem_limit)
     if final_score == 0:
         return verdict_test(isolate_dir, 'WA', final_score, time, memory)
     # Anything that is not 0 means a correct answer! :D
@@ -305,7 +376,11 @@ def run_subtask(isolate_dir, problem_info, problem_folder, subtask_info, compile
         # Update job meta
         if problem_info['scoring_method'] in ['average', 'average_stop']:
             job.meta['score'][subtask_i] = score_sum / len(test_inputs) * subtask_info['score']
-        job.meta['subtasks'][subtask_i][test_i][0] = run_verdict['verdict']
+        if run_verdict['verdict'] == 'AC' and type(run_verdict['score']) == float:
+            # Show partials
+            job.meta['subtasks'][subtask_i][test_i][0] = '{:.2f}'.format(run_verdict['score'])
+        else:
+            job.meta['subtasks'][subtask_i][test_i][0] = run_verdict['verdict']
         job.meta['subtasks'][subtask_i][test_i][1] = run_verdict['time']
         job.meta['subtasks'][subtask_i][test_i][2] = run_verdict['memory']
         job.save_meta()
@@ -397,12 +472,21 @@ def judge_submission(tempdir, problem_id, code_filename, code_type, username, ru
     # Compile the code file
     if DEBUG_LOW:
         log('Compiling ' + code_filename)
-    compile_result = compile_submission(isolate_dir, code_filename, code_type)
+    compile_result = compile_source_code(isolate_dir, code_filename, code_type)
     if not compile_result[0]:
         # Compile error
         isolate_cleanup()
         return verdict_compile_error('CE', 0, problem_info['max_score'], compile_result[1])
     compiled_filename = compile_result[1]
+
+    # If using custom checker, move the checker into the sandbox / compile it
+    if problem_info['checker'] == 'custom':
+        if DEBUG_LOW:
+            log('Compiling checker')
+        init_successful = isolate_init_checker(isolate_dir, problem_folder)
+        if not init_successful:
+            # Error
+            return verdict_error('CHECKER_FAIL')
 
     # Run problem subtasks
     test_num = 1
