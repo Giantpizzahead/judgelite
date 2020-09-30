@@ -38,4 +38,7 @@ groups:
       - id: test5
         name: test5
         status: up
+      - id: test6
+        name: test6
+        status: up
 ...

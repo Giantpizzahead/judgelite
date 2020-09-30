@@ -285,6 +285,12 @@ h2 {
     color: #339933;
 }
 
+#submission-result-box .test-result-small {
+    height: 2.375em;
+	width: 2.375em;
+	border-radius: 3px;
+}
+
 #submission-result-box .test-result-fail {
     background: #ffe2e2;
     border-color: #993333;
@@ -308,6 +314,20 @@ h2 {
     text-align: center;
 }
 
+#submission-result-box .test-result-small .test-verdict {
+    font-size: 1.4em;
+}
+
+#submission-result-box .test-small-verdict {
+    font-size: 1.5em;
+    margin-top: 0.25em;
+}
+
+#submission-result-box .test-result-small .test-small-verdict {
+    font-size: 0.9em;
+    margin-top: 0.15em;
+}
+
 #submission-result-box .test-number {
     bottom: 2px;
     left: 3px;
@@ -317,12 +337,20 @@ h2 {
     text-align: left;
 }
 
+#submission-result-box .test-result-small .test-number {
+    font-size: 0.7em;
+}
+
 #submission-result-box .test-info {
     bottom: 2px;
     right: 3px;
     position: absolute;
     font-size: 0.675em;
     text-align: right;
+}
+
+#submission-result-box .test-result-small .test-info {
+    display: none;
 }
 
 @media only screen and (max-width: 570px), screen and (max-height: 730px) {

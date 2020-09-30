@@ -9,6 +9,7 @@ var xhr;
 var xmlHttpTimeout;
 var numDelay = 0;
 var numFailed = 1;
+var numTestCases = 0;
 function runInterval() {
     xmlHttpTimeout = setTimeout(handleRequestError, 5000);
     xhr = new XMLHttpRequest();
@@ -67,6 +68,8 @@ function displayTestResult(verdict, subtask, test, isBonus, time=0, memory=0) {
     if (subtask != 0) testNumber.innerText = subtask + "-" + test;
     else testNumber.innerText = test;
 
+    if (numTestCases > 20) testResult.classList.add("test-result-small");
+
     if (verdict == "AC") {
         tooltip.setAttribute("title", "Correct answer");
         testResult.classList.add(isBonus ? "test-result-bonus" : "test-result-pass");
@@ -77,7 +80,7 @@ function displayTestResult(verdict, subtask, test, isBonus, time=0, memory=0) {
         tooltip.setAttribute("title", "Test skipped");
         testResult.classList.add(isBonus ? "test-result-skipped" : "test-result-fail");
         testVerdict.innerText = "-";
-    } else {
+    } else if (verdict == "WA" || verdict == "TLE" || verdict == "RE") {
         testResult.classList.add(isBonus ? "test-result-skipped" : "test-result-fail");
         if (verdict == "WA") {
             tooltip.setAttribute("title", "Wrong answer");
@@ -89,6 +92,13 @@ function displayTestResult(verdict, subtask, test, isBonus, time=0, memory=0) {
             tooltip.setAttribute("title", "Runtime error or memory limit exceeded");
             testVerdict.innerText = "!";
         }
+    } else {
+        tooltip.setAttribute("title", "Correct answer");
+        testResult.classList.add(isBonus ? "test-result-bonus" : "test-result-pass");
+        testVerdict.classList.add("test-small-verdict");
+        testVerdict.innerText = verdict;
+        testMemory.innerText = memory + "mb";
+        testTime.innerText = time + "ms";
     }
 
     // Add the clone to the page
@@ -132,15 +142,19 @@ function updateResults(resp) {
         // Special case: Make the test output prettier by removing subtask numbers
         printSubtasks = false;
     }
+    numTestCases = 0;
+    for (let i = 0; i < resp["subtasks"].length; i++) {
+        numTestCases += resp["subtasks"][i].length;
+    }
     for (let i = 0; i < resp["subtasks"].length; i++) {
         let subtask = resp["subtasks"][i];
         let subtaskNum = i+1;
         let subtaskIsBonus = resp["is_bonus"][i] == 1;
-        let atLeast1AC = false;
+        let atLeast1Verdict = false;
         for (let j = 0; j < subtask.length; j++) {
             let test = subtask[j];
-            if (test[0] == "AC") {
-                atLeast1AC = true;
+            if (test[0] != "SK") {
+                atLeast1Verdict = true;
                 break;
             }
         }
@@ -148,7 +162,7 @@ function updateResults(resp) {
             let test = subtask[j];
             if (test[0] != "--") {
                 testsCompleted++;
-                if (!subtaskIsBonus || atLeast1AC) {
+                if (!subtaskIsBonus || atLeast1Verdict) {
                     displayTestResult(test[0], printSubtasks ? i+1 : 0, printSubtasks ? j+1 : testsTotal+j+1, subtaskIsBonus, test[1], test[2].toFixed(1));
                 }
             }
