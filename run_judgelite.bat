@@ -6,7 +6,7 @@ echo Stopping existing JudgeLite docker container (if it exists)...
 docker rm -f judgelite
 
 echo Pulling latest JudgeLite docker image from Docker Hub...
-docker pull giantpizzahead/judgelite:version-1.0
+docker pull giantpizzahead/judgelite:version-1.1.1
 
 echo Starting JudgeLite docker container...
 docker run --name judgelite --privileged -dit^
@@ -15,7 +15,7 @@ docker run --name judgelite --privileged -dit^
   -e SECRET_KEY=%SECRET_KEY%^
   -v %cd%/problem_info:/problem_info^
   -v %cd%/redis_db:/redis_db^
-  giantpizzahead/judgelite:version-1.0
+  giantpizzahead/judgelite:version-1.1.1
 
 echo Sending logs to judgelite.log...
 echo "------------------JUDGELITE STARTED------------------" >> judgelite.log

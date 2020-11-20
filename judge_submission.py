@@ -283,6 +283,13 @@ def run_testcase(isolate_dir, input_path, answer_path, subtask_name, problem_inf
     elif code_type == 'python':
         time_limit *= PYTHON_TIME_MULTIPLIER
         code_args = ['/bin/python3', compiled_filename]
+    # Move input file if file IO is being used (and clear stdin)
+    if 'file_io' in problem_info:
+        if DEBUG_LOWEST:
+            log('Moving input file from ' + isolate_dir + '/' + input_path + ' to ' + isolate_dir + '/' + problem_info['file_io'] + '.in')
+        shutil.move(isolate_dir + '/' + input_path, isolate_dir + '/' + problem_info['file_io'] + '.in')
+        with open(isolate_dir + '/' + input_path, 'w') as fout:
+            fout.write('\n')
     # Run isolate
     process = run_with_isolate(isolate_dir, input_path, 'output.out.txt', 'error.err.txt', time_limit, mem_limit, code_args)
     # process = subprocess.run(isolate_args + code_args)
@@ -303,11 +310,6 @@ def run_testcase(isolate_dir, input_path, answer_path, subtask_name, problem_inf
     memory = round(int(meta_dict['cg-mem']) / 1024, 1)
     memory = min(memory, mem_limit)
 
-    if DEBUG_LOWEST:
-        # Check the results early to see if they are correct
-        result = check_results(isolate_dir, input_path, answer_path, problem_info['checker'], time_limit, mem_limit)
-        log('Answer would get ' + str(result) + ' score')
-
     # Did the program TLE?
     if time >= time_limit or wall_time >= time_limit + WALL_TIME_EXTENSION:
         return verdict_test(isolate_dir, 'TLE', 0, time_limit, memory)
@@ -327,6 +329,15 @@ def run_testcase(isolate_dir, input_path, answer_path, subtask_name, problem_inf
             ferror.close()
             return verdict_test(isolate_dir, 'RE', 0, time, memory)
 
+    # Move output file if file IO is being used
+    if 'file_io' in problem_info:
+        if not os.path.isfile(isolate_dir + '/' + problem_info['file_io'] + '.out'):
+            if DEBUG_LOWEST:
+                log('Output file ' + isolate_dir + '/' + problem_info['file_io'] + '.out missing: Treating as RE')
+            return verdict_test(isolate_dir, 'RE', 0, time, memory)
+        if DEBUG_LOWEST:
+            log('Moving ' + isolate_dir + '/' + problem_info['file_io'] + '.out to expected output file')
+        shutil.move(isolate_dir + '/' + problem_info['file_io'] + '.out', isolate_dir + '/output.out.txt')
     # Check results, and return a verdict
     if not os.path.isfile(answer_path):
         if 'fill_missing_output' in problem_info and problem_info['fill_missing_output']:
