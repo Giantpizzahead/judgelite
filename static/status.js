@@ -80,7 +80,7 @@ function displayTestResult(verdict, subtask, test, isBonus, time=0, memory=0) {
         tooltip.setAttribute("title", "Test skipped");
         testResult.classList.add(isBonus ? "test-result-skipped" : "test-result-fail");
         testVerdict.innerText = "-";
-    } else if (verdict == "WA" || verdict == "TLE" || verdict == "RE") {
+    } else if (verdict == "WA" || verdict == "TLE" || verdict == "RE" || verdict == "MLE") {
         testResult.classList.add(isBonus ? "test-result-skipped" : "test-result-fail");
         if (verdict == "WA") {
             tooltip.setAttribute("title", "Wrong answer");
