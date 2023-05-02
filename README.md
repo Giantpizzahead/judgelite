@@ -4,7 +4,7 @@
 
 ### A simple, easy to setup judge for checking the correctness of code.
 
-#### Made by (and used by) <a href="http://hhsprogramming.com/">Homestead High School's Programming Club</a>.
+#### Made by (and used by) <a href="http://hhsproclub.com/">Homestead High School's Programming Club</a>.
 
 ## Features
 
@@ -22,7 +22,22 @@
 
 ## Demo
 
-A live version of JudgeLite can be found at <a href="http://hhsprogramming.com/problems/">Homestead High School's Programming Club</a> website. The admin panel is also accessible <a href="http://judgelite.westus2.cloudapp.azure.com/">here</a> (although you can't actually login). Feel free to mess around with it. If you're feeling up for a challenge, see if you can solve some of the challenge problems!
+[Video demo](https://www.youtube.com/watch?v=m7hOYGyG4y8)
+
+![Home page](https://i.gyazo.com/2c9bc77860fcc3dd1c8fc4078810822f.png)
+*Home page*
+
+![Submission list](https://i.gyazo.com/b1b359b488434c1aa10f14c52b0cd377.png)
+*Submission list*
+
+![Submission details](https://i.gyazo.com/6e91e6ecadbb67a04458a504d1e89378.png)
+*Submission details*
+
+![Problem statement](https://i.gyazo.com/6d408b6e74cd6e0e945b3506650fa35a.png)
+*Problem statement*
+
+![Subtasks! And lots of test cases...](https://i.gyazo.com/1a454eab33f79ef38748ef16b5b93f1a.png)
+*Subtasks! And lots of test cases...*
 
 ## Setup
 
